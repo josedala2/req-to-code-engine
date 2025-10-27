@@ -27,33 +27,31 @@ const generateQRCode = async (text: string): Promise<string> => {
   }
 };
 
-// Função para desenhar borda de selo (formato stamp)
+// Função para desenhar borda de selo (formato stamp) - Círculos perfeitos
 const drawStampBorder = (doc: jsPDF, x: number, y: number, width: number, height: number) => {
-  const notchSize = 2; // Tamanho dos "dentes" do selo
-  const notchSpacing = 3; // Espaçamento entre os dentes
+  const notchRadius = 1.5; // Raio dos semicírculos
+  const notchSpacing = 3.5; // Espaçamento entre os dentes
   
-  doc.setLineWidth(0.2);
-  doc.setDrawColor(180, 180, 180);
+  doc.setFillColor(255, 255, 255);
   
-  // Desenhar bordas com efeito de selo postal
-  // Borda superior
-  for (let i = x; i < x + width; i += notchSpacing) {
-    doc.circle(i, y, notchSize / 2, "S");
+  // Borda superior - semicírculos
+  for (let i = x + notchSpacing; i < x + width; i += notchSpacing) {
+    doc.circle(i, y, notchRadius, "F");
   }
   
-  // Borda inferior
-  for (let i = x; i < x + width; i += notchSpacing) {
-    doc.circle(i, y + height, notchSize / 2, "S");
+  // Borda inferior - semicírculos
+  for (let i = x + notchSpacing; i < x + width; i += notchSpacing) {
+    doc.circle(i, y + height, notchRadius, "F");
   }
   
-  // Borda esquerda
-  for (let i = y; i < y + height; i += notchSpacing) {
-    doc.circle(x, i, notchSize / 2, "S");
+  // Borda esquerda - semicírculos
+  for (let i = y + notchSpacing; i < y + height; i += notchSpacing) {
+    doc.circle(x, i, notchRadius, "F");
   }
   
-  // Borda direita
-  for (let i = y; i < y + height; i += notchSpacing) {
-    doc.circle(x + width, i, notchSize / 2, "S");
+  // Borda direita - semicírculos
+  for (let i = y + notchSpacing; i < y + height; i += notchSpacing) {
+    doc.circle(x + width, i, notchRadius, "F");
   }
 };
 
@@ -65,109 +63,138 @@ export const generateCoffeeSeal = async (data: SealData) => {
     format: [50, 50]
   });
   
-  // Fundo branco com gradiente suave (simulado)
-  doc.setFillColor(255, 255, 255);
+  // Fundo bege claro
+  doc.setFillColor(245, 240, 235);
   doc.rect(0, 0, 50, 50, "F");
   
-  // Borda decorativa tipo selo postal (mais refinada)
-  drawStampBorder(doc, 1.5, 1.5, 47, 47);
+  // Borda cinza interna
+  doc.setDrawColor(200, 200, 200);
+  doc.setLineWidth(0.5);
+  doc.rect(2, 2, 46, 46, "S");
   
-  // Grão de café decorativo no canto superior
-  doc.setFillColor(101, 67, 33);
-  doc.circle(8, 6, 2.5, "F");
-  doc.setDrawColor(80, 50, 20);
+  // Borda decorativa tipo selo postal
+  drawStampBorder(doc, 2, 2, 46, 46);
+  
+  // Grão de café 3D no canto superior esquerdo
+  // Sombra do grão
+  doc.setFillColor(90, 60, 30);
+  doc.ellipse(9, 7.5, 3, 2.5, "F");
+  
+  // Grão principal
+  doc.setFillColor(120, 80, 50);
+  doc.ellipse(8.5, 7, 3, 2.5, "F");
+  
+  // Rachadura central do grão
+  doc.setDrawColor(80, 50, 30);
+  doc.setLineWidth(0.4);
+  doc.line(7.5, 6, 9.5, 8);
+  
+  // Destaque claro no grão
+  doc.setFillColor(150, 110, 80);
+  doc.ellipse(7.5, 6.5, 1, 0.8, "F");
+  
+  // Faixa marrom escura superior - "CERTIFICADO DE QUALIDADE SUPERIOR"
+  doc.setFillColor(80, 40, 20); // Marrom chocolate escuro
+  doc.rect(4.5, 10.5, 41, 6, "F");
+  
+  // Linha branca decorativa superior
+  doc.setDrawColor(255, 255, 255);
   doc.setLineWidth(0.3);
-  doc.line(8, 4, 8, 8);
+  doc.line(6, 16.2, 44, 16.2);
   
-  // Faixa marrom superior - "CERTIFICADO DE QUALIDADE SUPERIOR"
-  doc.setFillColor(101, 67, 33); // Marrom café
-  doc.rect(3, 10, 44, 9, "F");
-  
-  doc.setFontSize(7);
+  doc.setFontSize(6);
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
   doc.text("CERTIFICADO DE", 25, 13, { align: "center" });
-  doc.setFontSize(8);
-  doc.text("QUALIDADE SUPERIOR", 25, 16.5, { align: "center" });
+  doc.setFontSize(7.5);
+  doc.text("QUALIDADE SUPERIOR", 25, 15.5, { align: "center" });
   
-  // Faixa vermelha - "ORIGEM: ANGOLA" com bordas arredondadas
-  doc.setFillColor(206, 17, 38); // Vermelho da bandeira
-  doc.roundedRect(3, 20, 44, 6, 1, 1, "F");
+  // Faixa cinza - "ORIGEM: ANGOLA"
+  doc.setFillColor(120, 120, 120);
+  doc.rect(4.5, 17, 41, 4.5, "F");
   
-  doc.setFontSize(6.5);
+  doc.setFontSize(6);
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
-  doc.text("ORIGEM: ANGOLA", 25, 24, { align: "center" });
+  doc.text("ORIGEM: ANGOLA", 25, 20, { align: "center" });
   
-  // Bandeira de Angola aprimorada
-  const flagX = 15;
-  const flagY = 33;
-  const flagRadius = 7;
+  // Logo Mukafé central com círculo laranja
+  const logoX = 16;
+  const logoY = 32;
+  const logoRadius = 7;
   
-  // Círculo vermelho
-  doc.setFillColor(206, 17, 38);
-  doc.circle(flagX, flagY, flagRadius, "F");
+  // Círculo externo branco (fundo)
+  doc.setFillColor(255, 255, 255);
+  doc.circle(logoX, logoY, logoRadius + 0.5, "F");
   
-  // Metade inferior preta
-  doc.setFillColor(0, 0, 0);
-  doc.rect(flagX - flagRadius, flagY, flagRadius * 2, flagRadius, "F");
+  // Círculo laranja/dourado (borda)
+  doc.setDrawColor(220, 120, 0);
+  doc.setLineWidth(1);
+  doc.circle(logoX, logoY, logoRadius, "S");
   
-  // Estrela amarela com brilho
-  doc.setFillColor(255, 206, 0);
-  doc.setFontSize(10);
-  doc.text("★", flagX, flagY + 1.5, { align: "center" });
+  // Texto circular superior "SISTEMA NACIONAL DE RASTREABILIDADE DO"
+  doc.setFontSize(2.8);
+  doc.setTextColor(0);
+  doc.setFont("helvetica", "bold");
+  const curveText = "SISTEMA NACIONAL DE RASTREABILIDADE DO";
+  const angleStep = 6;
+  let startAngle = 180;
   
-  // Machado e engrenagem simplificados
-  doc.setDrawColor(255, 206, 0);
-  doc.setLineWidth(0.4);
-  doc.line(flagX - 2, flagY + 2, flagX + 2, flagY - 2);
+  for (let i = 0; i < curveText.length; i++) {
+    const angle = (startAngle + i * angleStep) * Math.PI / 180;
+    const textX = logoX + (logoRadius - 1.5) * Math.cos(angle);
+    const textY = logoY + (logoRadius - 1.5) * Math.sin(angle);
+    doc.text(curveText[i], textX, textY, { 
+      angle: (angle * 180 / Math.PI) + 90,
+      align: "center" 
+    });
+  }
   
-  // QR Code com moldura
+  // Texto circular inferior "CAFÉ"
+  doc.setFontSize(3.5);
+  const cafeText = "CAFÉ";
+  startAngle = 340;
+  for (let i = 0; i < cafeText.length; i++) {
+    const angle = (startAngle + i * 10) * Math.PI / 180;
+    const textX = logoX + (logoRadius - 1.5) * Math.cos(angle);
+    const textY = logoY + (logoRadius - 1.5) * Math.sin(angle);
+    doc.text(cafeText[i], textX, textY, { 
+      angle: (angle * 180 / Math.PI) + 90,
+      align: "center" 
+    });
+  }
+  
+  // Desenho simplificado do grão de café com planta no centro
+  // Grão de café marrom
+  doc.setFillColor(120, 70, 30);
+  doc.ellipse(logoX, logoY, 2.5, 2, "F");
+  
+  // Folhas verdes
+  doc.setFillColor(50, 150, 50);
+  doc.ellipse(logoX - 1, logoY - 2, 0.8, 1.5, "F");
+  doc.ellipse(logoX + 1, logoY - 2, 0.8, 1.5, "F");
+  
+  // Texto "Mukafé" em verde
+  doc.setFontSize(7);
+  doc.setTextColor(34, 139, 34); // Verde escuro
+  doc.setFont("helvetica", "bold");
+  doc.text("Mukafé", logoX, logoY + 6, { align: "center" });
+  
+  // QR Code
   const qrCodeData = await generateQRCode(
     `${window.location.origin}/lote-publico/${data.loteId}`
   );
   if (qrCodeData) {
-    // Moldura branca do QR code
     doc.setFillColor(255, 255, 255);
-    doc.roundedRect(27, 28, 17, 17, 0.5, 0.5, "F");
-    doc.addImage(qrCodeData, "PNG", 28, 29, 15, 15);
+    doc.rect(30, 26, 14, 14, "F");
+    doc.addImage(qrCodeData, "PNG", 30.5, 26.5, 13, 13);
   }
   
-  // Informações do lote com melhor tipografia
-  doc.setFontSize(5.5);
+  // Rodapé - INSTITUTO NACIONAL DO CAFÉ DE ANGOLA (NCA)
+  doc.setFontSize(5);
+  doc.setFont("helvetica", "bold");
   doc.setTextColor(0);
-  doc.setFont("helvetica", "bold");
-  
-  let yPos = 41;
-  
-  // Código do lote destacado
-  doc.setFontSize(6);
-  doc.text(`Lote: ${data.loteId}`, 25, yPos, { align: "center" });
-  yPos += 3;
-  
-  // Certificação
-  doc.setFontSize(4.5);
-  doc.setTextColor(101, 67, 33);
-  doc.text(`Cert: ${data.certificacao}`, 25, yPos, { align: "center" });
-  yPos += 2.5;
-  
-  // Nome do produtor
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(4);
-  doc.setTextColor(60);
-  const produtorText = data.produtor.length > 28 ? data.produtor.substring(0, 25) + "..." : data.produtor;
-  doc.text(produtorText, 25, yPos, { align: "center" });
-  
-  // Linha decorativa
-  doc.setDrawColor(206, 17, 38);
-  doc.setLineWidth(0.3);
-  doc.line(8, 46, 42, 46);
-  
-  // Rodapé - INCA FDCA MINAGRIF
-  doc.setFontSize(6);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(80);
-  doc.text("INCA FDCA MINAGRIF", 25, 48, { align: "center" });
+  doc.text("INSTITUTO NACIONAL DO CAFÉ DE ANGOLA (NCA)", 25, 45, { align: "center" });
   
   return doc;
 };
@@ -211,93 +238,118 @@ export const generateMultipleSeals = async (data: SealData, quantity: number) =>
       const y = marginY + row * sealHeight;
       
       // Desenhar cada selo
-      // Fundo branco
-      doc.setFillColor(255, 255, 255);
+      // Fundo bege claro
+      doc.setFillColor(245, 240, 235);
       doc.rect(x, y, sealWidth, sealHeight, "F");
+      
+      // Borda cinza interna
+      doc.setDrawColor(200, 200, 200);
+      doc.setLineWidth(0.5);
+      doc.rect(x + 2, y + 2, 46, 46, "S");
       
       // Borda decorativa tipo selo postal
       drawStampBorder(doc, x + 2, y + 2, 46, 46);
       
-      // Grão de café decorativo
-      doc.setFillColor(101, 67, 33);
-      doc.circle(x + 8, y + 6, 2.5, "F");
-      doc.setDrawColor(80, 50, 20);
+      // Grão de café 3D
+      doc.setFillColor(90, 60, 30);
+      doc.ellipse(x + 9, y + 7.5, 3, 2.5, "F");
+      doc.setFillColor(120, 80, 50);
+      doc.ellipse(x + 8.5, y + 7, 3, 2.5, "F");
+      doc.setDrawColor(80, 50, 30);
+      doc.setLineWidth(0.4);
+      doc.line(x + 7.5, y + 6, x + 9.5, y + 8);
+      doc.setFillColor(150, 110, 80);
+      doc.ellipse(x + 7.5, y + 6.5, 1, 0.8, "F");
+      
+      // Faixa marrom escura superior
+      doc.setFillColor(80, 40, 20);
+      doc.rect(x + 4.5, y + 10.5, 41, 6, "F");
+      doc.setDrawColor(255, 255, 255);
       doc.setLineWidth(0.3);
-      doc.line(x + 8, y + 4, x + 8, y + 8);
+      doc.line(x + 6, y + 16.2, x + 44, y + 16.2);
       
-      // Faixa marrom superior
-      doc.setFillColor(101, 67, 33);
-      doc.rect(x + 3, y + 10, 44, 9, "F");
-      
-      doc.setFontSize(7);
+      doc.setFontSize(6);
       doc.setTextColor(255, 255, 255);
       doc.setFont("helvetica", "bold");
       doc.text("CERTIFICADO DE", x + 25, y + 13, { align: "center" });
-      doc.setFontSize(8);
-      doc.text("QUALIDADE SUPERIOR", x + 25, y + 16.5, { align: "center" });
+      doc.setFontSize(7.5);
+      doc.text("QUALIDADE SUPERIOR", x + 25, y + 15.5, { align: "center" });
       
-      // Faixa vermelha
-      doc.setFillColor(206, 17, 38);
-      doc.roundedRect(x + 3, y + 20, 44, 6, 1, 1, "F");
+      // Faixa cinza
+      doc.setFillColor(120, 120, 120);
+      doc.rect(x + 4.5, y + 17, 41, 4.5, "F");
+      doc.setFontSize(6);
+      doc.text("ORIGEM: ANGOLA", x + 25, y + 20, { align: "center" });
       
-      doc.setFontSize(6.5);
-      doc.setTextColor(255, 255, 255);
-      doc.text("ORIGEM: ANGOLA", x + 25, y + 24, { align: "center" });
+      // Logo Mukafé
+      const logoX = x + 16;
+      const logoY = y + 32;
+      const logoRadius = 7;
       
-      // Bandeira de Angola aprimorada
-      const flagX = x + 15;
-      const flagY = y + 33;
-      const flagRadius = 7;
+      doc.setFillColor(255, 255, 255);
+      doc.circle(logoX, logoY, logoRadius + 0.5, "F");
+      doc.setDrawColor(220, 120, 0);
+      doc.setLineWidth(1);
+      doc.circle(logoX, logoY, logoRadius, "S");
       
-      doc.setFillColor(206, 17, 38);
-      doc.circle(flagX, flagY, flagRadius, "F");
+      // Texto circular
+      doc.setFontSize(2.8);
+      doc.setTextColor(0);
+      doc.setFont("helvetica", "bold");
+      const curveText = "SISTEMA NACIONAL DE RASTREABILIDADE DO";
+      const angleStep = 6;
+      let startAngle = 180;
       
-      doc.setFillColor(0, 0, 0);
-      doc.rect(flagX - flagRadius, flagY, flagRadius * 2, flagRadius, "F");
+      for (let i = 0; i < curveText.length; i++) {
+        const angle = (startAngle + i * angleStep) * Math.PI / 180;
+        const textX = logoX + (logoRadius - 1.5) * Math.cos(angle);
+        const textY = logoY + (logoRadius - 1.5) * Math.sin(angle);
+        doc.text(curveText[i], textX, textY, { 
+          angle: (angle * 180 / Math.PI) + 90,
+          align: "center" 
+        });
+      }
       
-      doc.setFillColor(255, 206, 0);
-      doc.setFontSize(10);
-      doc.text("★", flagX, flagY + 1.5, { align: "center" });
+      doc.setFontSize(3.5);
+      const cafeText = "CAFÉ";
+      startAngle = 340;
+      for (let i = 0; i < cafeText.length; i++) {
+        const angle = (startAngle + i * 10) * Math.PI / 180;
+        const textX = logoX + (logoRadius - 1.5) * Math.cos(angle);
+        const textY = logoY + (logoRadius - 1.5) * Math.sin(angle);
+        doc.text(cafeText[i], textX, textY, { 
+          angle: (angle * 180 / Math.PI) + 90,
+          align: "center" 
+        });
+      }
       
-      doc.setDrawColor(255, 206, 0);
-      doc.setLineWidth(0.4);
-      doc.line(flagX - 2, flagY + 2, flagX + 2, flagY - 2);
+      // Grão central com planta
+      doc.setFillColor(120, 70, 30);
+      doc.ellipse(logoX, logoY, 2.5, 2, "F");
+      doc.setFillColor(50, 150, 50);
+      doc.ellipse(logoX - 1, logoY - 2, 0.8, 1.5, "F");
+      doc.ellipse(logoX + 1, logoY - 2, 0.8, 1.5, "F");
       
-      // QR Code com moldura
+      doc.setFontSize(7);
+      doc.setTextColor(34, 139, 34);
+      doc.setFont("helvetica", "bold");
+      doc.text("Mukafé", logoX, logoY + 6, { align: "center" });
+      
+      // QR Code
       const qrCodeData = await generateQRCode(
         `${window.location.origin}/lote-publico/${data.loteId}`
       );
       if (qrCodeData) {
         doc.setFillColor(255, 255, 255);
-        doc.roundedRect(x + 27, y + 28, 17, 17, 0.5, 0.5, "F");
-        doc.addImage(qrCodeData, "PNG", x + 28, y + 29, 15, 15);
+        doc.rect(x + 30, y + 26, 14, 14, "F");
+        doc.addImage(qrCodeData, "PNG", x + 30.5, y + 26.5, 13, 13);
       }
       
-      // Informações do lote
-      doc.setFontSize(6);
+      // Rodapé
+      doc.setFontSize(5);
+      doc.setFont("helvetica", "bold");
       doc.setTextColor(0);
-      doc.setFont("helvetica", "bold");
-      doc.text(`Lote: ${data.loteId}`, x + 25, y + 41, { align: "center" });
-      
-      doc.setFontSize(4.5);
-      doc.setTextColor(101, 67, 33);
-      doc.text(`Cert: ${data.certificacao}`, x + 25, y + 43.5, { align: "center" });
-      
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(4);
-      doc.setTextColor(60);
-      const produtorText = data.produtor.length > 28 ? data.produtor.substring(0, 25) + "..." : data.produtor;
-      doc.text(produtorText, x + 25, y + 46, { align: "center" });
-      
-      // Linha decorativa
-      doc.setDrawColor(206, 17, 38);
-      doc.setLineWidth(0.3);
-      doc.line(x + 8, y + 46, x + 42, y + 46);
-      
-      doc.setFontSize(6);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(80);
-      doc.text("INCA FDCA MINAGRIF", x + 25, y + 48, { align: "center" });
+      doc.text("INSTITUTO NACIONAL DO CAFÉ DE ANGOLA (NCA)", x + 25, y + 45, { align: "center" });
       
       sealCount++;
     }
