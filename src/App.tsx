@@ -17,6 +17,7 @@ import QualidadeDetalhes from "./pages/QualidadeDetalhes";
 import CertificacaoDetalhes from "./pages/CertificacaoDetalhes";
 import Auth from "./pages/Auth";
 import AprovacaoProdutores from "./pages/AprovacaoProdutores";
+import LotePublico from "./pages/LotePublico";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/auth" element={<Auth />} />
+          <Route path="/lote-publico/:codigo" element={<LotePublico />} />
           <Route path="*" element={
             <Layout>
               <Routes>

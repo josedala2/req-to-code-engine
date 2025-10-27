@@ -65,70 +65,109 @@ export const generateCoffeeSeal = async (data: SealData) => {
     format: [50, 50]
   });
   
-  // Fundo branco
+  // Fundo branco com gradiente suave (simulado)
   doc.setFillColor(255, 255, 255);
   doc.rect(0, 0, 50, 50, "F");
   
-  // Borda decorativa tipo selo postal
-  drawStampBorder(doc, 2, 2, 46, 46);
+  // Borda decorativa tipo selo postal (mais refinada)
+  drawStampBorder(doc, 1.5, 1.5, 47, 47);
+  
+  // Grão de café decorativo no canto superior
+  doc.setFillColor(101, 67, 33);
+  doc.circle(8, 6, 2.5, "F");
+  doc.setDrawColor(80, 50, 20);
+  doc.setLineWidth(0.3);
+  doc.line(8, 4, 8, 8);
   
   // Faixa marrom superior - "CERTIFICADO DE QUALIDADE SUPERIOR"
-  doc.setFillColor(101, 67, 33); // Marrom
-  doc.rect(3, 8, 44, 8, "F");
+  doc.setFillColor(101, 67, 33); // Marrom café
+  doc.rect(3, 10, 44, 9, "F");
   
-  doc.setFontSize(6);
+  doc.setFontSize(7);
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
-  doc.text("CERTIFICADO DE", 25, 11.5, { align: "center" });
-  doc.text("QUALIDADE SUPERIOR", 25, 14.5, { align: "center" });
+  doc.text("CERTIFICADO DE", 25, 13, { align: "center" });
+  doc.setFontSize(8);
+  doc.text("QUALIDADE SUPERIOR", 25, 16.5, { align: "center" });
   
-  // Faixa vermelha - "ORIGEM: ANGOLA"
-  doc.setFillColor(206, 17, 38); // Vermelho da bandeira de Angola
-  doc.rect(3, 16, 44, 5, "F");
+  // Faixa vermelha - "ORIGEM: ANGOLA" com bordas arredondadas
+  doc.setFillColor(206, 17, 38); // Vermelho da bandeira
+  doc.roundedRect(3, 20, 44, 6, 1, 1, "F");
   
-  doc.setFontSize(5.5);
+  doc.setFontSize(6.5);
   doc.setTextColor(255, 255, 255);
-  doc.text("ORIGEM: ANGOLA", 25, 19.5, { align: "center" });
+  doc.setFont("helvetica", "bold");
+  doc.text("ORIGEM: ANGOLA", 25, 24, { align: "center" });
   
-  // Área central - Bandeira de Angola (círculo)
-  doc.setFillColor(206, 17, 38); // Vermelho superior
-  doc.circle(15, 30, 6, "F");
+  // Bandeira de Angola aprimorada
+  const flagX = 15;
+  const flagY = 33;
+  const flagRadius = 7;
+  
+  // Círculo vermelho
+  doc.setFillColor(206, 17, 38);
+  doc.circle(flagX, flagY, flagRadius, "F");
   
   // Metade inferior preta
   doc.setFillColor(0, 0, 0);
-  doc.rect(9, 30, 12, 6, "F");
+  doc.rect(flagX - flagRadius, flagY, flagRadius * 2, flagRadius, "F");
   
-  // Símbolo simplificado (estrela amarela)
-  doc.setFillColor(255, 206, 0); // Amarelo
-  doc.setFontSize(8);
-  doc.text("★", 15, 31.5, { align: "center" });
+  // Estrela amarela com brilho
+  doc.setFillColor(255, 206, 0);
+  doc.setFontSize(10);
+  doc.text("★", flagX, flagY + 1.5, { align: "center" });
   
-  // QR Code
-  const qrCodeData = await generateQRCode(`SNRCAFE-${data.loteId}-${data.certificacao}`);
+  // Machado e engrenagem simplificados
+  doc.setDrawColor(255, 206, 0);
+  doc.setLineWidth(0.4);
+  doc.line(flagX - 2, flagY + 2, flagX + 2, flagY - 2);
+  
+  // QR Code com moldura
+  const qrCodeData = await generateQRCode(
+    `${window.location.origin}/lote-publico/${data.loteId}`
+  );
   if (qrCodeData) {
-    doc.addImage(qrCodeData, "PNG", 28, 24, 15, 15);
+    // Moldura branca do QR code
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(27, 28, 17, 17, 0.5, 0.5, "F");
+    doc.addImage(qrCodeData, "PNG", 28, 29, 15, 15);
   }
   
-  // Informações do lote
-  doc.setFontSize(5);
+  // Informações do lote com melhor tipografia
+  doc.setFontSize(5.5);
   doc.setTextColor(0);
   doc.setFont("helvetica", "bold");
   
   let yPos = 41;
   
+  // Código do lote destacado
+  doc.setFontSize(6);
   doc.text(`Lote: ${data.loteId}`, 25, yPos, { align: "center" });
   yPos += 3;
   
-  doc.setFont("helvetica", "normal");
+  // Certificação
   doc.setFontSize(4.5);
-  doc.text(data.produtor, 25, yPos, { align: "center" });
+  doc.setTextColor(101, 67, 33);
+  doc.text(`Cert: ${data.certificacao}`, 25, yPos, { align: "center" });
   yPos += 2.5;
   
+  // Nome do produtor
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(4);
+  doc.setTextColor(60);
+  const produtorText = data.produtor.length > 28 ? data.produtor.substring(0, 25) + "..." : data.produtor;
+  doc.text(produtorText, 25, yPos, { align: "center" });
+  
+  // Linha decorativa
+  doc.setDrawColor(206, 17, 38);
+  doc.setLineWidth(0.3);
+  doc.line(8, 46, 42, 46);
+  
   // Rodapé - INCA FDCA MINAGRIF
-  doc.setFontSize(5.5);
+  doc.setFontSize(6);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(80);
-  doc.text("INCA FDCA MINAGRIF", 25, 46.5, { align: "center" });
+  doc.text("INCA FDCA MINAGRIF", 25, 48, { align: "center" });
   
   return doc;
 };
@@ -179,56 +218,86 @@ export const generateMultipleSeals = async (data: SealData, quantity: number) =>
       // Borda decorativa tipo selo postal
       drawStampBorder(doc, x + 2, y + 2, 46, 46);
       
+      // Grão de café decorativo
+      doc.setFillColor(101, 67, 33);
+      doc.circle(x + 8, y + 6, 2.5, "F");
+      doc.setDrawColor(80, 50, 20);
+      doc.setLineWidth(0.3);
+      doc.line(x + 8, y + 4, x + 8, y + 8);
+      
       // Faixa marrom superior
       doc.setFillColor(101, 67, 33);
-      doc.rect(x + 3, y + 8, 44, 8, "F");
+      doc.rect(x + 3, y + 10, 44, 9, "F");
       
-      doc.setFontSize(6);
+      doc.setFontSize(7);
       doc.setTextColor(255, 255, 255);
       doc.setFont("helvetica", "bold");
-      doc.text("CERTIFICADO DE", x + 25, y + 11.5, { align: "center" });
-      doc.text("QUALIDADE SUPERIOR", x + 25, y + 14.5, { align: "center" });
+      doc.text("CERTIFICADO DE", x + 25, y + 13, { align: "center" });
+      doc.setFontSize(8);
+      doc.text("QUALIDADE SUPERIOR", x + 25, y + 16.5, { align: "center" });
       
       // Faixa vermelha
       doc.setFillColor(206, 17, 38);
-      doc.rect(x + 3, y + 16, 44, 5, "F");
+      doc.roundedRect(x + 3, y + 20, 44, 6, 1, 1, "F");
       
-      doc.setFontSize(5.5);
+      doc.setFontSize(6.5);
       doc.setTextColor(255, 255, 255);
-      doc.text("ORIGEM: ANGOLA", x + 25, y + 19.5, { align: "center" });
+      doc.text("ORIGEM: ANGOLA", x + 25, y + 24, { align: "center" });
       
-      // Bandeira de Angola
+      // Bandeira de Angola aprimorada
+      const flagX = x + 15;
+      const flagY = y + 33;
+      const flagRadius = 7;
+      
       doc.setFillColor(206, 17, 38);
-      doc.circle(x + 15, y + 30, 6, "F");
+      doc.circle(flagX, flagY, flagRadius, "F");
       
-      // Metade inferior preta
       doc.setFillColor(0, 0, 0);
-      doc.rect(x + 9, y + 30, 12, 6, "F");
+      doc.rect(flagX - flagRadius, flagY, flagRadius * 2, flagRadius, "F");
       
       doc.setFillColor(255, 206, 0);
-      doc.setFontSize(8);
-      doc.text("★", x + 15, y + 31.5, { align: "center" });
+      doc.setFontSize(10);
+      doc.text("★", flagX, flagY + 1.5, { align: "center" });
       
-      // QR Code
-      const qrCodeData = await generateQRCode(`SNRCAFE-${data.loteId}-${data.certificacao}`);
+      doc.setDrawColor(255, 206, 0);
+      doc.setLineWidth(0.4);
+      doc.line(flagX - 2, flagY + 2, flagX + 2, flagY - 2);
+      
+      // QR Code com moldura
+      const qrCodeData = await generateQRCode(
+        `${window.location.origin}/lote-publico/${data.loteId}`
+      );
       if (qrCodeData) {
-        doc.addImage(qrCodeData, "PNG", x + 28, y + 24, 15, 15);
+        doc.setFillColor(255, 255, 255);
+        doc.roundedRect(x + 27, y + 28, 17, 17, 0.5, 0.5, "F");
+        doc.addImage(qrCodeData, "PNG", x + 28, y + 29, 15, 15);
       }
       
-      // Informações
-      doc.setFontSize(5);
+      // Informações do lote
+      doc.setFontSize(6);
       doc.setTextColor(0);
       doc.setFont("helvetica", "bold");
       doc.text(`Lote: ${data.loteId}`, x + 25, y + 41, { align: "center" });
       
-      doc.setFont("helvetica", "normal");
       doc.setFontSize(4.5);
-      doc.text(data.produtor.substring(0, 25), x + 25, y + 43.5, { align: "center" });
+      doc.setTextColor(101, 67, 33);
+      doc.text(`Cert: ${data.certificacao}`, x + 25, y + 43.5, { align: "center" });
       
-      doc.setFontSize(5.5);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(4);
+      doc.setTextColor(60);
+      const produtorText = data.produtor.length > 28 ? data.produtor.substring(0, 25) + "..." : data.produtor;
+      doc.text(produtorText, x + 25, y + 46, { align: "center" });
+      
+      // Linha decorativa
+      doc.setDrawColor(206, 17, 38);
+      doc.setLineWidth(0.3);
+      doc.line(x + 8, y + 46, x + 42, y + 46);
+      
+      doc.setFontSize(6);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(80);
-      doc.text("INCA FDCA MINAGRIF", x + 25, y + 46.5, { align: "center" });
+      doc.text("INCA FDCA MINAGRIF", x + 25, y + 48, { align: "center" });
       
       sealCount++;
     }
