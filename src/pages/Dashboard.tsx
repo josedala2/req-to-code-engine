@@ -52,7 +52,7 @@ const recentBatches = [
   },
   {
     id: "LOT-2025-002",
-    producer: "Sítio Bela Vista",
+    producer: "Quinta Bela Vista",
     variety: "Catuaí Vermelho",
     quantity: "850 kg",
     quality: "Gourmet",

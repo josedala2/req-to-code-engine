@@ -16,10 +16,10 @@ export const generateProdutoresPDF = () => {
   
   // Dados dos produtores
   const produtores = [
-    ["João Silva", "Fazenda Boa Vista", "São Paulo, SP", "120 ha", "Ativo"],
-    ["Maria Santos", "Sítio das Flores", "Minas Gerais, MG", "85 ha", "Ativo"],
-    ["Carlos Oliveira", "Fazenda Esperança", "Bahia, BA", "200 ha", "Ativo"],
-    ["Ana Costa", "Café Montanha", "Espírito Santo, ES", "65 ha", "Ativo"],
+    ["João Silva", "Fazenda Boa Vista", "Huíla, Chibia", "120 ha", "Ativo"],
+    ["Maria Santos", "Quinta das Flores", "Huambo, Huambo", "85 ha", "Ativo"],
+    ["Carlos Oliveira", "Fazenda Esperança", "Benguela, Lobito", "200 ha", "Ativo"],
+    ["Ana Costa", "Café Montanha", "Cuanza Sul, Sumbe", "65 ha", "Ativo"],
   ];
   
   autoTable(doc, {
@@ -104,7 +104,7 @@ export const generateCertificacoesPDF = () => {
   doc.text(`Gerado em: ${new Date().toLocaleDateString("pt-BR")}`, 14, 28);
   
   const certificacoes = [
-    ["João Silva", "Orgânico", "IBD Certificações", "Válida", "31/12/2024"],
+    ["João Silva", "Orgânico", "ECOCERT Angola", "Válida", "31/12/2024"],
     ["Maria Santos", "Fair Trade", "FLO-CERT", "Válida", "15/06/2025"],
     ["Carlos Oliveira", "Rainforest Alliance", "RA-Cert", "Válida", "30/11/2024"],
     ["Ana Costa", "UTZ Certified", "UTZ", "Válida", "28/02/2025"],
@@ -145,7 +145,7 @@ export const generateRastreabilidadePDF = (loteId: string) => {
   doc.setTextColor(0);
   doc.text("Nome: João Silva", 14, 63);
   doc.text("Fazenda: Fazenda Boa Vista", 14, 70);
-  doc.text("Localização: São Paulo, SP", 14, 77);
+  doc.text("Localização: Huíla, Chibia", 14, 77);
   doc.text("Altitude: 1200m", 14, 84);
   
   // Informações do Lote
@@ -180,7 +180,7 @@ export const generateRastreabilidadePDF = (loteId: string) => {
   
   doc.setFontSize(10);
   doc.setTextColor(0);
-  doc.text("• Orgânico (IBD Certificações)", 14, 202);
+  doc.text("• Orgânico (ECOCERT Angola)", 14, 202);
   doc.text("• Rainforest Alliance", 14, 209);
   
   // QR Code ou código de barras (área reservada)
@@ -210,7 +210,7 @@ export const generateCertificadoOrganicoPDF = (certId: string) => {
   // Número do certificado
   doc.setFontSize(12);
   doc.setTextColor(0);
-  doc.text(`Certificado Nº: BR-BIO-001-2024`, 105, 45, { align: "center" });
+  doc.text(`Certificado Nº: AO-BIO-001-2024`, 105, 45, { align: "center" });
   
   // Corpo do certificado
   doc.setFontSize(11);
@@ -232,7 +232,7 @@ export const generateCertificadoOrganicoPDF = (certId: string) => {
     "• Regulamento CE 834/2007 (União Europeia)",
     "• USDA NOP (Estados Unidos)",
     "• JAS - Japanese Agricultural Standard (Japão)",
-    "• Instrução Normativa 19/2009 (Brasil)"
+    "• Normas ECOCERT para África"
   ];
   
   let yPos = 115;
@@ -252,7 +252,7 @@ export const generateCertificadoOrganicoPDF = (certId: string) => {
   // Certificadora
   doc.setFontSize(12);
   doc.setTextColor(101, 67, 33);
-  doc.text("IBD Certificações", 105, yPos + 50, { align: "center" });
+  doc.text("ECOCERT Angola", 105, yPos + 50, { align: "center" });
   
   doc.setFontSize(9);
   doc.setTextColor(100);
@@ -278,7 +278,7 @@ export const generateRelatorioAuditoriaPDF = (certId: string) => {
   doc.setTextColor(0);
   doc.text("Tipo: Auditoria de Renovação", 14, 40);
   doc.text("Data: 10/03/2024", 14, 48);
-  doc.text("Auditor: Carlos Mendes - IBD Certificações", 14, 56);
+  doc.text("Auditor: Carlos Mendes - ECOCERT Angola", 14, 56);
   
   // Produtor
   doc.setFontSize(14);
@@ -290,7 +290,7 @@ export const generateRelatorioAuditoriaPDF = (certId: string) => {
   doc.text("Nome: João Silva", 14, 78);
   doc.text("Fazenda: Fazenda Santa Clara", 14, 85);
   doc.text("NIF: 123456789", 14, 92);
-  doc.text("Localização: São Paulo, SP", 14, 99);
+  doc.text("Localização: Huíla, Chibia", 14, 99);
   
   // Critérios avaliados
   doc.setFontSize(14);
@@ -432,10 +432,10 @@ export const generateRegistroInsumosPDF = (certId: string) => {
   doc.text("Fertilizantes e Condicionadores de Solo", 14, 58);
   
   const fertilizantes = [
-    ["Composto Orgânico", "Fazenda própria", "IBD Aprovado", "3 ton/ha"],
-    ["Bokashi", "Fornecedor Local", "IBD Aprovado", "500 kg/ha"],
-    ["Biofertilizante", "Fazenda própria", "IBD Aprovado", "Aplicação foliar"],
-    ["Farinha de Ossos", "AgroOrgânico Ltda", "IBD Aprovado", "200 kg/ha"],
+    ["Composto Orgânico", "Fazenda própria", "ECOCERT Aprovado", "3 ton/ha"],
+    ["Bokashi", "Fornecedor Local", "ECOCERT Aprovado", "500 kg/ha"],
+    ["Biofertilizante", "Fazenda própria", "ECOCERT Aprovado", "Aplicação foliar"],
+    ["Farinha de Ossos", "AgroOrgânico Ltda", "ECOCERT Aprovado", "200 kg/ha"],
   ];
   
   autoTable(doc, {
@@ -453,10 +453,10 @@ export const generateRegistroInsumosPDF = (certId: string) => {
   doc.text("Produtos para Controle Fitossanitário", 14, finalY1 + 12);
   
   const fitossanitarios = [
-    ["Calda Bordalesa", "Fazenda própria", "IBD Aprovado", "1% concentração"],
-    ["Calda Sulfocálcica", "CaldaVerde", "IBD Aprovado", "0.5% concentração"],
-    ["Óleo de Neem", "NaturalPest", "IBD Aprovado", "2 ml/L água"],
-    ["Bacillus thuringiensis", "BioCafe", "IBD Aprovado", "Conforme bula"],
+    ["Calda Bordalesa", "Fazenda própria", "ECOCERT Aprovado", "1% concentração"],
+    ["Calda Sulfocálcica", "CaldaVerde", "ECOCERT Aprovado", "0.5% concentração"],
+    ["Óleo de Neem", "NaturalPest", "ECOCERT Aprovado", "2 ml/L água"],
+    ["Bacillus thuringiensis", "BioCafe", "ECOCERT Aprovado", "Conforme bula"],
   ];
   
   autoTable(doc, {

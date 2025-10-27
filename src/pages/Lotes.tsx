@@ -31,7 +31,7 @@ const batches = [
   },
   {
     id: "LOT-2025-002",
-    producer: "Sítio Bela Vista",
+    producer: "Quinta Bela Vista",
     variety: "Catuaí Vermelho",
     harvestDate: "12/01/2025",
     quantity: "850 kg",
@@ -64,7 +64,7 @@ const batches = [
   },
   {
     id: "LOT-2024-459",
-    producer: "Sítio Bela Vista",
+    producer: "Quinta Bela Vista",
     variety: "Bourbon Amarelo",
     harvestDate: "30/12/2024",
     quantity: "1.450 kg",
