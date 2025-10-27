@@ -1,11 +1,11 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import mukafeLogo from "@/assets/mukafe-logo.jpeg";
+import mukafeLogo from "@/assets/mukafe-logo.png";
 
 // Helper para adicionar cabeçalho Mukafe com logo em todos os PDFs
 const addMukafeHeader = (doc: jsPDF, titulo: string) => {
   // Logo Mukafe (ajustado para caber no cabeçalho)
-  doc.addImage(mukafeLogo, "JPEG", 14, 8, 20, 20);
+  doc.addImage(mukafeLogo, "PNG", 14, 8, 20, 20);
   
   // Título do sistema ao lado do logo
   doc.setFontSize(12);
@@ -212,7 +212,7 @@ export const generateCertificadoOrganicoPDF = (certId: string) => {
   const doc = new jsPDF();
   
   // Logo Mukafe centralizado
-  doc.addImage(mukafeLogo, "JPEG", 90, 10, 30, 30);
+  doc.addImage(mukafeLogo, "PNG", 90, 10, 30, 30);
   
   // Identificação Mukafe
   doc.setFontSize(10);

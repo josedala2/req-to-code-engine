@@ -1,5 +1,5 @@
 import jsPDF from "jspdf";
-import mukafeLogo from "@/assets/mukafe-logo.jpeg";
+import mukafeLogo from "@/assets/mukafe-logo.png";
 
 interface LabelData {
   loteId: string;
@@ -32,7 +32,7 @@ export const generateCoffeeLabel = (data: LabelData) => {
   doc.rect(3, 3, 94, 144);
   
   // Logo Mukafe no topo
-  doc.addImage(mukafeLogo, "JPEG", 35, 8, 30, 30);
+  doc.addImage(mukafeLogo, "PNG", 35, 8, 30, 30);
   
   // Nome Mukafe
   doc.setFontSize(14);

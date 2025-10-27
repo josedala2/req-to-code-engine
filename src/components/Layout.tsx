@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Button } from "@/components/ui/button";
-import mukafeLogo from "@/assets/mukafe-logo.jpeg";
+import mukafeLogo from "@/assets/mukafe-logo.png";
 
 interface LayoutProps {
   children: ReactNode;
