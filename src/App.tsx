@@ -3,8 +3,14 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
+import Dashboard from "./pages/Dashboard";
+import Produtores from "./pages/Produtores";
+import Lotes from "./pages/Lotes";
+import Qualidade from "./pages/Qualidade";
+import Certificacoes from "./pages/Certificacoes";
+import Relatorios from "./pages/Relatorios";
 import NotFound from "./pages/NotFound";
+import Layout from "./components/Layout";
 
 const queryClient = new QueryClient();
 
@@ -14,11 +20,17 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/produtores" element={<Produtores />} />
+            <Route path="/lotes" element={<Lotes />} />
+            <Route path="/qualidade" element={<Qualidade />} />
+            <Route path="/certificacoes" element={<Certificacoes />} />
+            <Route path="/relatorios" element={<Relatorios />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Layout>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
