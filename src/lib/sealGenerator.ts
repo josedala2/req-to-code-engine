@@ -67,12 +67,12 @@ export const generateCoffeeSeal = async (data: SealData) => {
   // Adicionar a imagem do selo base
   doc.addImage(seloMukafe, "PNG", 0, 0, 50, 50);
   
-  // Adicionar QR Code no canto superior direito
+  // Adicionar QR Code sobrepondo o QR da imagem original
   const qrCodeData = await generateQRCode(
     `${window.location.origin}/lote-publico/${data.loteId}`
   );
   if (qrCodeData) {
-    doc.addImage(qrCodeData, "PNG", 30, 26, 14, 14);
+    doc.addImage(qrCodeData, "PNG", 29.5, 24.5, 15.5, 15.5);
   }
   
   return doc;
@@ -119,12 +119,12 @@ export const generateMultipleSeals = async (data: SealData, quantity: number) =>
       // Adicionar a imagem do selo base
       doc.addImage(seloMukafe, "PNG", x, y, sealWidth, sealHeight);
       
-      // Adicionar QR Code
+      // Adicionar QR Code sobrepondo o QR da imagem original
       const qrCodeData = await generateQRCode(
         `${window.location.origin}/lote-publico/${data.loteId}`
       );
       if (qrCodeData) {
-        doc.addImage(qrCodeData, "PNG", x + 30, y + 26, 14, 14);
+        doc.addImage(qrCodeData, "PNG", x + 29.5, y + 24.5, 15.5, 15.5);
       }
       
       sealCount++;
