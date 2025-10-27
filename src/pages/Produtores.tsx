@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Search, MapPin, Phone, Mail } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const producers = [
   {
@@ -47,6 +48,8 @@ const producers = [
 ];
 
 export default function Produtores() {
+  const navigate = useNavigate();
+  
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -114,7 +117,11 @@ export default function Produtores() {
                 </div>
               </div>
 
-              <Button variant="outline" className="w-full mt-4">
+              <Button 
+                variant="outline" 
+                className="w-full mt-4"
+                onClick={() => navigate(`/produtores/${producer.id}`)}
+              >
                 Ver Detalhes
               </Button>
             </CardContent>

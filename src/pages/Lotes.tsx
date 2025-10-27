@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Search, Calendar, Weight, MapPin } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import {
   Table,
   TableBody,
@@ -97,6 +98,8 @@ const getQualityColor = (quality: string) => {
 };
 
 export default function Lotes() {
+  const navigate = useNavigate();
+  
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -182,7 +185,11 @@ export default function Lotes() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Button variant="ghost" size="sm">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => navigate(`/lotes/${batch.id}`)}
+                      >
                         Ver Detalhes
                       </Button>
                     </TableCell>

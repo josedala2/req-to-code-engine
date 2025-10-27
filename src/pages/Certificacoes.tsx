@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Award, Calendar, CheckCircle2, AlertCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const certifications = [
   {
@@ -82,6 +83,8 @@ const getStatusConfig = (status: string) => {
 };
 
 export default function Certificacoes() {
+  const navigate = useNavigate();
+  
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -196,7 +199,11 @@ export default function Certificacoes() {
                   <p className="text-sm text-muted-foreground">{cert.scope}</p>
                 </div>
                 <div className="flex gap-2 mt-4">
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => navigate(`/certificacoes/CERT-00${cert.id}`)}
+                  >
                     Ver Certificado
                   </Button>
                   <Button variant="outline" size="sm">

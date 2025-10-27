@@ -11,6 +11,10 @@ import Certificacoes from "./pages/Certificacoes";
 import Relatorios from "./pages/Relatorios";
 import NotFound from "./pages/NotFound";
 import Layout from "./components/Layout";
+import ProdutorDetalhes from "./pages/ProdutorDetalhes";
+import LoteDetalhes from "./pages/LoteDetalhes";
+import QualidadeDetalhes from "./pages/QualidadeDetalhes";
+import CertificacaoDetalhes from "./pages/CertificacaoDetalhes";
 
 const queryClient = new QueryClient();
 
@@ -23,11 +27,15 @@ const App = () => (
         <Layout>
           <Routes>
             <Route path="/" element={<Dashboard />} />
-            <Route path="/produtores" element={<Produtores />} />
-            <Route path="/lotes" element={<Lotes />} />
-            <Route path="/qualidade" element={<Qualidade />} />
-            <Route path="/certificacoes" element={<Certificacoes />} />
-            <Route path="/relatorios" element={<Relatorios />} />
+          <Route path="/produtores" element={<Produtores />} />
+          <Route path="/produtores/:id" element={<ProdutorDetalhes />} />
+          <Route path="/lotes" element={<Lotes />} />
+          <Route path="/lotes/:id" element={<LoteDetalhes />} />
+          <Route path="/qualidade" element={<Qualidade />} />
+          <Route path="/qualidade/:id" element={<QualidadeDetalhes />} />
+          <Route path="/certificacoes" element={<Certificacoes />} />
+          <Route path="/certificacoes/:id" element={<CertificacaoDetalhes />} />
+          <Route path="/relatorios" element={<Relatorios />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
