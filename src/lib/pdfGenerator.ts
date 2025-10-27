@@ -193,3 +193,286 @@ export const generateRastreabilidadePDF = (loteId: string) => {
   
   doc.save(`rastreabilidade-${loteId}.pdf`);
 };
+
+export const generateCertificadoOrganicoPDF = (certId: string) => {
+  const doc = new jsPDF();
+  
+  // Cabeçalho
+  doc.setFontSize(24);
+  doc.setTextColor(101, 67, 33);
+  doc.text("CERTIFICADO ORGÂNICO", 105, 30, { align: "center" });
+  
+  // Linha decorativa
+  doc.setDrawColor(101, 67, 33);
+  doc.setLineWidth(0.5);
+  doc.line(20, 35, 190, 35);
+  
+  // Número do certificado
+  doc.setFontSize(12);
+  doc.setTextColor(0);
+  doc.text(`Certificado Nº: BR-BIO-001-2024`, 105, 45, { align: "center" });
+  
+  // Corpo do certificado
+  doc.setFontSize(11);
+  doc.text("Certificamos que:", 20, 60);
+  
+  doc.setFontSize(16);
+  doc.setTextColor(101, 67, 33);
+  doc.text("Fazenda Santa Clara", 105, 70, { align: "center" });
+  
+  doc.setFontSize(11);
+  doc.setTextColor(0);
+  doc.text("Produtor: João Silva", 105, 80, { align: "center" });
+  doc.text("NIF: 123456789", 105, 88, { align: "center" });
+  
+  doc.text("Atende aos requisitos da produção orgânica conforme:", 20, 105);
+  
+  // Lista de normas
+  const normas = [
+    "• Regulamento CE 834/2007 (União Europeia)",
+    "• USDA NOP (Estados Unidos)",
+    "• JAS - Japanese Agricultural Standard (Japão)",
+    "• Instrução Normativa 19/2009 (Brasil)"
+  ];
+  
+  let yPos = 115;
+  normas.forEach((norma) => {
+    doc.text(norma, 30, yPos);
+    yPos += 8;
+  });
+  
+  // Escopo
+  doc.text("Escopo: Produção de café arábica orgânico", 20, yPos + 10);
+  
+  // Datas
+  doc.setFontSize(10);
+  doc.text("Data de Emissão: 15/03/2024", 20, yPos + 25);
+  doc.text("Validade: 15/03/2025", 20, yPos + 33);
+  
+  // Certificadora
+  doc.setFontSize(12);
+  doc.setTextColor(101, 67, 33);
+  doc.text("IBD Certificações", 105, yPos + 50, { align: "center" });
+  
+  doc.setFontSize(9);
+  doc.setTextColor(100);
+  doc.text("_______________________________", 105, yPos + 60, { align: "center" });
+  doc.text("Diretor Técnico", 105, yPos + 65, { align: "center" });
+  
+  doc.save(`certificado-organico-${certId}.pdf`);
+};
+
+export const generateRelatorioAuditoriaPDF = (certId: string) => {
+  const doc = new jsPDF();
+  
+  doc.setFontSize(18);
+  doc.setTextColor(101, 67, 33);
+  doc.text("Relatório de Auditoria de Certificação Orgânica", 14, 20);
+  
+  doc.setFontSize(10);
+  doc.setTextColor(100);
+  doc.text(`Gerado em: ${new Date().toLocaleDateString("pt-BR")}`, 14, 28);
+  
+  // Informações da auditoria
+  doc.setFontSize(12);
+  doc.setTextColor(0);
+  doc.text("Tipo: Auditoria de Renovação", 14, 40);
+  doc.text("Data: 10/03/2024", 14, 48);
+  doc.text("Auditor: Carlos Mendes - IBD Certificações", 14, 56);
+  
+  // Produtor
+  doc.setFontSize(14);
+  doc.setTextColor(101, 67, 33);
+  doc.text("Produtor Auditado", 14, 70);
+  
+  doc.setFontSize(11);
+  doc.setTextColor(0);
+  doc.text("Nome: João Silva", 14, 78);
+  doc.text("Fazenda: Fazenda Santa Clara", 14, 85);
+  doc.text("NIF: 123456789", 14, 92);
+  doc.text("Localização: São Paulo, SP", 14, 99);
+  
+  // Critérios avaliados
+  doc.setFontSize(14);
+  doc.setTextColor(101, 67, 33);
+  doc.text("Critérios Avaliados", 14, 113);
+  
+  const criterios = [
+    ["Ausência de agrotóxicos sintéticos", "Conforme"],
+    ["Não utilização de fertilizantes químicos", "Conforme"],
+    ["Preservação de áreas de mata nativa", "Conforme"],
+    ["Manejo sustentável do solo", "Conforme"],
+    ["Rastreabilidade da produção", "Conforme"],
+    ["Separação de produtos orgânicos/convencionais", "Conforme"],
+  ];
+  
+  autoTable(doc, {
+    head: [["Critério", "Status"]],
+    body: criterios,
+    startY: 118,
+    theme: "grid",
+    headStyles: { fillColor: [101, 67, 33] },
+  });
+  
+  // Conclusão
+  const finalY = (doc as any).lastAutoTable.finalY || 150;
+  doc.setFontSize(12);
+  doc.setTextColor(101, 67, 33);
+  doc.text("Conclusão", 14, finalY + 15);
+  
+  doc.setFontSize(10);
+  doc.setTextColor(0);
+  doc.text("A propriedade atende a todos os requisitos para certificação orgânica.", 14, finalY + 23);
+  doc.text("Status: APROVADO", 14, finalY + 31);
+  
+  doc.save(`relatorio-auditoria-${certId}.pdf`);
+};
+
+export const generatePlanoManejoOrganicoPDF = (certId: string) => {
+  const doc = new jsPDF();
+  
+  doc.setFontSize(18);
+  doc.setTextColor(101, 67, 33);
+  doc.text("Plano de Manejo Orgânico", 14, 20);
+  
+  doc.setFontSize(10);
+  doc.setTextColor(100);
+  doc.text(`Safra 2024 | Gerado em: ${new Date().toLocaleDateString("pt-BR")}`, 14, 28);
+  
+  // Produtor
+  doc.setFontSize(12);
+  doc.setTextColor(0);
+  doc.text("Produtor: João Silva - Fazenda Santa Clara", 14, 40);
+  doc.text("NIF: 123456789", 14, 48);
+  
+  // Práticas de manejo
+  doc.setFontSize(14);
+  doc.setTextColor(101, 67, 33);
+  doc.text("1. Práticas de Manejo do Solo", 14, 62);
+  
+  doc.setFontSize(10);
+  doc.setTextColor(0);
+  const praticasSolo = [
+    "• Adubação verde com leguminosas",
+    "• Compostagem de resíduos da propriedade",
+    "• Cobertura morta entre as linhas de café",
+    "• Rotação de culturas nas áreas disponíveis",
+  ];
+  
+  let yPos = 70;
+  praticasSolo.forEach((pratica) => {
+    doc.text(pratica, 20, yPos);
+    yPos += 7;
+  });
+  
+  // Controle de pragas
+  doc.setFontSize(14);
+  doc.setTextColor(101, 67, 33);
+  doc.text("2. Controle de Pragas e Doenças", 14, yPos + 8);
+  
+  doc.setFontSize(10);
+  doc.setTextColor(0);
+  const controlePragas = [
+    "• Controle biológico com predadores naturais",
+    "• Caldas permitidas (bordalesa, sulfocálcica)",
+    "• Armadilhas para broca-do-café",
+    "• Monitoramento semanal de pragas",
+  ];
+  
+  yPos += 16;
+  controlePragas.forEach((pratica) => {
+    doc.text(pratica, 20, yPos);
+    yPos += 7;
+  });
+  
+  // Fertilização
+  doc.setFontSize(14);
+  doc.setTextColor(101, 67, 33);
+  doc.text("3. Programa de Fertilização", 14, yPos + 8);
+  
+  doc.setFontSize(10);
+  doc.setTextColor(0);
+  doc.text("• Composto orgânico: 3 ton/ha (aplicação anual)", 20, yPos + 16);
+  doc.text("• Bokashi: 500 kg/ha (2x ao ano)", 20, yPos + 23);
+  doc.text("• Biofertilizante foliar: aplicações mensais", 20, yPos + 30);
+  
+  // Conservação
+  doc.setFontSize(14);
+  doc.setTextColor(101, 67, 33);
+  doc.text("4. Conservação Ambiental", 14, yPos + 44);
+  
+  doc.setFontSize(10);
+  doc.setTextColor(0);
+  doc.text("• Preservação de 30% da área com mata nativa", 20, yPos + 52);
+  doc.text("• Corredores ecológicos entre talhões", 20, yPos + 59);
+  doc.text("• Proteção de nascentes e cursos d'água", 20, yPos + 66);
+  
+  doc.save(`plano-manejo-organico-${certId}.pdf`);
+};
+
+export const generateRegistroInsumosPDF = (certId: string) => {
+  const doc = new jsPDF();
+  
+  doc.setFontSize(18);
+  doc.setTextColor(101, 67, 33);
+  doc.text("Registro de Insumos Permitidos", 14, 20);
+  
+  doc.setFontSize(10);
+  doc.setTextColor(100);
+  doc.text(`Safra 2024 | Gerado em: ${new Date().toLocaleDateString("pt-BR")}`, 14, 28);
+  
+  doc.setFontSize(11);
+  doc.setTextColor(0);
+  doc.text("Produtor: João Silva - Fazenda Santa Clara", 14, 38);
+  doc.text("Certificação: Orgânico BR-BIO-001-2024", 14, 45);
+  
+  // Fertilizantes
+  doc.setFontSize(14);
+  doc.setTextColor(101, 67, 33);
+  doc.text("Fertilizantes e Condicionadores de Solo", 14, 58);
+  
+  const fertilizantes = [
+    ["Composto Orgânico", "Fazenda própria", "IBD Aprovado", "3 ton/ha"],
+    ["Bokashi", "Fornecedor Local", "IBD Aprovado", "500 kg/ha"],
+    ["Biofertilizante", "Fazenda própria", "IBD Aprovado", "Aplicação foliar"],
+    ["Farinha de Ossos", "AgroOrgânico Ltda", "IBD Aprovado", "200 kg/ha"],
+  ];
+  
+  autoTable(doc, {
+    head: [["Produto", "Fornecedor", "Certificação", "Dosagem"]],
+    body: fertilizantes,
+    startY: 63,
+    theme: "grid",
+    headStyles: { fillColor: [101, 67, 33] },
+  });
+  
+  // Controle fitossanitário
+  let finalY1 = (doc as any).lastAutoTable.finalY || 120;
+  doc.setFontSize(14);
+  doc.setTextColor(101, 67, 33);
+  doc.text("Produtos para Controle Fitossanitário", 14, finalY1 + 12);
+  
+  const fitossanitarios = [
+    ["Calda Bordalesa", "Fazenda própria", "IBD Aprovado", "1% concentração"],
+    ["Calda Sulfocálcica", "CaldaVerde", "IBD Aprovado", "0.5% concentração"],
+    ["Óleo de Neem", "NaturalPest", "IBD Aprovado", "2 ml/L água"],
+    ["Bacillus thuringiensis", "BioCafe", "IBD Aprovado", "Conforme bula"],
+  ];
+  
+  autoTable(doc, {
+    head: [["Produto", "Fornecedor", "Certificação", "Dosagem"]],
+    body: fitossanitarios,
+    startY: finalY1 + 17,
+    theme: "grid",
+    headStyles: { fillColor: [101, 67, 33] },
+  });
+  
+  // Observações
+  const finalY2 = (doc as any).lastAutoTable.finalY || 200;
+  doc.setFontSize(10);
+  doc.setTextColor(100);
+  doc.text("Todos os insumos listados são certificados para uso em agricultura orgânica.", 14, finalY2 + 12);
+  doc.text("Registros de aplicação mantidos em caderno de campo.", 14, finalY2 + 19);
+  
+  doc.save(`registro-insumos-${certId}.pdf`);
+};

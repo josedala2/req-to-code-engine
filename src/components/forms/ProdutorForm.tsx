@@ -9,7 +9,7 @@ import { toast } from "sonner";
 
 const produtorSchema = z.object({
   nome: z.string().min(3, "Nome deve ter pelo menos 3 caracteres").max(100),
-  cpf: z.string().regex(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, "CPF inválido (formato: 000.000.000-00)"),
+  nif: z.string().min(9, "NIF deve ter pelo menos 9 caracteres").max(20, "NIF deve ter no máximo 20 caracteres"),
   email: z.string().email("Email inválido").max(255),
   telefone: z.string().min(10, "Telefone inválido").max(20),
   nomeFazenda: z.string().min(3, "Nome da fazenda deve ter pelo menos 3 caracteres").max(100),
@@ -31,7 +31,7 @@ export function ProdutorForm({ onSuccess }: ProdutorFormProps) {
     resolver: zodResolver(produtorSchema),
     defaultValues: {
       nome: "",
-      cpf: "",
+      nif: "",
       email: "",
       telefone: "",
       nomeFazenda: "",
@@ -70,12 +70,12 @@ export function ProdutorForm({ onSuccess }: ProdutorFormProps) {
 
           <FormField
             control={form.control}
-            name="cpf"
+            name="nif"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>CPF</FormLabel>
+                <FormLabel>NIF</FormLabel>
                 <FormControl>
-                  <Input placeholder="000.000.000-00" {...field} />
+                  <Input placeholder="123456789" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

@@ -1,9 +1,16 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Shield, Calendar, FileCheck, AlertCircle, Building } from "lucide-react";
+import { ArrowLeft, Shield, Calendar, FileCheck, AlertCircle, Building, Download } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Separator } from "@/components/ui/separator";
+import { 
+  generateCertificadoOrganicoPDF, 
+  generateRelatorioAuditoriaPDF, 
+  generatePlanoManejoOrganicoPDF, 
+  generateRegistroInsumosPDF 
+} from "@/lib/pdfGenerator";
+import { toast } from "sonner";
 
 const certificationData = {
   "CERT-001": {
@@ -191,12 +198,54 @@ export default function CertificacaoDetalhes() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {cert.documents.map((doc) => (
-                  <Button key={doc} variant="outline" className="w-full justify-start" size="sm">
-                    <FileCheck className="h-4 w-4 mr-2" />
-                    {doc}
-                  </Button>
-                ))}
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start" 
+                  size="sm"
+                  onClick={() => {
+                    generateCertificadoOrganicoPDF(cert.id);
+                    toast.success("Certificado Orgânico gerado!");
+                  }}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Certificado Orgânico 2024-2025
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start" 
+                  size="sm"
+                  onClick={() => {
+                    generateRelatorioAuditoriaPDF(cert.id);
+                    toast.success("Relatório de Auditoria gerado!");
+                  }}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Relatório de Auditoria
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start" 
+                  size="sm"
+                  onClick={() => {
+                    generatePlanoManejoOrganicoPDF(cert.id);
+                    toast.success("Plano de Manejo Orgânico gerado!");
+                  }}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Plano de Manejo Orgânico
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start" 
+                  size="sm"
+                  onClick={() => {
+                    generateRegistroInsumosPDF(cert.id);
+                    toast.success("Registro de Insumos gerado!");
+                  }}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Registro de Insumos Permitidos
+                </Button>
               </div>
             </CardContent>
           </Card>
