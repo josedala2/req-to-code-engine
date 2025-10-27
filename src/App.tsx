@@ -15,6 +15,8 @@ import ProdutorDetalhes from "./pages/ProdutorDetalhes";
 import LoteDetalhes from "./pages/LoteDetalhes";
 import QualidadeDetalhes from "./pages/QualidadeDetalhes";
 import CertificacaoDetalhes from "./pages/CertificacaoDetalhes";
+import Auth from "./pages/Auth";
+import AprovacaoProdutores from "./pages/AprovacaoProdutores";
 
 const queryClient = new QueryClient();
 
@@ -24,21 +26,21 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-          <Route path="/produtores" element={<Produtores />} />
-          <Route path="/produtores/:id" element={<ProdutorDetalhes />} />
-          <Route path="/lotes" element={<Lotes />} />
-          <Route path="/lotes/:id" element={<LoteDetalhes />} />
-          <Route path="/qualidade" element={<Qualidade />} />
-          <Route path="/qualidade/:id" element={<QualidadeDetalhes />} />
-          <Route path="/certificacoes" element={<Certificacoes />} />
-          <Route path="/certificacoes/:id" element={<CertificacaoDetalhes />} />
-          <Route path="/relatorios" element={<Relatorios />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Layout>
+        <Routes>
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/" element={<Layout><Dashboard /></Layout>} />
+          <Route path="/produtores" element={<Layout><Produtores /></Layout>} />
+          <Route path="/produtores/:id" element={<Layout><ProdutorDetalhes /></Layout>} />
+          <Route path="/aprovacao-produtores" element={<Layout><AprovacaoProdutores /></Layout>} />
+          <Route path="/lotes" element={<Layout><Lotes /></Layout>} />
+          <Route path="/lotes/:id" element={<Layout><LoteDetalhes /></Layout>} />
+          <Route path="/qualidade" element={<Layout><Qualidade /></Layout>} />
+          <Route path="/qualidade/:id" element={<Layout><QualidadeDetalhes /></Layout>} />
+          <Route path="/certificacoes" element={<Layout><Certificacoes /></Layout>} />
+          <Route path="/certificacoes/:id" element={<Layout><CertificacaoDetalhes /></Layout>} />
+          <Route path="/relatorios" element={<Layout><Relatorios /></Layout>} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

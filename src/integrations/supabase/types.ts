@@ -14,16 +14,124 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      produtores: {
+        Row: {
+          altitude: string | null
+          approved_at: string | null
+          approved_by: string | null
+          area: string | null
+          certificacoes: string[] | null
+          created_at: string | null
+          email: string | null
+          id: string
+          localizacao: string
+          nif: string | null
+          nome: string
+          nome_fazenda: string
+          observacoes: string | null
+          status: Database["public"]["Enums"]["producer_status"] | null
+          telefone: string | null
+          updated_at: string | null
+          user_id: string | null
+          variedades: string[] | null
+        }
+        Insert: {
+          altitude?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          area?: string | null
+          certificacoes?: string[] | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          localizacao: string
+          nif?: string | null
+          nome: string
+          nome_fazenda: string
+          observacoes?: string | null
+          status?: Database["public"]["Enums"]["producer_status"] | null
+          telefone?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          variedades?: string[] | null
+        }
+        Update: {
+          altitude?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          area?: string | null
+          certificacoes?: string[] | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          localizacao?: string
+          nif?: string | null
+          nome?: string
+          nome_fazenda?: string
+          observacoes?: string | null
+          status?: Database["public"]["Enums"]["producer_status"] | null
+          telefone?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          variedades?: string[] | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          id: string
+          nome: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          id: string
+          nome?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          nome?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "produtor"
+      producer_status: "pendente" | "aprovado" | "rejeitado"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +258,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "produtor"],
+      producer_status: ["pendente", "aprovado", "rejeitado"],
+    },
   },
 } as const

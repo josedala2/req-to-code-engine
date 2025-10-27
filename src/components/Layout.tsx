@@ -1,7 +1,10 @@
 import { ReactNode } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Coffee, Home, Users, Package, ClipboardCheck, FileText, BarChart3 } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Coffee, Home, Users, Package, ClipboardCheck, FileText, BarChart3, LogOut, UserCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
+import { useUserRole } from "@/hooks/useUserRole";
+import { Button } from "@/components/ui/button";
 
 interface LayoutProps {
   children: ReactNode;
@@ -18,25 +21,47 @@ const navigation = [
 
 export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+  const { isAdmin } = useUserRole();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/auth");
+  };
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
-      {/* Header */}
       <header className="bg-card border-b border-border shadow-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-3">
-            <div className="bg-gradient-coffee p-2.5 rounded-xl shadow-glow">
-              <Coffee className="h-7 w-7 text-primary-foreground" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="bg-gradient-coffee p-2.5 rounded-xl shadow-glow">
+                <Coffee className="h-7 w-7 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">CaféTrace</h1>
+                <p className="text-sm text-muted-foreground">Sistema de Rastreabilidade e Qualidade</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">CaféTrace</h1>
-              <p className="text-sm text-muted-foreground">Sistema de Rastreabilidade e Qualidade</p>
-            </div>
+            {user && (
+              <div className="flex items-center gap-4">
+                <div className="text-right">
+                  <p className="text-sm font-medium text-foreground">{user.email}</p>
+                  {isAdmin && (
+                    <p className="text-xs text-muted-foreground">Administrador</p>
+                  )}
+                </div>
+                <Button variant="outline" size="sm" onClick={handleLogout}>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sair
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </header>
 
-      {/* Navigation */}
       <nav className="bg-card border-b border-border">
         <div className="container mx-auto px-4">
           <div className="flex gap-1 overflow-x-auto">
@@ -59,6 +84,21 @@ export default function Layout({ children }: LayoutProps) {
                 </Link>
               );
             })}
+            {isAdmin && (
+              <Link
+                to="/aprovacao-produtores"
+                className={cn(
+                  "flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all whitespace-nowrap",
+                  "hover:text-primary hover:bg-muted/50 rounded-t-lg",
+                  location.pathname === "/aprovacao-produtores"
+                    ? "text-primary bg-background border-b-2 border-primary"
+                    : "text-muted-foreground"
+                )}
+              >
+                <UserCheck className="h-4 w-4" />
+                Aprovações
+              </Link>
+            )}
           </div>
         </div>
       </nav>

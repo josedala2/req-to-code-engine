@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const produtorSchema = z.object({
   nome: z.string().min(3, "Nome deve ter pelo menos 3 caracteres").max(100),
@@ -43,11 +44,30 @@ export function ProdutorForm({ onSuccess }: ProdutorFormProps) {
     },
   });
 
-  const onSubmit = (data: ProdutorFormData) => {
-    console.log("Dados do produtor:", data);
-    toast.success("Produtor cadastrado com sucesso!");
-    form.reset();
-    onSuccess?.();
+  const onSubmit = async (data: ProdutorFormData) => {
+    try {
+      const { error } = await supabase.from("produtores").insert({
+        nome: data.nome,
+        nif: data.nif,
+        email: data.email,
+        telefone: data.telefone,
+        nome_fazenda: data.nomeFazenda,
+        localizacao: data.localizacao,
+        area: data.area,
+        altitude: data.altitude,
+        variedades: data.variedades ? data.variedades.split(",").map((v) => v.trim()) : [],
+        observacoes: data.observacoes,
+        status: "pendente",
+      });
+
+      if (error) throw error;
+
+      toast.success("Cadastro enviado! Aguarde aprovação do administrador.");
+      form.reset();
+      onSuccess?.();
+    } catch (error) {
+      toast.error("Erro ao cadastrar produtor. Tente novamente.");
+    }
   };
 
   return (

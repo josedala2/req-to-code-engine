@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,51 +10,51 @@ import { useNavigate } from "react-router-dom";
 import { ProdutorForm } from "@/components/forms/ProdutorForm";
 import { generateProdutoresPDF } from "@/lib/pdfGenerator";
 
-const producers = [
-  {
-    id: 1,
-    name: "Fazenda Santa Clara",
-    owner: "João Silva",
-    location: "Huíla - Chibia",
-    area: "85 hectares",
-    varieties: ["Bourbon Amarelo", "Catuaí Vermelho"],
-    certifications: ["Orgânico", "Fair Trade"],
-    contact: {
-      phone: "+244 923 456 789",
-      email: "contato@fazendasantaclara.ao",
-    },
-  },
-  {
-    id: 2,
-    name: "Quinta Bela Vista",
-    owner: "Maria Santos",
-    location: "Huambo - Huambo",
-    area: "42 hectares",
-    varieties: ["Catuaí Vermelho", "Mundo Novo"],
-    certifications: ["UTZ", "Rainforest Alliance"],
-    contact: {
-      phone: "+244 934 567 890",
-      email: "maria@quintabelavista.ao",
-    },
-  },
-  {
-    id: 3,
-    name: "Fazenda São José",
-    owner: "Carlos Oliveira",
-    location: "Benguela - Lobito",
-    area: "120 hectares",
-    varieties: ["Conilon", "Robusta"],
-    certifications: ["4C", "Orgânico"],
-    contact: {
-      phone: "+244 945 678 901",
-      email: "carlos@fazendasaojose.ao",
-    },
-  },
-];
+interface Produtor {
+  id: string;
+  nome: string;
+  nif: string | null;
+  email: string | null;
+  telefone: string | null;
+  nome_fazenda: string;
+  localizacao: string;
+  area: string | null;
+  altitude: string | null;
+  variedades: string[] | null;
+  certificacoes: string[] | null;
+  observacoes: string | null;
+  status: "pendente" | "aprovado" | "rejeitado";
+  contact?: {
+    phone: string;
+    email: string;
+  };
+}
 
 export default function Produtores() {
   const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [produtores, setProdutores] = useState<Produtor[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProdutores();
+  }, []);
+
+  const fetchProdutores = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("produtores")
+      .select("*")
+      .eq("status", "aprovado")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Erro ao carregar produtores:", error);
+    } else {
+      setProdutores(data || []);
+    }
+    setLoading(false);
+  };
   
   return (
     <div className="space-y-6">
@@ -95,63 +96,88 @@ export default function Produtores() {
         />
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {producers.map((producer) => (
-          <Card key={producer.id} className="shadow-elegant hover:shadow-glow transition-all">
-            <CardHeader>
-              <CardTitle className="text-lg">{producer.name}</CardTitle>
-              <CardDescription>{producer.owner}</CardDescription>
+      {loading ? (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">Carregando produtores...</p>
+        </div>
+      ) : produtores.length === 0 ? (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <p className="text-muted-foreground">Nenhum produtor aprovado encontrado</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {produtores.map((producer) => (
+            <Card key={producer.id} className="shadow-elegant hover:shadow-glow transition-all">
+              <CardHeader>
+                <CardTitle className="text-lg">{producer.nome_fazenda}</CardTitle>
+                <CardDescription>{producer.nome}</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex items-start gap-2 text-sm">
-                  <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                  <span className="text-muted-foreground">{producer.location}</span>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-start gap-2 text-sm">
+                    <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                    <span className="text-muted-foreground">{producer.localizacao}</span>
+                  </div>
+                  {producer.telefone && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Phone className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-muted-foreground">{producer.telefone}</span>
+                    </div>
+                  )}
+                  {producer.email && (
+                    <div className="flex items-start gap-2 text-sm">
+                      <Mail className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                      <span className="text-muted-foreground break-all">{producer.email}</span>
+                    </div>
+                  )}
                 </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">{producer.contact.phone}</span>
-                </div>
-                <div className="flex items-start gap-2 text-sm">
-                  <Mail className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                  <span className="text-muted-foreground break-all">{producer.contact.email}</span>
-                </div>
-              </div>
 
-              <div className="pt-3 border-t border-border">
-                <p className="text-sm font-medium mb-2">Área: {producer.area}</p>
-                <p className="text-sm font-medium mb-2">Variedades:</p>
-                <div className="flex flex-wrap gap-2">
-                  {producer.varieties.map((variety) => (
-                    <Badge key={variety} variant="secondary">
-                      {variety}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
+                {producer.area && (
+                  <div className="pt-3 border-t border-border">
+                    <p className="text-sm font-medium mb-2">Área: {producer.area}</p>
+                  </div>
+                )}
 
-              <div className="pt-3 border-t border-border">
-                <p className="text-sm font-medium mb-2">Certificações:</p>
-                <div className="flex flex-wrap gap-2">
-                  {producer.certifications.map((cert) => (
-                    <Badge key={cert} className="bg-gradient-natural text-secondary-foreground">
-                      {cert}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
+                {producer.variedades && producer.variedades.length > 0 && (
+                  <div className="pt-3 border-t border-border">
+                    <p className="text-sm font-medium mb-2">Variedades:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {producer.variedades.map((variety) => (
+                        <Badge key={variety} variant="secondary">
+                          {variety}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-              <Button 
-                variant="outline" 
-                className="w-full mt-4"
-                onClick={() => navigate(`/produtores/${producer.id}`)}
-              >
-                Ver Detalhes
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+                {producer.certificacoes && producer.certificacoes.length > 0 && (
+                  <div className="pt-3 border-t border-border">
+                    <p className="text-sm font-medium mb-2">Certificações:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {producer.certificacoes.map((cert) => (
+                        <Badge key={cert} className="bg-gradient-natural text-secondary-foreground">
+                          {cert}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <Button 
+                  variant="outline" 
+                  className="w-full mt-4"
+                  onClick={() => navigate(`/produtores/${producer.id}`)}
+                >
+                  Ver Detalhes
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
