@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Search, Calendar, Weight, MapPin, FileText } from "lucide-react";
+import { Plus, Search, Calendar, Weight, MapPin, FileText, Tag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { LoteForm } from "@/components/forms/LoteForm";
+import { SealForm } from "@/components/forms/SealForm";
 import { generateLotesPDF } from "@/lib/pdfGenerator";
 import {
   Table,
@@ -104,6 +105,7 @@ const getQualityColor = (quality: string) => {
 export default function Lotes() {
   const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [sealDialogOpen, setSealDialogOpen] = useState(false);
   
   return (
     <div className="space-y-6">
@@ -117,6 +119,25 @@ export default function Lotes() {
             <FileText className="mr-2 h-4 w-4" />
             Exportar PDF
           </Button>
+          
+          <Dialog open={sealDialogOpen} onOpenChange={setSealDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="border-primary text-primary hover:bg-primary/10">
+                <Tag className="mr-2 h-4 w-4" />
+                Gerar Selos
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Gerar Selos de Embalagem</DialogTitle>
+                <DialogDescription>
+                  Crie selos 5cm x 5cm para embalagens de café com certificação de qualidade
+                </DialogDescription>
+              </DialogHeader>
+              <SealForm onSuccess={() => setSealDialogOpen(false)} />
+            </DialogContent>
+          </Dialog>
+          
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
               <Button className="bg-gradient-coffee hover:opacity-90 shadow-glow">
