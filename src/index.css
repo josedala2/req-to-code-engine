@@ -8,27 +8,27 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 35 20% 97%;
-    --foreground: 30 15% 12%;
+    --background: 45 20% 96%;
+    --foreground: 140 40% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 30 15% 12%;
+    --card-foreground: 140 40% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 30 15% 12%;
+    --popover-foreground: 140 40% 15%;
 
-    --primary: 25 65% 35%;
-    --primary-foreground: 35 20% 98%;
-    --primary-glow: 25 70% 45%;
+    --primary: 140 50% 35%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 140 55% 45%;
 
-    --secondary: 140 35% 45%;
+    --secondary: 30 45% 55%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 35 15% 88%;
-    --muted-foreground: 30 10% 45%;
+    --muted: 45 20% 90%;
+    --muted-foreground: 140 20% 40%;
 
-    --accent: 45 80% 55%;
-    --accent-foreground: 30 15% 12%;
+    --accent: 40 70% 50%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
@@ -45,9 +45,9 @@ All colors MUST be HSL.
 
     --radius: 0.75rem;
 
-    --gradient-coffee: linear-gradient(135deg, hsl(25, 65%, 35%), hsl(25, 70%, 45%));
-    --gradient-natural: linear-gradient(135deg, hsl(140, 35%, 45%), hsl(140, 40%, 55%));
-    --gradient-subtle: linear-gradient(180deg, hsl(35, 20%, 97%), hsl(35, 15%, 93%));
+    --gradient-coffee: linear-gradient(135deg, hsl(30, 50%, 40%), hsl(25, 45%, 30%));
+    --gradient-natural: linear-gradient(135deg, hsl(140, 50%, 35%), hsl(120, 45%, 40%));
+    --gradient-subtle: linear-gradient(180deg, hsl(45, 20%, 98%), hsl(0, 0%, 100%));
 
     --shadow-elegant: 0 10px 30px -10px hsl(25, 65%, 35% / 0.2);
     --shadow-glow: 0 0 40px hsl(25, 70%, 45% / 0.15);
@@ -56,27 +56,27 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 30 20% 8%;
-    --foreground: 35 20% 95%;
+    --background: 140 30% 8%;
+    --foreground: 45 20% 95%;
 
-    --card: 30 18% 12%;
-    --card-foreground: 35 20% 95%;
+    --card: 140 25% 10%;
+    --card-foreground: 45 20% 95%;
 
-    --popover: 30 18% 12%;
-    --popover-foreground: 35 20% 95%;
+    --popover: 140 25% 10%;
+    --popover-foreground: 45 20% 95%;
 
-    --primary: 25 70% 50%;
+    --primary: 140 50% 45%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 25 75% 60%;
+    --primary-glow: 140 55% 55%;
 
-    --secondary: 140 40% 45%;
+    --secondary: 30 45% 45%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 30 15% 18%;
-    --muted-foreground: 35 12% 65%;
+    --muted: 140 20% 20%;
+    --muted-foreground: 45 15% 65%;
 
-    --accent: 45 85% 60%;
-    --accent-foreground: 30 20% 8%;
+    --accent: 40 70% 55%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 65% 45%;
     --destructive-foreground: 0 0% 100%;

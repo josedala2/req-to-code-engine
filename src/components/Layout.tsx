@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Button } from "@/components/ui/button";
+import mukafeLogo from "@/assets/mukafe-logo.jpeg";
 
 interface LayoutProps {
   children: ReactNode;
@@ -35,13 +36,11 @@ export default function Layout({ children }: LayoutProps) {
       <header className="bg-card border-b border-border shadow-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="bg-gradient-coffee p-2.5 rounded-xl shadow-glow">
-                <Coffee className="h-7 w-7 text-primary-foreground" />
-              </div>
+            <div className="flex items-center gap-4">
+              <img src={mukafeLogo} alt="Mukafe Logo" className="w-16 h-16 object-contain rounded-full" />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">CaféTrace</h1>
-                <p className="text-sm text-muted-foreground">Sistema de Rastreabilidade e Qualidade</p>
+                <h1 className="text-2xl font-bold text-foreground">Mukafe</h1>
+                <p className="text-sm text-muted-foreground">Sistema Nacional de Rastreabilidade do Café</p>
               </div>
             </div>
             {user && (
@@ -112,7 +111,7 @@ export default function Layout({ children }: LayoutProps) {
       <footer className="bg-card border-t border-border mt-16">
         <div className="container mx-auto px-4 py-6">
           <p className="text-center text-sm text-muted-foreground">
-            © 2025 CaféTrace - Sistema de Rastreabilidade e Qualidade do Café
+            © 2025 Mukafe - Sistema Nacional de Rastreabilidade do Café. Todos os direitos reservados.
           </p>
         </div>
       </footer>
