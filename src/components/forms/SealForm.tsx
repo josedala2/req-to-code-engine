@@ -8,14 +8,10 @@ import { toast } from "sonner";
 import { generateMultipleSeals } from "@/lib/sealGenerator";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const sealSchema = z.object({
   loteId: z.string().min(3, "Código do lote é obrigatório"),
-  produtor: z.string().min(3, "Nome do produtor é obrigatório"),
-  certificacao: z.string().min(3, "Número de certificação é obrigatório"),
-  dataColheita: z.string().min(1, "Data de colheita é obrigatória"),
-  variedade: z.string().min(1, "Variedade é obrigatória"),
-  processo: z.string().min(1, "Processo é obrigatório"),
   quantidade: z.string()
     .min(1, "Quantidade é obrigatória")
     .transform((val) => parseInt(val, 10))
@@ -29,21 +25,15 @@ type SealFormData = z.infer<typeof sealSchema>;
 interface SealFormProps {
   onSuccess?: () => void;
   defaultLoteId?: string;
-  defaultProdutor?: string;
 }
 
-export function SealForm({ onSuccess, defaultLoteId, defaultProdutor }: SealFormProps) {
+export function SealForm({ onSuccess, defaultLoteId }: SealFormProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   
   const form = useForm<SealFormData>({
     resolver: zodResolver(sealSchema),
     defaultValues: {
       loteId: defaultLoteId || "",
-      produtor: defaultProdutor || "",
-      certificacao: "",
-      dataColheita: "",
-      variedade: "",
-      processo: "",
       quantidade: "10" as any,
     },
   });
@@ -51,14 +41,28 @@ export function SealForm({ onSuccess, defaultLoteId, defaultProdutor }: SealForm
   const onSubmit = async (data: SealFormData) => {
     setIsGenerating(true);
     try {
+      // Buscar dados do lote no banco
+      const { data: loteData, error } = await supabase
+        .from("lotes")
+        .select("*")
+        .eq("codigo", data.loteId)
+        .single();
+
+      if (error || !loteData) {
+        toast.error("Lote não encontrado. Verifique o código.");
+        setIsGenerating(false);
+        return;
+      }
+
+      // Gerar selos com os dados do lote
       await generateMultipleSeals(
         {
-          loteId: data.loteId,
-          produtor: data.produtor,
-          certificacao: data.certificacao,
-          dataColheita: data.dataColheita,
-          variedade: data.variedade,
-          processo: data.processo,
+          loteId: loteData.codigo,
+          produtor: loteData.produtor_nome,
+          certificacao: loteData.certificacao || "SEM-CERT",
+          dataColheita: new Date(loteData.data_colheita).toLocaleDateString('pt-BR'),
+          variedade: loteData.variedade,
+          processo: loteData.processo,
         },
         data.quantidade
       );
@@ -77,94 +81,22 @@ export function SealForm({ onSuccess, defaultLoteId, defaultProdutor }: SealForm
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="loteId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Código do Lote</FormLabel>
-                <FormControl>
-                  <Input placeholder="LOT-2025-001" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="produtor"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nome do Produtor</FormLabel>
-                <FormControl>
-                  <Input placeholder="Fazenda Santa Clara" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="certificacao"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Número de Certificação</FormLabel>
-                <FormControl>
-                  <Input placeholder="CERT-2025-001" {...field} />
-                </FormControl>
-                <FormDescription>
-                  Número único de certificação do lote
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="dataColheita"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Data de Colheita</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="variedade"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Variedade</FormLabel>
-                <FormControl>
-                  <Input placeholder="Bourbon Amarelo" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="processo"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Processo</FormLabel>
-                <FormControl>
-                  <Input placeholder="Natural" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+        <FormField
+          control={form.control}
+          name="loteId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Código do Lote</FormLabel>
+              <FormControl>
+                <Input placeholder="LOT-2025-001" {...field} />
+              </FormControl>
+              <FormDescription>
+                Digite o código do lote cadastrado no sistema
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}

@@ -7,6 +7,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
 
 const loteSchema = z.object({
   codigo: z.string().min(3, "Código deve ter pelo menos 3 caracteres").max(50),
@@ -20,6 +23,7 @@ const loteSchema = z.object({
   peneira: z.string().optional(),
   umidade: z.string().optional(),
   observacoes: z.string().max(500).optional(),
+  certificacao: z.string().min(1, "Número de certificação é obrigatório"),
 });
 
 type LoteFormData = z.infer<typeof loteSchema>;
@@ -29,6 +33,8 @@ interface LoteFormProps {
 }
 
 export function LoteForm({ onSuccess }: LoteFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const form = useForm<LoteFormData>({
     resolver: zodResolver(loteSchema),
     defaultValues: {
@@ -43,14 +49,39 @@ export function LoteForm({ onSuccess }: LoteFormProps) {
       peneira: "",
       umidade: "",
       observacoes: "",
+      certificacao: "",
     },
   });
 
-  const onSubmit = (data: LoteFormData) => {
-    console.log("Dados do lote:", data);
-    toast.success("Lote cadastrado com sucesso!");
-    form.reset();
-    onSuccess?.();
+  const onSubmit = async (data: LoteFormData) => {
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase.from("lotes").insert({
+        codigo: data.codigo,
+        produtor_nome: data.produtor,
+        safra: data.safra,
+        variedade: data.variedade,
+        processo: data.processo,
+        data_colheita: data.dataColheita,
+        quantidade: parseFloat(data.quantidade),
+        unidade: data.unidade,
+        peneira: data.peneira || null,
+        umidade: data.umidade ? parseFloat(data.umidade) : null,
+        observacoes: data.observacoes || null,
+        certificacao: data.certificacao,
+      });
+
+      if (error) throw error;
+
+      toast.success("Lote cadastrado com sucesso!");
+      form.reset();
+      onSuccess?.();
+    } catch (error) {
+      console.error("Erro ao cadastrar lote:", error);
+      toast.error("Erro ao cadastrar lote. Tente novamente.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -238,6 +269,20 @@ export function LoteForm({ onSuccess }: LoteFormProps) {
 
         <FormField
           control={form.control}
+          name="certificacao"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Número de Certificação</FormLabel>
+              <FormControl>
+                <Input placeholder="CERT-2025-001" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
           name="observacoes"
           render={({ field }) => (
             <FormItem>
@@ -250,8 +295,15 @@ export function LoteForm({ onSuccess }: LoteFormProps) {
           )}
         />
 
-        <Button type="submit" className="w-full">
-          Cadastrar Lote
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Cadastrando...
+            </>
+          ) : (
+            "Cadastrar Lote"
+          )}
         </Button>
       </form>
     </Form>

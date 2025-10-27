@@ -14,6 +14,74 @@ export type Database = {
   }
   public: {
     Tables: {
+      lotes: {
+        Row: {
+          certificacao: string | null
+          codigo: string
+          created_at: string | null
+          data_colheita: string
+          id: string
+          observacoes: string | null
+          peneira: string | null
+          processo: string
+          produtor_id: string | null
+          produtor_nome: string
+          quantidade: number
+          safra: string
+          status: string | null
+          umidade: number | null
+          unidade: string
+          updated_at: string | null
+          variedade: string
+        }
+        Insert: {
+          certificacao?: string | null
+          codigo: string
+          created_at?: string | null
+          data_colheita: string
+          id?: string
+          observacoes?: string | null
+          peneira?: string | null
+          processo: string
+          produtor_id?: string | null
+          produtor_nome: string
+          quantidade: number
+          safra: string
+          status?: string | null
+          umidade?: number | null
+          unidade: string
+          updated_at?: string | null
+          variedade: string
+        }
+        Update: {
+          certificacao?: string | null
+          codigo?: string
+          created_at?: string | null
+          data_colheita?: string
+          id?: string
+          observacoes?: string | null
+          peneira?: string | null
+          processo?: string
+          produtor_id?: string | null
+          produtor_nome?: string
+          quantidade?: number
+          safra?: string
+          status?: string | null
+          umidade?: number | null
+          unidade?: string
+          updated_at?: string | null
+          variedade?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lotes_produtor_id_fkey"
+            columns: ["produtor_id"]
+            isOneToOne: false
+            referencedRelation: "produtores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       produtores: {
         Row: {
           altitude: string | null
