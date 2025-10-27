@@ -46,10 +46,17 @@ export function SealForm({ onSuccess, defaultLoteId }: SealFormProps) {
         .from("lotes")
         .select("*")
         .eq("codigo", data.loteId)
-        .single();
+        .maybeSingle();
 
-      if (error || !loteData) {
-        toast.error("Lote não encontrado. Verifique o código.");
+      if (error) {
+        console.error("Erro ao buscar lote:", error);
+        toast.error("Erro ao buscar lote. Tente novamente.");
+        setIsGenerating(false);
+        return;
+      }
+
+      if (!loteData) {
+        toast.error("Lote não encontrado. Verifique o código ou cadastre o lote primeiro.");
         setIsGenerating(false);
         return;
       }
