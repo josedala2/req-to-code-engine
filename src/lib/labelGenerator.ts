@@ -31,17 +31,12 @@ export const generateCoffeeLabel = (data: LabelData) => {
   doc.setLineWidth(0.5);
   doc.rect(3, 3, 94, 144);
   
-  // Logo Mukafe no topo
+  // Logo no topo
   doc.addImage(mukafeLogo, "PNG", 35, 8, 30, 30);
-  
-  // Nome Mukafe
-  doc.setFontSize(14);
-  doc.setTextColor(34, 139, 34);
-  doc.text("Mukafe", 50, 43, { align: "center" });
   
   doc.setFontSize(7);
   doc.setTextColor(100);
-  doc.text("Sistema Nacional de Rastreabilidade do Café", 50, 47, { align: "center" });
+  doc.text("Sistema Nacional de Rastreabilidade do Café", 50, 43, { align: "center" });
   
   // Linha separadora
   doc.setDrawColor(34, 139, 34);

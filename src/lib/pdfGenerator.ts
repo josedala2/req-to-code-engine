@@ -8,12 +8,9 @@ const addMukafeHeader = (doc: jsPDF, titulo: string) => {
   doc.addImage(mukafeLogo, "PNG", 14, 8, 20, 20);
   
   // Título do sistema ao lado do logo
-  doc.setFontSize(12);
-  doc.setTextColor(34, 139, 34); // Verde Mukafe
-  doc.text("Mukafe", 38, 15);
-  doc.setFontSize(8);
+  doc.setFontSize(10);
   doc.setTextColor(100);
-  doc.text("Sistema Nacional de Rastreabilidade do Café", 38, 20);
+  doc.text("Sistema Nacional de Rastreabilidade do Café", 38, 16);
   
   // Linha separadora
   doc.setDrawColor(34, 139, 34);
@@ -214,13 +211,10 @@ export const generateCertificadoOrganicoPDF = (certId: string) => {
   // Logo Mukafe centralizado
   doc.addImage(mukafeLogo, "PNG", 90, 10, 30, 30);
   
-  // Identificação Mukafe
-  doc.setFontSize(10);
-  doc.setTextColor(34, 139, 34);
-  doc.text("Mukafe", 105, 45, { align: "center" });
-  doc.setFontSize(8);
+  // Identificação
+  doc.setFontSize(9);
   doc.setTextColor(100);
-  doc.text("Sistema Nacional de Rastreabilidade do Café", 105, 50, { align: "center" });
+  doc.text("Sistema Nacional de Rastreabilidade do Café", 105, 45, { align: "center" });
   
   // Cabeçalho
   doc.setFontSize(22);
