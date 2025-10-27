@@ -7,8 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Coffee } from "lucide-react";
 import { z } from "zod";
+import mukafeLogo from "@/assets/mukafe-logo.jpeg";
 
 const emailSchema = z.string().email("Email inválido");
 const passwordSchema = z.string().min(6, "A senha deve ter pelo menos 6 caracteres");
@@ -124,12 +124,10 @@ export default function Auth() {
       <Card className="w-full max-w-md shadow-elegant">
         <CardHeader className="text-center space-y-2">
           <div className="flex justify-center mb-2">
-            <div className="p-3 bg-gradient-coffee rounded-full">
-              <Coffee className="h-8 w-8 text-white" />
-            </div>
+            <img src={mukafeLogo} alt="Mukafe Logo" className="w-24 h-24 object-contain rounded-full" />
           </div>
-          <CardTitle className="text-2xl">Sistema de Rastreabilidade</CardTitle>
-          <CardDescription>Café Angolano de Qualidade</CardDescription>
+          <CardTitle className="text-2xl">Mukafe</CardTitle>
+          <CardDescription>Sistema Nacional de Rastreabilidade do Café</CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="login" className="w-full">

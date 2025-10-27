@@ -1,18 +1,36 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
+// Helper para adicionar cabeçalho Mukafe em todos os PDFs
+const addMukafeHeader = (doc: jsPDF, titulo: string) => {
+  // Título do sistema
+  doc.setFontSize(10);
+  doc.setTextColor(34, 139, 34); // Verde Mukafe
+  doc.text("Mukafe", 14, 15);
+  doc.setFontSize(8);
+  doc.setTextColor(100);
+  doc.text("Sistema Nacional de Rastreabilidade do Café", 14, 20);
+  
+  // Linha separadora
+  doc.setDrawColor(34, 139, 34);
+  doc.setLineWidth(0.5);
+  doc.line(14, 23, 196, 23);
+  
+  // Título do documento
+  doc.setFontSize(16);
+  doc.setTextColor(34, 139, 34);
+  doc.text(titulo, 14, 32);
+};
+
 export const generateProdutoresPDF = () => {
   const doc = new jsPDF();
   
-  // Título
-  doc.setFontSize(18);
-  doc.setTextColor(101, 67, 33);
-  doc.text("Relatório de Produtores", 14, 20);
+  addMukafeHeader(doc, "Relatório de Produtores");
   
   // Data de geração
-  doc.setFontSize(10);
+  doc.setFontSize(9);
   doc.setTextColor(100);
-  doc.text(`Gerado em: ${new Date().toLocaleDateString("pt-BR")}`, 14, 28);
+  doc.text(`Gerado em: ${new Date().toLocaleDateString("pt-BR")}`, 14, 38);
   
   // Dados dos produtores
   const produtores = [
@@ -25,9 +43,9 @@ export const generateProdutoresPDF = () => {
   autoTable(doc, {
     head: [["Produtor", "Fazenda", "Localização", "Área", "Status"]],
     body: produtores,
-    startY: 35,
+    startY: 45,
     theme: "grid",
-    headStyles: { fillColor: [101, 67, 33] },
+    headStyles: { fillColor: [34, 139, 34] },
   });
   
   // Salvar PDF
@@ -37,13 +55,11 @@ export const generateProdutoresPDF = () => {
 export const generateLotesPDF = () => {
   const doc = new jsPDF();
   
-  doc.setFontSize(18);
-  doc.setTextColor(101, 67, 33);
-  doc.text("Relatório de Lotes", 14, 20);
+  addMukafeHeader(doc, "Relatório de Lotes");
   
-  doc.setFontSize(10);
+  doc.setFontSize(9);
   doc.setTextColor(100);
-  doc.text(`Gerado em: ${new Date().toLocaleDateString("pt-BR")}`, 14, 28);
+  doc.text(`Gerado em: ${new Date().toLocaleDateString("pt-BR")}`, 14, 38);
   
   const lotes = [
     ["LOTE-2024-001", "João Silva", "Arábica", "Natural", "2024", "5000 kg"],
@@ -55,9 +71,9 @@ export const generateLotesPDF = () => {
   autoTable(doc, {
     head: [["Código", "Produtor", "Variedade", "Processo", "Safra", "Quantidade"]],
     body: lotes,
-    startY: 35,
+    startY: 45,
     theme: "grid",
-    headStyles: { fillColor: [101, 67, 33] },
+    headStyles: { fillColor: [34, 139, 34] },
   });
   
   doc.save("relatorio-lotes.pdf");
@@ -66,13 +82,11 @@ export const generateLotesPDF = () => {
 export const generateQualidadePDF = () => {
   const doc = new jsPDF();
   
-  doc.setFontSize(18);
-  doc.setTextColor(101, 67, 33);
-  doc.text("Relatório de Análises de Qualidade", 14, 20);
+  addMukafeHeader(doc, "Relatório de Análises de Qualidade");
   
-  doc.setFontSize(10);
+  doc.setFontSize(9);
   doc.setTextColor(100);
-  doc.text(`Gerado em: ${new Date().toLocaleDateString("pt-BR")}`, 14, 28);
+  doc.text(`Gerado em: ${new Date().toLocaleDateString("pt-BR")}`, 14, 38);
   
   const analises = [
     ["LOTE-2024-001", "85.5", "Especial", "Maria Lima", "15/01/2024"],
@@ -84,9 +98,9 @@ export const generateQualidadePDF = () => {
   autoTable(doc, {
     head: [["Lote", "Nota Final", "Classificação", "Q-Grader", "Data"]],
     body: analises,
-    startY: 35,
+    startY: 45,
     theme: "grid",
-    headStyles: { fillColor: [101, 67, 33] },
+    headStyles: { fillColor: [34, 139, 34] },
   });
   
   doc.save("relatorio-qualidade.pdf");
@@ -95,13 +109,11 @@ export const generateQualidadePDF = () => {
 export const generateCertificacoesPDF = () => {
   const doc = new jsPDF();
   
-  doc.setFontSize(18);
-  doc.setTextColor(101, 67, 33);
-  doc.text("Relatório de Certificações", 14, 20);
+  addMukafeHeader(doc, "Relatório de Certificações");
   
-  doc.setFontSize(10);
+  doc.setFontSize(9);
   doc.setTextColor(100);
-  doc.text(`Gerado em: ${new Date().toLocaleDateString("pt-BR")}`, 14, 28);
+  doc.text(`Gerado em: ${new Date().toLocaleDateString("pt-BR")}`, 14, 38);
   
   const certificacoes = [
     ["João Silva", "Orgânico", "ECOCERT Angola", "Válida", "31/12/2024"],
@@ -113,9 +125,9 @@ export const generateCertificacoesPDF = () => {
   autoTable(doc, {
     head: [["Produtor", "Tipo", "Certificadora", "Status", "Validade"]],
     body: certificacoes,
-    startY: 35,
+    startY: 45,
     theme: "grid",
-    headStyles: { fillColor: [101, 67, 33] },
+    headStyles: { fillColor: [34, 139, 34] },
   });
   
   doc.save("relatorio-certificacoes.pdf");
@@ -124,64 +136,62 @@ export const generateCertificacoesPDF = () => {
 export const generateRastreabilidadePDF = (loteId: string) => {
   const doc = new jsPDF();
   
-  doc.setFontSize(20);
-  doc.setTextColor(101, 67, 33);
-  doc.text("Relatório de Rastreabilidade", 14, 20);
+  addMukafeHeader(doc, "Relatório de Rastreabilidade");
   
   doc.setFontSize(12);
   doc.setTextColor(0);
-  doc.text(`Lote: ${loteId}`, 14, 32);
+  doc.text(`Lote: ${loteId}`, 14, 42);
   
-  doc.setFontSize(10);
+  doc.setFontSize(9);
   doc.setTextColor(100);
-  doc.text(`Gerado em: ${new Date().toLocaleDateString("pt-BR")}`, 14, 40);
+  doc.text(`Gerado em: ${new Date().toLocaleDateString("pt-BR")}`, 14, 50);
   
   // Informações do Produtor
-  doc.setFontSize(14);
-  doc.setTextColor(101, 67, 33);
-  doc.text("Informações do Produtor", 14, 55);
+  doc.setFontSize(13);
+  doc.setTextColor(34, 139, 34);
+  doc.text("Informações do Produtor", 14, 62);
   
   doc.setFontSize(10);
   doc.setTextColor(0);
-  doc.text("Nome: João Silva", 14, 63);
-  doc.text("Fazenda: Fazenda Boa Vista", 14, 70);
-  doc.text("Localização: Huíla, Chibia", 14, 77);
-  doc.text("Altitude: 1200m", 14, 84);
+  doc.text("Nome: João Silva", 14, 70);
+  doc.text("Fazenda: Fazenda Boa Vista", 14, 77);
+  doc.text("Localização: Huíla, Chibia", 14, 84);
+  doc.text("Altitude: 1200m", 14, 91);
   
   // Informações do Lote
-  doc.setFontSize(14);
-  doc.setTextColor(101, 67, 33);
-  doc.text("Informações do Lote", 14, 99);
+  doc.setFontSize(13);
+  doc.setTextColor(34, 139, 34);
+  doc.text("Informações do Lote", 14, 106);
   
   doc.setFontSize(10);
   doc.setTextColor(0);
-  doc.text("Variedade: Arábica Bourbon", 14, 107);
-  doc.text("Processo: Natural", 14, 114);
-  doc.text("Safra: 2024", 14, 121);
-  doc.text("Data de Colheita: 15/05/2024", 14, 128);
-  doc.text("Quantidade: 5000 kg", 14, 135);
+  doc.text("Variedade: Arábica Bourbon", 14, 114);
+  doc.text("Processo: Natural", 14, 121);
+  doc.text("Safra: 2024", 14, 128);
+  doc.text("Data de Colheita: 15/05/2024", 14, 135);
+  doc.text("Quantidade: 5000 kg", 14, 142);
   
   // Análise de Qualidade
-  doc.setFontSize(14);
-  doc.setTextColor(101, 67, 33);
-  doc.text("Análise de Qualidade", 14, 150);
+  doc.setFontSize(13);
+  doc.setTextColor(34, 139, 34);
+  doc.text("Análise de Qualidade", 14, 157);
   
   doc.setFontSize(10);
   doc.setTextColor(0);
-  doc.text("Nota Final: 85.5 pontos", 14, 158);
-  doc.text("Classificação: Café Especial", 14, 165);
-  doc.text("Q-Grader: Maria Lima", 14, 172);
-  doc.text("Data da Análise: 20/05/2024", 14, 179);
+  doc.text("Nota Final: 85.5 pontos", 14, 165);
+  doc.text("Classificação: Café Especial", 14, 172);
+  doc.text("Q-Grader: Maria Lima", 14, 179);
+  doc.text("Data da Análise: 20/05/2024", 14, 186);
   
   // Certificações
-  doc.setFontSize(14);
-  doc.setTextColor(101, 67, 33);
-  doc.text("Certificações", 14, 194);
+  doc.setFontSize(13);
+  doc.setTextColor(34, 139, 34);
+  doc.text("Certificações", 14, 201);
   
   doc.setFontSize(10);
   doc.setTextColor(0);
-  doc.text("• Orgânico (ECOCERT Angola)", 14, 202);
-  doc.text("• Rainforest Alliance", 14, 209);
+  doc.text("• Orgânico (ECOCERT Angola)", 14, 209);
+  doc.text("• Rainforest Alliance", 14, 216);
   
   // QR Code ou código de barras (área reservada)
   doc.setFontSize(10);
@@ -197,35 +207,43 @@ export const generateRastreabilidadePDF = (loteId: string) => {
 export const generateCertificadoOrganicoPDF = (certId: string) => {
   const doc = new jsPDF();
   
+  // Logo e identificação Mukafe
+  doc.setFontSize(12);
+  doc.setTextColor(34, 139, 34);
+  doc.text("Mukafe", 105, 15, { align: "center" });
+  doc.setFontSize(8);
+  doc.setTextColor(100);
+  doc.text("Sistema Nacional de Rastreabilidade do Café", 105, 20, { align: "center" });
+  
   // Cabeçalho
-  doc.setFontSize(24);
-  doc.setTextColor(101, 67, 33);
-  doc.text("CERTIFICADO ORGÂNICO", 105, 30, { align: "center" });
+  doc.setFontSize(22);
+  doc.setTextColor(34, 139, 34);
+  doc.text("CERTIFICADO ORGÂNICO", 105, 35, { align: "center" });
   
   // Linha decorativa
-  doc.setDrawColor(101, 67, 33);
+  doc.setDrawColor(34, 139, 34);
   doc.setLineWidth(0.5);
-  doc.line(20, 35, 190, 35);
+  doc.line(20, 40, 190, 40);
   
   // Número do certificado
-  doc.setFontSize(12);
+  doc.setFontSize(11);
   doc.setTextColor(0);
-  doc.text(`Certificado Nº: AO-BIO-001-2024`, 105, 45, { align: "center" });
+  doc.text(`Certificado Nº: AO-BIO-001-2024`, 105, 50, { align: "center" });
   
   // Corpo do certificado
   doc.setFontSize(11);
-  doc.text("Certificamos que:", 20, 60);
+  doc.text("Certificamos que:", 20, 65);
   
   doc.setFontSize(16);
-  doc.setTextColor(101, 67, 33);
-  doc.text("Fazenda Santa Clara", 105, 70, { align: "center" });
+  doc.setTextColor(34, 139, 34);
+  doc.text("Fazenda Santa Clara", 105, 75, { align: "center" });
   
   doc.setFontSize(11);
   doc.setTextColor(0);
-  doc.text("Produtor: João Silva", 105, 80, { align: "center" });
-  doc.text("NIF: 123456789", 105, 88, { align: "center" });
+  doc.text("Produtor: João Silva", 105, 85, { align: "center" });
+  doc.text("NIF: 123456789", 105, 93, { align: "center" });
   
-  doc.text("Atende aos requisitos da produção orgânica conforme:", 20, 105);
+  doc.text("Atende aos requisitos da produção orgânica conforme:", 20, 110);
   
   // Lista de normas
   const normas = [
@@ -235,7 +253,7 @@ export const generateCertificadoOrganicoPDF = (certId: string) => {
     "• Normas ECOCERT para África"
   ];
   
-  let yPos = 115;
+  let yPos = 120;
   normas.forEach((norma) => {
     doc.text(norma, 30, yPos);
     yPos += 8;
@@ -251,7 +269,7 @@ export const generateCertificadoOrganicoPDF = (certId: string) => {
   
   // Certificadora
   doc.setFontSize(12);
-  doc.setTextColor(101, 67, 33);
+  doc.setTextColor(34, 139, 34);
   doc.text("ECOCERT Angola", 105, yPos + 50, { align: "center" });
   
   doc.setFontSize(9);
@@ -265,37 +283,35 @@ export const generateCertificadoOrganicoPDF = (certId: string) => {
 export const generateRelatorioAuditoriaPDF = (certId: string) => {
   const doc = new jsPDF();
   
-  doc.setFontSize(18);
-  doc.setTextColor(101, 67, 33);
-  doc.text("Relatório de Auditoria de Certificação Orgânica", 14, 20);
+  addMukafeHeader(doc, "Relatório de Auditoria de Certificação Orgânica");
   
-  doc.setFontSize(10);
+  doc.setFontSize(9);
   doc.setTextColor(100);
-  doc.text(`Gerado em: ${new Date().toLocaleDateString("pt-BR")}`, 14, 28);
+  doc.text(`Gerado em: ${new Date().toLocaleDateString("pt-BR")}`, 14, 38);
   
   // Informações da auditoria
-  doc.setFontSize(12);
-  doc.setTextColor(0);
-  doc.text("Tipo: Auditoria de Renovação", 14, 40);
-  doc.text("Data: 10/03/2024", 14, 48);
-  doc.text("Auditor: Carlos Mendes - ECOCERT Angola", 14, 56);
-  
-  // Produtor
-  doc.setFontSize(14);
-  doc.setTextColor(101, 67, 33);
-  doc.text("Produtor Auditado", 14, 70);
-  
   doc.setFontSize(11);
   doc.setTextColor(0);
-  doc.text("Nome: João Silva", 14, 78);
-  doc.text("Fazenda: Fazenda Santa Clara", 14, 85);
-  doc.text("NIF: 123456789", 14, 92);
-  doc.text("Localização: Huíla, Chibia", 14, 99);
+  doc.text("Tipo: Auditoria de Renovação", 14, 48);
+  doc.text("Data: 10/03/2024", 14, 56);
+  doc.text("Auditor: Carlos Mendes - ECOCERT Angola", 14, 64);
+  
+  // Produtor
+  doc.setFontSize(13);
+  doc.setTextColor(34, 139, 34);
+  doc.text("Produtor Auditado", 14, 78);
+  
+  doc.setFontSize(10);
+  doc.setTextColor(0);
+  doc.text("Nome: João Silva", 14, 86);
+  doc.text("Fazenda: Fazenda Santa Clara", 14, 93);
+  doc.text("NIF: 123456789", 14, 100);
+  doc.text("Localização: Huíla, Chibia", 14, 107);
   
   // Critérios avaliados
-  doc.setFontSize(14);
-  doc.setTextColor(101, 67, 33);
-  doc.text("Critérios Avaliados", 14, 113);
+  doc.setFontSize(13);
+  doc.setTextColor(34, 139, 34);
+  doc.text("Critérios Avaliados", 14, 121);
   
   const criterios = [
     ["Ausência de agrotóxicos sintéticos", "Conforme"],
@@ -309,15 +325,15 @@ export const generateRelatorioAuditoriaPDF = (certId: string) => {
   autoTable(doc, {
     head: [["Critério", "Status"]],
     body: criterios,
-    startY: 118,
+    startY: 126,
     theme: "grid",
-    headStyles: { fillColor: [101, 67, 33] },
+    headStyles: { fillColor: [34, 139, 34] },
   });
   
   // Conclusão
   const finalY = (doc as any).lastAutoTable.finalY || 150;
   doc.setFontSize(12);
-  doc.setTextColor(101, 67, 33);
+  doc.setTextColor(34, 139, 34);
   doc.text("Conclusão", 14, finalY + 15);
   
   doc.setFontSize(10);
@@ -331,24 +347,22 @@ export const generateRelatorioAuditoriaPDF = (certId: string) => {
 export const generatePlanoManejoOrganicoPDF = (certId: string) => {
   const doc = new jsPDF();
   
-  doc.setFontSize(18);
-  doc.setTextColor(101, 67, 33);
-  doc.text("Plano de Manejo Orgânico", 14, 20);
+  addMukafeHeader(doc, "Plano de Manejo Orgânico");
   
-  doc.setFontSize(10);
+  doc.setFontSize(9);
   doc.setTextColor(100);
-  doc.text(`Safra 2024 | Gerado em: ${new Date().toLocaleDateString("pt-BR")}`, 14, 28);
+  doc.text(`Safra 2024 | Gerado em: ${new Date().toLocaleDateString("pt-BR")}`, 14, 38);
   
   // Produtor
-  doc.setFontSize(12);
+  doc.setFontSize(11);
   doc.setTextColor(0);
-  doc.text("Produtor: João Silva - Fazenda Santa Clara", 14, 40);
-  doc.text("NIF: 123456789", 14, 48);
+  doc.text("Produtor: João Silva - Fazenda Santa Clara", 14, 48);
+  doc.text("NIF: 123456789", 14, 56);
   
   // Práticas de manejo
-  doc.setFontSize(14);
-  doc.setTextColor(101, 67, 33);
-  doc.text("1. Práticas de Manejo do Solo", 14, 62);
+  doc.setFontSize(13);
+  doc.setTextColor(34, 139, 34);
+  doc.text("1. Práticas de Manejo do Solo", 14, 70);
   
   doc.setFontSize(10);
   doc.setTextColor(0);
@@ -359,15 +373,15 @@ export const generatePlanoManejoOrganicoPDF = (certId: string) => {
     "• Rotação de culturas nas áreas disponíveis",
   ];
   
-  let yPos = 70;
+  let yPos = 78;
   praticasSolo.forEach((pratica) => {
     doc.text(pratica, 20, yPos);
     yPos += 7;
   });
   
   // Controle de pragas
-  doc.setFontSize(14);
-  doc.setTextColor(101, 67, 33);
+  doc.setFontSize(13);
+  doc.setTextColor(34, 139, 34);
   doc.text("2. Controle de Pragas e Doenças", 14, yPos + 8);
   
   doc.setFontSize(10);
@@ -386,8 +400,8 @@ export const generatePlanoManejoOrganicoPDF = (certId: string) => {
   });
   
   // Fertilização
-  doc.setFontSize(14);
-  doc.setTextColor(101, 67, 33);
+  doc.setFontSize(13);
+  doc.setTextColor(34, 139, 34);
   doc.text("3. Programa de Fertilização", 14, yPos + 8);
   
   doc.setFontSize(10);
@@ -397,8 +411,8 @@ export const generatePlanoManejoOrganicoPDF = (certId: string) => {
   doc.text("• Biofertilizante foliar: aplicações mensais", 20, yPos + 30);
   
   // Conservação
-  doc.setFontSize(14);
-  doc.setTextColor(101, 67, 33);
+  doc.setFontSize(13);
+  doc.setTextColor(34, 139, 34);
   doc.text("4. Conservação Ambiental", 14, yPos + 44);
   
   doc.setFontSize(10);
@@ -413,23 +427,21 @@ export const generatePlanoManejoOrganicoPDF = (certId: string) => {
 export const generateRegistroInsumosPDF = (certId: string) => {
   const doc = new jsPDF();
   
-  doc.setFontSize(18);
-  doc.setTextColor(101, 67, 33);
-  doc.text("Registro de Insumos Permitidos", 14, 20);
+  addMukafeHeader(doc, "Registro de Insumos Permitidos");
+  
+  doc.setFontSize(9);
+  doc.setTextColor(100);
+  doc.text(`Safra 2024 | Gerado em: ${new Date().toLocaleDateString("pt-BR")}`, 14, 38);
   
   doc.setFontSize(10);
-  doc.setTextColor(100);
-  doc.text(`Safra 2024 | Gerado em: ${new Date().toLocaleDateString("pt-BR")}`, 14, 28);
-  
-  doc.setFontSize(11);
   doc.setTextColor(0);
-  doc.text("Produtor: João Silva - Fazenda Santa Clara", 14, 38);
-  doc.text("Certificação: Orgânico BR-BIO-001-2024", 14, 45);
+  doc.text("Produtor: João Silva - Fazenda Santa Clara", 14, 48);
+  doc.text("Certificação: Orgânico BR-BIO-001-2024", 14, 55);
   
   // Fertilizantes
-  doc.setFontSize(14);
-  doc.setTextColor(101, 67, 33);
-  doc.text("Fertilizantes e Condicionadores de Solo", 14, 58);
+  doc.setFontSize(13);
+  doc.setTextColor(34, 139, 34);
+  doc.text("Fertilizantes e Condicionadores de Solo", 14, 68);
   
   const fertilizantes = [
     ["Composto Orgânico", "Fazenda própria", "ECOCERT Aprovado", "3 ton/ha"],
@@ -441,15 +453,15 @@ export const generateRegistroInsumosPDF = (certId: string) => {
   autoTable(doc, {
     head: [["Produto", "Fornecedor", "Certificação", "Dosagem"]],
     body: fertilizantes,
-    startY: 63,
+    startY: 73,
     theme: "grid",
-    headStyles: { fillColor: [101, 67, 33] },
+    headStyles: { fillColor: [34, 139, 34] },
   });
   
   // Controle fitossanitário
   let finalY1 = (doc as any).lastAutoTable.finalY || 120;
-  doc.setFontSize(14);
-  doc.setTextColor(101, 67, 33);
+  doc.setFontSize(13);
+  doc.setTextColor(34, 139, 34);
   doc.text("Produtos para Controle Fitossanitário", 14, finalY1 + 12);
   
   const fitossanitarios = [
@@ -464,7 +476,7 @@ export const generateRegistroInsumosPDF = (certId: string) => {
     body: fitossanitarios,
     startY: finalY1 + 17,
     theme: "grid",
-    headStyles: { fillColor: [101, 67, 33] },
+    headStyles: { fillColor: [34, 139, 34] },
   });
   
   // Observações
