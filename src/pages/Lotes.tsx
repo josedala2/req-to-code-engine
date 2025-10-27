@@ -1,9 +1,13 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Calendar, Weight, MapPin } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Plus, Search, Calendar, Weight, MapPin, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { LoteForm } from "@/components/forms/LoteForm";
+import { generateLotesPDF } from "@/lib/pdfGenerator";
 import {
   Table,
   TableBody,
@@ -99,6 +103,7 @@ const getQualityColor = (quality: string) => {
 
 export default function Lotes() {
   const navigate = useNavigate();
+  const [dialogOpen, setDialogOpen] = useState(false);
   
   return (
     <div className="space-y-6">
@@ -107,10 +112,29 @@ export default function Lotes() {
           <h2 className="text-3xl font-bold text-foreground">Lotes de Café</h2>
           <p className="text-muted-foreground">Rastreamento completo da produção</p>
         </div>
-        <Button className="bg-gradient-coffee hover:opacity-90 shadow-glow">
-          <Plus className="h-4 w-4 mr-2" />
-          Novo Lote
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={generateLotesPDF} variant="outline">
+            <FileText className="mr-2 h-4 w-4" />
+            Exportar PDF
+          </Button>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-gradient-coffee hover:opacity-90 shadow-glow">
+                <Plus className="h-4 w-4 mr-2" />
+                Novo Lote
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Cadastrar Novo Lote</DialogTitle>
+                <DialogDescription>
+                  Registre um novo lote de café para rastreabilidade
+                </DialogDescription>
+              </DialogHeader>
+              <LoteForm onSuccess={() => setDialogOpen(false)} />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <div className="relative">

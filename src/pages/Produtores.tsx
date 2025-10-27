@@ -1,9 +1,13 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, MapPin, Phone, Mail } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Plus, Search, MapPin, Phone, Mail, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { ProdutorForm } from "@/components/forms/ProdutorForm";
+import { generateProdutoresPDF } from "@/lib/pdfGenerator";
 
 const producers = [
   {
@@ -49,6 +53,7 @@ const producers = [
 
 export default function Produtores() {
   const navigate = useNavigate();
+  const [dialogOpen, setDialogOpen] = useState(false);
   
   return (
     <div className="space-y-6">
@@ -57,10 +62,29 @@ export default function Produtores() {
           <h2 className="text-3xl font-bold text-foreground">Produtores</h2>
           <p className="text-muted-foreground">Gestão de produtores e fazendas</p>
         </div>
-        <Button className="bg-gradient-coffee hover:opacity-90 shadow-glow">
-          <Plus className="h-4 w-4 mr-2" />
-          Novo Produtor
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={generateProdutoresPDF} variant="outline">
+            <FileText className="mr-2 h-4 w-4" />
+            Exportar PDF
+          </Button>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-gradient-coffee hover:opacity-90 shadow-glow">
+                <Plus className="h-4 w-4 mr-2" />
+                Novo Produtor
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Cadastrar Novo Produtor</DialogTitle>
+                <DialogDescription>
+                  Preencha os dados do produtor e da propriedade
+                </DialogDescription>
+              </DialogHeader>
+              <ProdutorForm onSuccess={() => setDialogOpen(false)} />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <div className="relative">

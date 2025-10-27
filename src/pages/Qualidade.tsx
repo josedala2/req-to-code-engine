@@ -1,8 +1,12 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, ClipboardCheck, Droplet, Bug, Eye, Star } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Plus, ClipboardCheck, Droplet, Bug, Eye, Star, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { QualidadeForm } from "@/components/forms/QualidadeForm";
+import { generateQualidadePDF } from "@/lib/pdfGenerator";
 
 const qualityTests = [
   {
@@ -57,6 +61,7 @@ const getScoreBg = (score: number) => {
 
 export default function Qualidade() {
   const navigate = useNavigate();
+  const [dialogOpen, setDialogOpen] = useState(false);
   
   return (
     <div className="space-y-6">
@@ -65,10 +70,29 @@ export default function Qualidade() {
           <h2 className="text-3xl font-bold text-foreground">Controle de Qualidade</h2>
           <p className="text-muted-foreground">Análises sensoriais e testes de qualidade</p>
         </div>
-        <Button className="bg-gradient-coffee hover:opacity-90 shadow-glow">
-          <Plus className="h-4 w-4 mr-2" />
-          Nova Análise
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={generateQualidadePDF} variant="outline">
+            <FileText className="mr-2 h-4 w-4" />
+            Exportar PDF
+          </Button>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-gradient-coffee hover:opacity-90 shadow-glow">
+                <Plus className="h-4 w-4 mr-2" />
+                Nova Análise
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Nova Análise de Qualidade</DialogTitle>
+                <DialogDescription>
+                  Registre a análise sensorial e classificação do café
+                </DialogDescription>
+              </DialogHeader>
+              <QualidadeForm onSuccess={() => setDialogOpen(false)} />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* Quality Metrics */}

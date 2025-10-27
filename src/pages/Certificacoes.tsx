@@ -1,8 +1,12 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Award, Calendar, CheckCircle2, AlertCircle } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Plus, Award, Calendar, CheckCircle2, AlertCircle, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { CertificacaoForm } from "@/components/forms/CertificacaoForm";
+import { generateCertificacoesPDF } from "@/lib/pdfGenerator";
 
 const certifications = [
   {
@@ -84,6 +88,7 @@ const getStatusConfig = (status: string) => {
 
 export default function Certificacoes() {
   const navigate = useNavigate();
+  const [dialogOpen, setDialogOpen] = useState(false);
   
   return (
     <div className="space-y-6">
@@ -92,10 +97,29 @@ export default function Certificacoes() {
           <h2 className="text-3xl font-bold text-foreground">Certificações</h2>
           <p className="text-muted-foreground">Gestão de certificações e conformidades</p>
         </div>
-        <Button className="bg-gradient-coffee hover:opacity-90 shadow-glow">
-          <Plus className="h-4 w-4 mr-2" />
-          Nova Certificação
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={generateCertificacoesPDF} variant="outline">
+            <FileText className="mr-2 h-4 w-4" />
+            Exportar PDF
+          </Button>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-gradient-coffee hover:opacity-90 shadow-glow">
+                <Plus className="h-4 w-4 mr-2" />
+                Nova Certificação
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Cadastrar Nova Certificação</DialogTitle>
+                <DialogDescription>
+                  Registre uma certificação de qualidade ou sustentabilidade
+                </DialogDescription>
+              </DialogHeader>
+              <CertificacaoForm onSuccess={() => setDialogOpen(false)} />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* Summary Cards */}

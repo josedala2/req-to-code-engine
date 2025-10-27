@@ -1,9 +1,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Calendar, Weight, MapPin, Thermometer, Droplets, Users } from "lucide-react";
+import { ArrowLeft, Calendar, Weight, MapPin, Thermometer, Droplets, Users, Download } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { generateRastreabilidadePDF } from "@/lib/pdfGenerator";
+import { toast } from "sonner";
 
 const batchData = {
   "LOT-2025-001": {
@@ -60,10 +62,17 @@ export default function LoteDetalhes() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between">
         <Button variant="ghost" onClick={() => navigate("/lotes")}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Voltar
+        </Button>
+        <Button onClick={() => {
+          generateRastreabilidadePDF(id || "LOTE-2024-001");
+          toast.success("Relatório de rastreabilidade exportado!");
+        }}>
+          <Download className="mr-2 h-4 w-4" />
+          Exportar Rastreabilidade
         </Button>
       </div>
 
