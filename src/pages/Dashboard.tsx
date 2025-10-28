@@ -400,6 +400,13 @@ export default function Dashboard() {
                 </CardTitle>
                 <CardDescription>Últimas solicitações de empresas</CardDescription>
               </div>
+              <Button 
+                size="sm" 
+                variant="outline"
+                onClick={() => navigate("/empresa/auth")}
+              >
+                Portal Empresas
+              </Button>
             </div>
           </CardHeader>
           <CardContent>
@@ -442,6 +449,13 @@ export default function Dashboard() {
                 </CardTitle>
                 <CardDescription>Últimas empresas cadastradas</CardDescription>
               </div>
+              <Button 
+                size="sm" 
+                variant="outline"
+                onClick={() => navigate("/empresa/auth")}
+              >
+                Portal Empresas
+              </Button>
             </div>
           </CardHeader>
           <CardContent>
