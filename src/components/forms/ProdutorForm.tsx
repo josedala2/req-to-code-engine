@@ -574,7 +574,7 @@ export function ProdutorForm({ onSuccess, initialData, isEditing = false }: Prod
                 <FormItem>
                   <FormLabel>Tipos de Café Produzido</FormLabel>
                   <FormControl>
-                    <Input placeholder="Arábica, Robusta, Bourbon" {...field} />
+                    <Input placeholder="Arabica, Robusta" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

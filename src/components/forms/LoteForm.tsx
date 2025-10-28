@@ -152,10 +152,8 @@ export function LoteForm({ onSuccess }: LoteFormProps) {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="arabica">Arábica</SelectItem>
-                    <SelectItem value="bourbon">Bourbon</SelectItem>
-                    <SelectItem value="catuai">Catuaí</SelectItem>
-                    <SelectItem value="mundo-novo">Mundo Novo</SelectItem>
+                    <SelectItem value="arabica">Arabica</SelectItem>
+                    <SelectItem value="robusta">Robusta</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
