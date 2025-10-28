@@ -186,7 +186,7 @@ export default function Lotes() {
                   <TableHead className="font-bold">Qualidade</TableHead>
                   <TableHead className="font-bold">Status</TableHead>
                   <TableHead className="font-bold">Localização</TableHead>
-                  <TableHead className="font-bold">Ações</TableHead>
+                  <TableHead className="font-bold">Acções</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

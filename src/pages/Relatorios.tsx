@@ -105,7 +105,7 @@ export default function Relatorios() {
       <Card className="shadow-elegant">
         <CardHeader>
           <CardTitle>Relatórios Rápidos</CardTitle>
-          <CardDescription>Gere relatórios instantâneos com dados atualizados</CardDescription>
+          <CardDescription>Gere relatórios instantâneos com dados actualizados</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

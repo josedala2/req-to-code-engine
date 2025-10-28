@@ -120,10 +120,10 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h2 className="text-3xl font-bold text-foreground mb-2">Dashboard</h2>
-        <p className="text-muted-foreground">Visão geral do sistema de rastreabilidade</p>
-      </div>
+        <div>
+          <h2 className="text-3xl font-bold text-foreground mb-2">Dashboard</h2>
+          <p className="text-muted-foreground">Visão geral do sistema de rastreabilidade</p>
+        </div>
 
       {/* Stats Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -145,7 +145,7 @@ export default function Dashboard() {
         <Card className="shadow-elegant hover:shadow-glow transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Produtores Ativos
+              Produtores Activos
             </CardTitle>
             <div className="p-2 rounded-lg bg-secondary/10">
               <Users className="h-4 w-4 text-secondary" />
@@ -175,7 +175,7 @@ export default function Dashboard() {
         <Card className="shadow-elegant hover:shadow-glow transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Províncias Ativas
+              Províncias Activas
             </CardTitle>
             <div className="p-2 rounded-lg bg-success/10">
               <Award className="h-4 w-4 text-success" />
@@ -311,7 +311,7 @@ export default function Dashboard() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <FileCheck className="h-5 w-5 text-primary" />
-            <CardTitle>Ações Rápidas</CardTitle>
+            <CardTitle>Acções Rápidas</CardTitle>
           </div>
           <CardDescription>Acesso rápido às funcionalidades principais</CardDescription>
         </CardHeader>
