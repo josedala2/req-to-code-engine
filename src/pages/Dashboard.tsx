@@ -189,42 +189,8 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Recent Batches */}
-      <Card className="shadow-elegant">
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Coffee className="h-5 w-5 text-primary" />
-            <CardTitle>Lotes Recentes</CardTitle>
-          </div>
-          <CardDescription>Últimos lotes cadastrados no sistema</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {recentBatches.map((batch) => (
-              <div
-                key={batch.id}
-                className="flex items-center justify-between p-4 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors border border-border"
-              >
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="font-mono text-sm font-bold text-primary">{batch.id}</span>
-                    <Badge variant="secondary">{batch.variety}</Badge>
-                    <Badge className="bg-gradient-coffee text-primary-foreground">{batch.quality}</Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground">{batch.producer}</p>
-                </div>
-                <div className="text-right">
-                  <p className="font-semibold text-foreground">{batch.quantity}</p>
-                  <p className="text-sm text-muted-foreground">{batch.status}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Quality Overview */}
-      <div className="grid gap-6 md:grid-cols-2">
+      {/* Quality Overview and Recent Batches */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card className="shadow-elegant">
           <CardHeader>
             <CardTitle>Distribuição de Qualidade</CardTitle>
@@ -297,6 +263,36 @@ export default function Dashboard() {
                   <span className="text-sm font-bold text-muted-foreground w-12 text-right">62</span>
                 </div>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-elegant">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Coffee className="h-5 w-5 text-primary" />
+              <CardTitle>Lotes Recentes</CardTitle>
+            </div>
+            <CardDescription>Últimos lotes cadastrados</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {recentBatches.slice(0, 3).map((batch) => (
+                <div
+                  key={batch.id}
+                  className="p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors border border-border"
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-mono text-xs font-bold text-primary">{batch.id}</span>
+                    <Badge variant="secondary" className="text-xs">{batch.variety}</Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-2">{batch.producer}</p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold">{batch.quantity}</span>
+                    <Badge className="text-xs bg-gradient-coffee text-primary-foreground">{batch.quality}</Badge>
+                  </div>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
