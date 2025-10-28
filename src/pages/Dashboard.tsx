@@ -2,6 +2,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Package, Users, ClipboardCheck, TrendingUp, Coffee, Award, FileCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import MapaAngola from "@/components/MapaAngola";
 
 const stats = [
   {
@@ -70,6 +73,51 @@ const recentBatches = [
 ];
 
 export default function Dashboard() {
+  const { data: produtores } = useQuery({
+    queryKey: ['produtores-stats'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('produtores')
+        .select('provincia, status')
+        .eq('status', 'aprovado');
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: lotes } = useQuery({
+    queryKey: ['lotes-stats'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('lotes')
+        .select('status')
+        .eq('status', 'ativo');
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: qualidade } = useQuery({
+    queryKey: ['qualidade-stats'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('qualidade')
+        .select('id');
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Count producers by province
+  const producersByProvince = produtores?.reduce((acc, producer) => {
+    const province = producer.provincia || 'Outros';
+    acc[province] = (acc[province] || 0) + 1;
+    return acc;
+  }, {} as { [key: string]: number }) || {};
+
   return (
     <div className="space-y-8">
       <div>
@@ -79,29 +127,71 @@ export default function Dashboard() {
 
       {/* Stats Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <Card key={stat.name} className="shadow-elegant hover:shadow-glow transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                {stat.name}
-              </CardTitle>
-              <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-                <stat.icon className={`h-4 w-4 ${stat.color}`} />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-foreground">{stat.value}</div>
-              <div className="flex items-center gap-2 mt-2">
-                <Badge variant="outline" className="text-success border-success/50">
-                  <TrendingUp className="h-3 w-3 mr-1" />
-                  {stat.change}
-                </Badge>
-                <span className="text-xs text-muted-foreground">vs. último mês</span>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        <Card className="shadow-elegant hover:shadow-glow transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Total de Lotes
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-primary/10">
+              <Package className="h-4 w-4 text-primary" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-foreground">{lotes?.length || 0}</div>
+            <p className="text-xs text-muted-foreground mt-2">Lotes ativos cadastrados</p>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-elegant hover:shadow-glow transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Produtores Ativos
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-secondary/10">
+              <Users className="h-4 w-4 text-secondary" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-foreground">{produtores?.length || 0}</div>
+            <p className="text-xs text-muted-foreground mt-2">Produtores aprovados</p>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-elegant hover:shadow-glow transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Análises de Qualidade
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-accent/10">
+              <ClipboardCheck className="h-4 w-4 text-accent" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-foreground">{qualidade?.length || 0}</div>
+            <p className="text-xs text-muted-foreground mt-2">Análises realizadas</p>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-elegant hover:shadow-glow transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Províncias Ativas
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-success/10">
+              <Award className="h-4 w-4 text-success" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-foreground">
+              {Object.keys(producersByProvince).length}
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">Com produtores cadastrados</p>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* Map */}
+      <MapaAngola producersByProvince={producersByProvince} />
 
       {/* Recent Batches */}
       <Card className="shadow-elegant">
