@@ -32,6 +32,7 @@ const produtorSchema = z.object({
   tipoProducao: z.enum(["com_sombra", "sem_sombra"], {
     required_error: "Tipo de produção é obrigatório",
   }),
+  totalTrabalhadores: z.string().min(1, "Total de funcionários é obrigatório"),
   trabalhadoresEfetivosHomens: z.string().min(1, "Obrigatório"),
   trabalhadoresEfetivosMulheres: z.string().min(1, "Obrigatório"),
   trabalhadoresColaboradoresHomens: z.string().min(1, "Obrigatório"),
@@ -70,6 +71,7 @@ export function ProdutorForm({ onSuccess }: ProdutorFormProps) {
       formaAquisicao: undefined,
       variedades: "",
       tipoProducao: undefined,
+      totalTrabalhadores: "0",
       trabalhadoresEfetivosHomens: "0",
       trabalhadoresEfetivosMulheres: "0",
       trabalhadoresColaboradoresHomens: "0",
@@ -109,7 +111,47 @@ export function ProdutorForm({ onSuccess }: ProdutorFormProps) {
     }
   }, [selectedMunicipio, selectedProvincia, form]);
 
+  // Watch form values for auto-calculation
+  const totalTrabalhadores = form.watch("totalTrabalhadores");
+  const trabalhadoresEfetivosHomens = form.watch("trabalhadoresEfetivosHomens");
+  const trabalhadoresColaboradoresHomens = form.watch("trabalhadoresColaboradoresHomens");
+
+  // Auto-calculate women when men value changes for Efetivos
+  useEffect(() => {
+    const total = parseInt(totalTrabalhadores || "0");
+    const homens = parseInt(trabalhadoresEfetivosHomens || "0");
+    const mulheres = total - homens;
+    if (mulheres >= 0) {
+      form.setValue("trabalhadoresEfetivosMulheres", mulheres.toString(), { shouldValidate: false });
+    }
+  }, [trabalhadoresEfetivosHomens, totalTrabalhadores, form]);
+
+  // Auto-calculate women when men value changes for Colaboradores
+  useEffect(() => {
+    const total = parseInt(totalTrabalhadores || "0");
+    const homens = parseInt(trabalhadoresColaboradoresHomens || "0");
+    const mulheres = total - homens;
+    if (mulheres >= 0) {
+      form.setValue("trabalhadoresColaboradoresMulheres", mulheres.toString(), { shouldValidate: false });
+    }
+  }, [trabalhadoresColaboradoresHomens, totalTrabalhadores, form]);
+
   const onSubmit = async (data: ProdutorFormData) => {
+    // Validate that sum does not exceed total
+    const total = parseInt(data.totalTrabalhadores || "0");
+    const totalEfetivos = parseInt(data.trabalhadoresEfetivosHomens || "0") + parseInt(data.trabalhadoresEfetivosMulheres || "0");
+    const totalColaboradores = parseInt(data.trabalhadoresColaboradoresHomens || "0") + parseInt(data.trabalhadoresColaboradoresMulheres || "0");
+
+    if (totalEfetivos > total) {
+      toast.error("A soma de trabalhadores efetivos não pode ser superior ao total de funcionários.");
+      return;
+    }
+
+    if (totalColaboradores > total) {
+      toast.error("A soma de trabalhadores colaboradores não pode ser superior ao total de funcionários.");
+      return;
+    }
+
     try {
       const { error } = await supabase.from("produtores").insert({
         nome: data.nome,
@@ -455,6 +497,21 @@ export function ProdutorForm({ onSuccess }: ProdutorFormProps) {
 
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">Recursos Humanos</h3>
+          
+          <FormField
+            control={form.control}
+            name="totalTrabalhadores"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Total de Funcionários</FormLabel>
+                <FormControl>
+                  <Input type="number" min="0" placeholder="0" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="col-span-2">
               <h4 className="text-sm font-medium mb-2">Trabalhadores Efetivos</h4>
@@ -466,7 +523,7 @@ export function ProdutorForm({ onSuccess }: ProdutorFormProps) {
                     <FormItem>
                       <FormLabel>Total Homens</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="0" {...field} />
+                        <Input type="number" min="0" placeholder="0" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -478,9 +535,9 @@ export function ProdutorForm({ onSuccess }: ProdutorFormProps) {
                   name="trabalhadoresEfetivosMulheres"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Total Mulheres</FormLabel>
+                      <FormLabel>Total Mulheres (calculado automaticamente)</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="0" {...field} />
+                        <Input type="number" placeholder="0" {...field} disabled className="bg-muted" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -499,7 +556,7 @@ export function ProdutorForm({ onSuccess }: ProdutorFormProps) {
                     <FormItem>
                       <FormLabel>Total Homens</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="0" {...field} />
+                        <Input type="number" min="0" placeholder="0" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -511,9 +568,9 @@ export function ProdutorForm({ onSuccess }: ProdutorFormProps) {
                   name="trabalhadoresColaboradoresMulheres"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Total Mulheres</FormLabel>
+                      <FormLabel>Total Mulheres (calculado automaticamente)</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="0" {...field} />
+                        <Input type="number" placeholder="0" {...field} disabled className="bg-muted" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
