@@ -9,6 +9,8 @@ import Lotes from "./pages/Lotes";
 import Qualidade from "./pages/Qualidade";
 import Certificacoes from "./pages/Certificacoes";
 import Relatorios from "./pages/Relatorios";
+import Auditorias from "./pages/Auditorias";
+import AuditoriaDetalhes from "./pages/AuditoriaDetalhes";
 import NotFound from "./pages/NotFound";
 import Layout from "./components/Layout";
 import ProdutorDetalhes from "./pages/ProdutorDetalhes";
@@ -43,6 +45,8 @@ const App = () => (
                 <Route path="/qualidade/:id" element={<QualidadeDetalhes />} />
                 <Route path="/certificacoes" element={<Certificacoes />} />
                 <Route path="/certificacoes/:id" element={<CertificacaoDetalhes />} />
+                <Route path="/auditorias" element={<Auditorias />} />
+                <Route path="/auditorias/:id" element={<AuditoriaDetalhes />} />
                 <Route path="/relatorios" element={<Relatorios />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

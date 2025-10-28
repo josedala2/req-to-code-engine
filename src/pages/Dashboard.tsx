@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, Users, ClipboardCheck, TrendingUp, Coffee, Award } from "lucide-react";
+import { Package, Users, ClipboardCheck, TrendingUp, Coffee, Award, FileCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Link } from "react-router-dom";
 
 const stats = [
   {
@@ -214,6 +215,60 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Quick Actions */}
+      <Card className="shadow-elegant">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <FileCheck className="h-5 w-5 text-primary" />
+            <CardTitle>Ações Rápidas</CardTitle>
+          </div>
+          <CardDescription>Acesso rápido às funcionalidades principais</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Link to="/lotes">
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow border-2 border-transparent hover:border-primary/50">
+                <CardContent className="p-4 flex items-center gap-3">
+                  <div className="p-3 rounded-lg bg-primary/10">
+                    <Package className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">Gerenciar Lotes</p>
+                    <p className="text-sm text-muted-foreground">Cadastro e rastreio</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+            <Link to="/qualidade">
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow border-2 border-transparent hover:border-primary/50">
+                <CardContent className="p-4 flex items-center gap-3">
+                  <div className="p-3 rounded-lg bg-accent/10">
+                    <ClipboardCheck className="h-6 w-6 text-accent" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">Análise de Qualidade</p>
+                    <p className="text-sm text-muted-foreground">Testes e avaliações</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+            <Link to="/auditorias">
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow border-2 border-transparent hover:border-primary/50">
+                <CardContent className="p-4 flex items-center gap-3">
+                  <div className="p-3 rounded-lg bg-success/10">
+                    <FileCheck className="h-6 w-6 text-success" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">Auditorias</p>
+                    <p className="text-sm text-muted-foreground">Relatórios de auditoria</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

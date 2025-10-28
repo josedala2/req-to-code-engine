@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Coffee, Home, Users, Package, ClipboardCheck, FileText, BarChart3, LogOut, UserCheck } from "lucide-react";
+import { Coffee, Home, Users, Package, ClipboardCheck, FileText, BarChart3, LogOut, UserCheck, FileCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -17,6 +17,7 @@ const navigation = [
   { name: "Lotes", href: "/lotes", icon: Package },
   { name: "Qualidade", href: "/qualidade", icon: ClipboardCheck },
   { name: "Certificações", href: "/certificacoes", icon: FileText },
+  { name: "Auditorias", href: "/auditorias", icon: FileCheck },
   { name: "Relatórios", href: "/relatorios", icon: BarChart3 },
 ];
 

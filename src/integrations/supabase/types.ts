@@ -14,6 +14,96 @@ export type Database = {
   }
   public: {
     Tables: {
+      auditorias: {
+        Row: {
+          auditor_certificacao: string | null
+          auditor_nome: string
+          certificado_emitido: boolean | null
+          codigo: string
+          conformidades: string[] | null
+          created_at: string | null
+          created_by: string | null
+          criterios_avaliados: Json | null
+          data_auditoria: string
+          id: string
+          lote_id: string | null
+          nao_conformidades: string[] | null
+          observacoes: string | null
+          pontuacao_maxima: number | null
+          pontuacao_total: number | null
+          produtor_id: string | null
+          recomendacoes: string | null
+          resultado: string | null
+          status: string | null
+          tipo_auditoria: string
+          updated_at: string | null
+          validade_certificado: string | null
+        }
+        Insert: {
+          auditor_certificacao?: string | null
+          auditor_nome: string
+          certificado_emitido?: boolean | null
+          codigo: string
+          conformidades?: string[] | null
+          created_at?: string | null
+          created_by?: string | null
+          criterios_avaliados?: Json | null
+          data_auditoria: string
+          id?: string
+          lote_id?: string | null
+          nao_conformidades?: string[] | null
+          observacoes?: string | null
+          pontuacao_maxima?: number | null
+          pontuacao_total?: number | null
+          produtor_id?: string | null
+          recomendacoes?: string | null
+          resultado?: string | null
+          status?: string | null
+          tipo_auditoria: string
+          updated_at?: string | null
+          validade_certificado?: string | null
+        }
+        Update: {
+          auditor_certificacao?: string | null
+          auditor_nome?: string
+          certificado_emitido?: boolean | null
+          codigo?: string
+          conformidades?: string[] | null
+          created_at?: string | null
+          created_by?: string | null
+          criterios_avaliados?: Json | null
+          data_auditoria?: string
+          id?: string
+          lote_id?: string | null
+          nao_conformidades?: string[] | null
+          observacoes?: string | null
+          pontuacao_maxima?: number | null
+          pontuacao_total?: number | null
+          produtor_id?: string | null
+          recomendacoes?: string | null
+          resultado?: string | null
+          status?: string | null
+          tipo_auditoria?: string
+          updated_at?: string | null
+          validade_certificado?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "auditorias_lote_id_fkey"
+            columns: ["lote_id"]
+            isOneToOne: false
+            referencedRelation: "lotes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "auditorias_produtor_id_fkey"
+            columns: ["produtor_id"]
+            isOneToOne: false
+            referencedRelation: "produtores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lotes: {
         Row: {
           certificacao: string | null
