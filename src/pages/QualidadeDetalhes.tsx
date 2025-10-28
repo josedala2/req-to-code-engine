@@ -114,7 +114,9 @@ export default function QualidadeDetalhes() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Variedade</p>
-                <Badge variant="secondary">{quality.lotes?.variedade || 'N/A'}</Badge>
+                <Badge variant="secondary">
+                  {quality.lotes?.variedade ? (Array.isArray(quality.lotes.variedade) ? quality.lotes.variedade.join(', ') : quality.lotes.variedade) : 'N/A'}
+                </Badge>
               </div>
             </div>
 

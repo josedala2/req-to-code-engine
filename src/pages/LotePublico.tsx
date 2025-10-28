@@ -11,7 +11,7 @@ interface LoteData {
   codigo: string;
   produtor_nome: string;
   safra: string;
-  variedade: string;
+  variedade: string[];
   processo: string;
   data_colheita: string;
   quantidade: number;
@@ -150,7 +150,7 @@ export default function LotePublico() {
                   <Leaf className="h-5 w-5 text-primary mt-0.5" />
                   <div>
                     <p className="font-semibold text-sm text-muted-foreground">Variedade</p>
-                    <p className="text-base font-medium">{lote.variedade}</p>
+                    <p className="text-base font-medium">{lote.variedade.join(', ')}</p>
                   </div>
                 </div>
 

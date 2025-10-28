@@ -68,7 +68,7 @@ export function SealForm({ onSuccess, defaultLoteId }: SealFormProps) {
           produtor: loteData.produtor_nome,
           certificacao: loteData.certificacao || "SEM-CERT",
           dataColheita: new Date(loteData.data_colheita).toLocaleDateString('pt-BR'),
-          variedade: loteData.variedade,
+          variedade: Array.isArray(loteData.variedade) ? loteData.variedade.join(', ') : loteData.variedade,
           processo: loteData.processo,
         },
         data.quantidade

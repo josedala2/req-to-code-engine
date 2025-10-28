@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
@@ -15,7 +16,7 @@ const loteSchema = z.object({
   codigo: z.string().min(3, "Código deve ter pelo menos 3 caracteres").max(50),
   produtor: z.string().min(1, "Selecione um produtor"),
   safra: z.string().min(4, "Safra inválida"),
-  variedade: z.string().min(1, "Selecione uma variedade"),
+  variedades: z.array(z.enum(["arabica", "robusta"])).min(1, "Selecione pelo menos uma variedade"),
   processo: z.string().min(1, "Selecione um processo"),
   dataColheita: z.string().min(1, "Data de colheita é obrigatória"),
   quantidade: z.string().min(1, "Quantidade é obrigatória"),
@@ -41,7 +42,7 @@ export function LoteForm({ onSuccess }: LoteFormProps) {
       codigo: "",
       produtor: "",
       safra: "",
-      variedade: "",
+      variedades: [],
       processo: "",
       dataColheita: "",
       quantidade: "",
@@ -60,7 +61,7 @@ export function LoteForm({ onSuccess }: LoteFormProps) {
         codigo: data.codigo,
         produtor_nome: data.produtor,
         safra: data.safra,
-        variedade: data.variedade,
+        variedade: data.variedades,
         processo: data.processo,
         data_colheita: data.dataColheita,
         quantidade: parseFloat(data.quantidade),
@@ -141,21 +142,60 @@ export function LoteForm({ onSuccess }: LoteFormProps) {
 
           <FormField
             control={form.control}
-            name="variedade"
-            render={({ field }) => (
+            name="variedades"
+            render={() => (
               <FormItem>
-                <FormLabel>Variedade</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione a variedade" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="arabica">Arabica</SelectItem>
-                    <SelectItem value="robusta">Robusta</SelectItem>
-                  </SelectContent>
-                </Select>
+                <FormLabel>Variedades de Café</FormLabel>
+                <div className="space-y-2">
+                  <FormField
+                    control={form.control}
+                    name="variedades"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center space-x-2 space-y-0">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value?.includes("arabica")}
+                            onCheckedChange={(checked) => {
+                              const value = field.value || [];
+                              if (checked) {
+                                field.onChange([...value, "arabica"]);
+                              } else {
+                                field.onChange(value.filter((v) => v !== "arabica"));
+                              }
+                            }}
+                          />
+                        </FormControl>
+                        <FormLabel className="font-normal cursor-pointer">
+                          Arabica
+                        </FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="variedades"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center space-x-2 space-y-0">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value?.includes("robusta")}
+                            onCheckedChange={(checked) => {
+                              const value = field.value || [];
+                              if (checked) {
+                                field.onChange([...value, "robusta"]);
+                              } else {
+                                field.onChange(value.filter((v) => v !== "robusta"));
+                              }
+                            }}
+                          />
+                        </FormControl>
+                        <FormLabel className="font-normal cursor-pointer">
+                          Robusta
+                        </FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                </div>
                 <FormMessage />
               </FormItem>
             )}

@@ -272,7 +272,7 @@ export type Database = {
           umidade: number | null
           unidade: string
           updated_at: string | null
-          variedade: string
+          variedade: string[]
         }
         Insert: {
           certificacao?: string | null
@@ -291,7 +291,7 @@ export type Database = {
           umidade?: number | null
           unidade: string
           updated_at?: string | null
-          variedade: string
+          variedade: string[]
         }
         Update: {
           certificacao?: string | null
@@ -310,7 +310,7 @@ export type Database = {
           umidade?: number | null
           unidade?: string
           updated_at?: string | null
-          variedade?: string
+          variedade?: string[]
         }
         Relationships: [
           {
