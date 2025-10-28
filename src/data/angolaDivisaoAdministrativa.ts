@@ -269,3 +269,9 @@ export const divisaoAdministrativaAngola: Provincia[] = [
     ],
   },
 ];
+
+// Export provincial names for easier access
+export const provinciasAngola = divisaoAdministrativaAngola.reduce((acc, provincia) => {
+  acc[provincia.nome] = provincia;
+  return acc;
+}, {} as Record<string, Provincia>);

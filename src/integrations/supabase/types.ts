@@ -254,6 +254,98 @@ export type Database = {
           },
         ]
       }
+      empresas: {
+        Row: {
+          cidade: string
+          created_at: string | null
+          email: string
+          endereco: string
+          id: string
+          nif: string
+          nome_empresa: string
+          provincia: string
+          responsavel_cargo: string | null
+          responsavel_nome: string
+          telefone: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          cidade: string
+          created_at?: string | null
+          email: string
+          endereco: string
+          id?: string
+          nif: string
+          nome_empresa: string
+          provincia: string
+          responsavel_cargo?: string | null
+          responsavel_nome: string
+          telefone: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          cidade?: string
+          created_at?: string | null
+          email?: string
+          endereco?: string
+          id?: string
+          nif?: string
+          nome_empresa?: string
+          provincia?: string
+          responsavel_cargo?: string | null
+          responsavel_nome?: string
+          telefone?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      historico_pedidos: {
+        Row: {
+          alterado_por: string | null
+          created_at: string | null
+          id: string
+          observacoes: string | null
+          pedido_id: string
+          status_anterior:
+            | Database["public"]["Enums"]["status_pedido_certificacao"]
+            | null
+          status_novo: Database["public"]["Enums"]["status_pedido_certificacao"]
+        }
+        Insert: {
+          alterado_por?: string | null
+          created_at?: string | null
+          id?: string
+          observacoes?: string | null
+          pedido_id: string
+          status_anterior?:
+            | Database["public"]["Enums"]["status_pedido_certificacao"]
+            | null
+          status_novo: Database["public"]["Enums"]["status_pedido_certificacao"]
+        }
+        Update: {
+          alterado_por?: string | null
+          created_at?: string | null
+          id?: string
+          observacoes?: string | null
+          pedido_id?: string
+          status_anterior?:
+            | Database["public"]["Enums"]["status_pedido_certificacao"]
+            | null
+          status_novo?: Database["public"]["Enums"]["status_pedido_certificacao"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "historico_pedidos_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: false
+            referencedRelation: "pedidos_certificacao"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lotes: {
         Row: {
           certificacao: string | null
@@ -318,6 +410,71 @@ export type Database = {
             columns: ["produtor_id"]
             isOneToOne: false
             referencedRelation: "produtores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pedidos_certificacao: {
+        Row: {
+          certificado_url: string | null
+          created_at: string | null
+          data_conclusao: string | null
+          data_solicitacao: string | null
+          documentos_enviados: Json | null
+          empresa_id: string
+          id: string
+          numero_pedido: string
+          observacoes: string | null
+          quantidade_lotes: number
+          selos_url: string | null
+          status: Database["public"]["Enums"]["status_pedido_certificacao"]
+          tipo_certificacao: Database["public"]["Enums"]["tipo_certificacao"]
+          unidade_volume: string
+          updated_at: string | null
+          volume_estimado: number
+        }
+        Insert: {
+          certificado_url?: string | null
+          created_at?: string | null
+          data_conclusao?: string | null
+          data_solicitacao?: string | null
+          documentos_enviados?: Json | null
+          empresa_id: string
+          id?: string
+          numero_pedido: string
+          observacoes?: string | null
+          quantidade_lotes: number
+          selos_url?: string | null
+          status?: Database["public"]["Enums"]["status_pedido_certificacao"]
+          tipo_certificacao: Database["public"]["Enums"]["tipo_certificacao"]
+          unidade_volume: string
+          updated_at?: string | null
+          volume_estimado: number
+        }
+        Update: {
+          certificado_url?: string | null
+          created_at?: string | null
+          data_conclusao?: string | null
+          data_solicitacao?: string | null
+          documentos_enviados?: Json | null
+          empresa_id?: string
+          id?: string
+          numero_pedido?: string
+          observacoes?: string | null
+          quantidade_lotes?: number
+          selos_url?: string | null
+          status?: Database["public"]["Enums"]["status_pedido_certificacao"]
+          tipo_certificacao?: Database["public"]["Enums"]["tipo_certificacao"]
+          unidade_volume?: string
+          updated_at?: string | null
+          volume_estimado?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pedidos_certificacao_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
             referencedColumns: ["id"]
           },
         ]
@@ -567,6 +724,7 @@ export type Database = {
     }
     Functions: {
       generate_auditoria_codigo: { Args: never; Returns: string }
+      generate_pedido_numero: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -578,6 +736,20 @@ export type Database = {
     Enums: {
       app_role: "admin" | "produtor" | "user" | "moderator"
       producer_status: "pendente" | "aprovado" | "rejeitado"
+      status_pedido_certificacao:
+        | "pendente"
+        | "documentacao_analise"
+        | "auditoria_agendada"
+        | "auditoria_realizada"
+        | "em_emissao"
+        | "concluido"
+        | "rejeitado"
+      tipo_certificacao:
+        | "organico"
+        | "fair_trade"
+        | "rainforest_alliance"
+        | "utz"
+        | "cafe_especial"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -707,6 +879,22 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "produtor", "user", "moderator"],
       producer_status: ["pendente", "aprovado", "rejeitado"],
+      status_pedido_certificacao: [
+        "pendente",
+        "documentacao_analise",
+        "auditoria_agendada",
+        "auditoria_realizada",
+        "em_emissao",
+        "concluido",
+        "rejeitado",
+      ],
+      tipo_certificacao: [
+        "organico",
+        "fair_trade",
+        "rainforest_alliance",
+        "utz",
+        "cafe_especial",
+      ],
     },
   },
 } as const

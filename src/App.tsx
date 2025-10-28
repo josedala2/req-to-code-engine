@@ -21,6 +21,10 @@ import Auth from "./pages/Auth";
 import AprovacaoProdutores from "./pages/AprovacaoProdutores";
 import LotePublico from "./pages/LotePublico";
 import ConfiguracoesUsuarios from "./pages/ConfiguracoesUsuarios";
+import EmpresaAuth from "./pages/EmpresaAuth";
+import EmpresaDashboard from "./pages/EmpresaDashboard";
+import SolicitarCertificacao from "./pages/SolicitarCertificacao";
+import EmpresaPedidoDetalhes from "./pages/EmpresaPedidoDetalhes";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +37,10 @@ const App = () => (
         <Routes>
           <Route path="/auth" element={<Auth />} />
           <Route path="/lote-publico/:codigo" element={<LotePublico />} />
+          <Route path="/empresa/auth" element={<EmpresaAuth />} />
+          <Route path="/empresa/dashboard" element={<EmpresaDashboard />} />
+          <Route path="/empresa/pedido/:id" element={<EmpresaPedidoDetalhes />} />
+          <Route path="/solicitar-certificacao" element={<SolicitarCertificacao />} />
           <Route path="*" element={
             <Layout>
               <Routes>
