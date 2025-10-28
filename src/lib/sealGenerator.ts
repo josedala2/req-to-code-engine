@@ -72,7 +72,7 @@ export const generateCoffeeSeal = async (data: SealData) => {
     `${window.location.origin}/lote-publico/${data.loteId}`
   );
   if (qrCodeData) {
-    doc.addImage(qrCodeData, "PNG", 24.5, 24.5, 15.5, 15.5);
+    doc.addImage(qrCodeData, "PNG", 25.5, 23.5, 14.5, 14.5);
   }
   
   return doc;
@@ -124,7 +124,7 @@ export const generateMultipleSeals = async (data: SealData, quantity: number) =>
         `${window.location.origin}/lote-publico/${data.loteId}`
       );
       if (qrCodeData) {
-        doc.addImage(qrCodeData, "PNG", x + 24.5, y + 24.5, 15.5, 15.5);
+        doc.addImage(qrCodeData, "PNG", x + 25.5, y + 23.5, 14.5, 14.5);
       }
       
       sealCount++;
