@@ -1,12 +1,15 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { divisaoAdministrativaAngola } from "@/data/angolaDivisaoAdministrativa";
 
 const produtorSchema = z.object({
   nome: z.string().min(3, "Nome deve ter pelo menos 3 caracteres").max(100),
@@ -43,6 +46,11 @@ interface ProdutorFormProps {
 }
 
 export function ProdutorForm({ onSuccess }: ProdutorFormProps) {
+  const [selectedProvincia, setSelectedProvincia] = useState<string>("");
+  const [selectedMunicipio, setSelectedMunicipio] = useState<string>("");
+  const [municipios, setMunicipios] = useState<string[]>([]);
+  const [comunas, setComunas] = useState<string[]>([]);
+
   const form = useForm<ProdutorFormData>({
     resolver: zodResolver(produtorSchema),
     defaultValues: {
@@ -69,6 +77,37 @@ export function ProdutorForm({ onSuccess }: ProdutorFormProps) {
       observacoes: "",
     },
   });
+
+  useEffect(() => {
+    if (selectedProvincia) {
+      const provincia = divisaoAdministrativaAngola.find((p) => p.nome === selectedProvincia);
+      if (provincia) {
+        setMunicipios(provincia.municipios.map((m) => m.nome));
+        setSelectedMunicipio("");
+        setComunas([]);
+        form.setValue("municipio", "");
+        form.setValue("comuna", "");
+      }
+    } else {
+      setMunicipios([]);
+      setComunas([]);
+    }
+  }, [selectedProvincia, form]);
+
+  useEffect(() => {
+    if (selectedProvincia && selectedMunicipio) {
+      const provincia = divisaoAdministrativaAngola.find((p) => p.nome === selectedProvincia);
+      if (provincia) {
+        const municipio = provincia.municipios.find((m) => m.nome === selectedMunicipio);
+        if (municipio) {
+          setComunas(municipio.comunas.map((c) => c.nome));
+          form.setValue("comuna", "");
+        }
+      }
+    } else {
+      setComunas([]);
+    }
+  }, [selectedMunicipio, selectedProvincia, form]);
 
   const onSubmit = async (data: ProdutorFormData) => {
     try {
@@ -222,9 +261,26 @@ export function ProdutorForm({ onSuccess }: ProdutorFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Província</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Huambo" {...field} />
-                  </FormControl>
+                  <Select
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      setSelectedProvincia(value);
+                    }}
+                    value={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a província" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {divisaoAdministrativaAngola.map((provincia) => (
+                        <SelectItem key={provincia.nome} value={provincia.nome}>
+                          {provincia.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -236,9 +292,27 @@ export function ProdutorForm({ onSuccess }: ProdutorFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Município</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Chipindo" {...field} />
-                  </FormControl>
+                  <Select
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      setSelectedMunicipio(value);
+                    }}
+                    value={field.value}
+                    disabled={!selectedProvincia}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o município" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {municipios.map((municipio) => (
+                        <SelectItem key={municipio} value={municipio}>
+                          {municipio}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -250,9 +324,24 @@ export function ProdutorForm({ onSuccess }: ProdutorFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Comuna</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Nhara" {...field} />
-                  </FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    disabled={!selectedMunicipio}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a comuna" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {comunas.map((comuna) => (
+                        <SelectItem key={comuna} value={comuna}>
+                          {comuna}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
