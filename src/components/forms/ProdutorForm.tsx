@@ -28,7 +28,9 @@ const produtorSchema = z.object({
   formaAquisicao: z.enum(["heranca", "comprada", "ocupacao"], {
     required_error: "Forma de aquisição é obrigatória",
   }),
-  variedades: z.string().min(3, "Tipos de café devem ter pelo menos 3 caracteres").max(200),
+  variedades: z.array(z.string()).min(1, "Selecione pelo menos um tipo de café"),
+  areaArabica: z.string().optional(),
+  areaRobusta: z.string().optional(),
   tipoProducao: z.enum(["com_sombra", "sem_sombra"], {
     required_error: "Tipo de produção é obrigatório",
   }),
@@ -56,6 +58,7 @@ export function ProdutorForm({ onSuccess, initialData, isEditing = false }: Prod
   const [documentoBI, setDocumentoBI] = useState<File | null>(null);
   const [fotografia, setFotografia] = useState<File | null>(null);
   const [documentoPosseTerra, setDocumentoPosseTerra] = useState<File | null>(null);
+  const [selectedVariedades, setSelectedVariedades] = useState<string[]>([]);
 
   const form = useForm<ProdutorFormData>({
     resolver: zodResolver(produtorSchema),
@@ -74,7 +77,9 @@ export function ProdutorForm({ onSuccess, initialData, isEditing = false }: Prod
       area: initialData.area || "",
       altitude: initialData.altitude || "",
       formaAquisicao: initialData.forma_aquisicao || undefined,
-      variedades: Array.isArray(initialData.variedades) ? initialData.variedades.join(", ") : "",
+      variedades: Array.isArray(initialData.variedades) ? initialData.variedades : [],
+      areaArabica: initialData.area_arabica || "",
+      areaRobusta: initialData.area_robusta || "",
       tipoProducao: initialData.tipo_producao || undefined,
       totalTrabalhadores: ((initialData.trabalhadores_efetivos_homens || 0) + (initialData.trabalhadores_efetivos_mulheres || 0) + (initialData.trabalhadores_colaboradores_homens || 0) + (initialData.trabalhadores_colaboradores_mulheres || 0)).toString(),
       trabalhadoresEfetivosHomens: (initialData.trabalhadores_efetivos_homens || 0).toString(),
@@ -97,7 +102,9 @@ export function ProdutorForm({ onSuccess, initialData, isEditing = false }: Prod
       area: "",
       altitude: "",
       formaAquisicao: undefined,
-      variedades: "",
+      variedades: [],
+      areaArabica: "",
+      areaRobusta: "",
       tipoProducao: undefined,
       totalTrabalhadores: "0",
       trabalhadoresEfetivosHomens: "0",
@@ -112,8 +119,14 @@ export function ProdutorForm({ onSuccess, initialData, isEditing = false }: Prod
     if (initialData) {
       setSelectedProvincia(initialData.provincia || "");
       setSelectedMunicipio(initialData.municipio || "");
+      if (Array.isArray(initialData.variedades)) {
+        setSelectedVariedades(initialData.variedades);
+      }
     }
   }, [initialData]);
+
+  // Watch variedades for conditional fields
+  const variedades = form.watch("variedades");
 
   useEffect(() => {
     if (selectedProvincia) {
@@ -240,7 +253,9 @@ export function ProdutorForm({ onSuccess, initialData, isEditing = false }: Prod
         area: data.area,
         altitude: data.altitude,
         forma_aquisicao: data.formaAquisicao,
-        variedades: data.variedades ? data.variedades.split(",").map((v) => v.trim()) : [],
+        variedades: data.variedades || [],
+        area_arabica: data.areaArabica || null,
+        area_robusta: data.areaRobusta || null,
         tipo_producao: data.tipoProducao,
         trabalhadores_efetivos_homens: parseInt(data.trabalhadoresEfetivosHomens),
         trabalhadores_efetivos_mulheres: parseInt(data.trabalhadoresEfetivosMulheres),
@@ -566,20 +581,87 @@ export function ProdutorForm({ onSuccess, initialData, isEditing = false }: Prod
 
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">Produção de Café</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <FormField
               control={form.control}
               name="variedades"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Tipos de Café Produzido</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Arabica, Robusta" {...field} />
-                  </FormControl>
+                  <div className="space-y-3 mt-2">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="arabica"
+                        checked={field.value?.includes("Arabica")}
+                        onChange={(e) => {
+                          const newValue = e.target.checked
+                            ? [...(field.value || []), "Arabica"]
+                            : (field.value || []).filter((v) => v !== "Arabica");
+                          field.onChange(newValue);
+                          setSelectedVariedades(newValue);
+                        }}
+                        className="h-4 w-4 rounded border-gray-300"
+                      />
+                      <label htmlFor="arabica" className="text-sm font-medium">
+                        Arabica
+                      </label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="robusta"
+                        checked={field.value?.includes("Robusta")}
+                        onChange={(e) => {
+                          const newValue = e.target.checked
+                            ? [...(field.value || []), "Robusta"]
+                            : (field.value || []).filter((v) => v !== "Robusta");
+                          field.onChange(newValue);
+                          setSelectedVariedades(newValue);
+                        }}
+                        className="h-4 w-4 rounded border-gray-300"
+                      />
+                      <label htmlFor="robusta" className="text-sm font-medium">
+                        Robusta
+                      </label>
+                    </div>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            {variedades && variedades.length === 2 && (
+              <>
+                <FormField
+                  control={form.control}
+                  name="areaArabica"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Área de Produção Arabica (hectares)</FormLabel>
+                      <FormControl>
+                        <Input type="number" step="0.01" placeholder="Ex: 15.5" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="areaRobusta"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Área de Produção Robusta (hectares)</FormLabel>
+                      <FormControl>
+                        <Input type="number" step="0.01" placeholder="Ex: 10.5" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            )}
 
             <FormField
               control={form.control}
