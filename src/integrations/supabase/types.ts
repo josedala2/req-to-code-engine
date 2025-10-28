@@ -181,8 +181,11 @@ export type Database = {
           certificacoes: string[] | null
           comuna: string | null
           created_at: string | null
+          documento_bi: string | null
+          documento_posse_terra: string | null
           email: string | null
           forma_aquisicao: string | null
+          fotografia: string | null
           georeferencia: string | null
           id: string
           identificacao_fazenda: string | null
@@ -212,8 +215,11 @@ export type Database = {
           certificacoes?: string[] | null
           comuna?: string | null
           created_at?: string | null
+          documento_bi?: string | null
+          documento_posse_terra?: string | null
           email?: string | null
           forma_aquisicao?: string | null
+          fotografia?: string | null
           georeferencia?: string | null
           id?: string
           identificacao_fazenda?: string | null
@@ -243,8 +249,11 @@ export type Database = {
           certificacoes?: string[] | null
           comuna?: string | null
           created_at?: string | null
+          documento_bi?: string | null
+          documento_posse_terra?: string | null
           email?: string | null
           forma_aquisicao?: string | null
+          fotografia?: string | null
           georeferencia?: string | null
           id?: string
           identificacao_fazenda?: string | null

@@ -51,6 +51,9 @@ export function ProdutorForm({ onSuccess }: ProdutorFormProps) {
   const [selectedMunicipio, setSelectedMunicipio] = useState<string>("");
   const [municipios, setMunicipios] = useState<string[]>([]);
   const [comunas, setComunas] = useState<string[]>([]);
+  const [documentoBI, setDocumentoBI] = useState<File | null>(null);
+  const [fotografia, setFotografia] = useState<File | null>(null);
+  const [documentoPosseTerra, setDocumentoPosseTerra] = useState<File | null>(null);
 
   const form = useForm<ProdutorFormData>({
     resolver: zodResolver(produtorSchema),
@@ -136,6 +139,20 @@ export function ProdutorForm({ onSuccess }: ProdutorFormProps) {
     }
   }, [trabalhadoresColaboradoresHomens, totalTrabalhadores, form]);
 
+  const uploadFile = async (file: File, path: string) => {
+    const { data, error } = await supabase.storage
+      .from("producer-documents")
+      .upload(path, file, { upsert: true });
+
+    if (error) throw error;
+    
+    const { data: { publicUrl } } = supabase.storage
+      .from("producer-documents")
+      .getPublicUrl(path);
+
+    return publicUrl;
+  };
+
   const onSubmit = async (data: ProdutorFormData) => {
     // Validate that sum does not exceed total
     const total = parseInt(data.totalTrabalhadores || "0");
@@ -153,6 +170,26 @@ export function ProdutorForm({ onSuccess }: ProdutorFormProps) {
     }
 
     try {
+      // Upload documents if provided
+      let documentoBIUrl = null;
+      let fotografiaUrl = null;
+      let documentoPosseTerraUrl = null;
+
+      if (documentoBI) {
+        const timestamp = Date.now();
+        documentoBIUrl = await uploadFile(documentoBI, `bi/${timestamp}_${documentoBI.name}`);
+      }
+
+      if (fotografia) {
+        const timestamp = Date.now();
+        fotografiaUrl = await uploadFile(fotografia, `fotos/${timestamp}_${fotografia.name}`);
+      }
+
+      if (documentoPosseTerra) {
+        const timestamp = Date.now();
+        documentoPosseTerraUrl = await uploadFile(documentoPosseTerra, `posse_terra/${timestamp}_${documentoPosseTerra.name}`);
+      }
+
       const { error } = await supabase.from("produtores").insert({
         nome: data.nome,
         nif: data.nif,
@@ -175,6 +212,9 @@ export function ProdutorForm({ onSuccess }: ProdutorFormProps) {
         trabalhadores_colaboradores_homens: parseInt(data.trabalhadoresColaboradoresHomens),
         trabalhadores_colaboradores_mulheres: parseInt(data.trabalhadoresColaboradoresMulheres),
         observacoes: data.observacoes,
+        documento_bi: documentoBIUrl,
+        fotografia: fotografiaUrl,
+        documento_posse_terra: documentoPosseTerraUrl,
         status: "pendente",
       });
 
@@ -182,6 +222,9 @@ export function ProdutorForm({ onSuccess }: ProdutorFormProps) {
 
       toast.success("Cadastro enviado! Aguarde aprovação do administrador.");
       form.reset();
+      setDocumentoBI(null);
+      setFotografia(null);
+      setDocumentoPosseTerra(null);
       onSuccess?.();
     } catch (error) {
       toast.error("Erro ao cadastrar produtor. Tente novamente.");
@@ -577,6 +620,56 @@ export function ProdutorForm({ onSuccess }: ProdutorFormProps) {
                   )}
                 />
               </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Documentos</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <FormLabel>Bilhete de Identidade (BI)</FormLabel>
+              <Input
+                type="file"
+                accept="image/*,.pdf"
+                onChange={(e) => setDocumentoBI(e.target.files?.[0] || null)}
+                className="mt-2"
+              />
+              {documentoBI && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  {documentoBI.name}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <FormLabel>Fotografia</FormLabel>
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setFotografia(e.target.files?.[0] || null)}
+                className="mt-2"
+              />
+              {fotografia && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  {fotografia.name}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <FormLabel>Documento de Posse da Terra</FormLabel>
+              <Input
+                type="file"
+                accept="image/*,.pdf"
+                onChange={(e) => setDocumentoPosseTerra(e.target.files?.[0] || null)}
+                className="mt-2"
+              />
+              {documentoPosseTerra && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  {documentoPosseTerra.name}
+                </p>
+              )}
             </div>
           </div>
         </div>
