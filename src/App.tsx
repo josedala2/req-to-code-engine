@@ -20,6 +20,7 @@ import CertificacaoDetalhes from "./pages/CertificacaoDetalhes";
 import Auth from "./pages/Auth";
 import AprovacaoProdutores from "./pages/AprovacaoProdutores";
 import LotePublico from "./pages/LotePublico";
+import ConfiguracoesUsuarios from "./pages/ConfiguracoesUsuarios";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,7 @@ const App = () => (
                 <Route path="/auditorias" element={<Auditorias />} />
                 <Route path="/auditorias/:id" element={<AuditoriaDetalhes />} />
                 <Route path="/relatorios" element={<Relatorios />} />
+                <Route path="/configuracoes-usuarios" element={<ConfiguracoesUsuarios />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Layout>

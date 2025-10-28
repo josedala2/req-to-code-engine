@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Coffee, Home, Users, Package, ClipboardCheck, FileText, BarChart3, LogOut, UserCheck, FileCheck } from "lucide-react";
+import { Coffee, Home, Users, Package, ClipboardCheck, FileText, BarChart3, LogOut, UserCheck, FileCheck, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -85,19 +85,34 @@ export default function Layout({ children }: LayoutProps) {
               );
             })}
             {isAdmin && (
-              <Link
-                to="/aprovacao-produtores"
-                className={cn(
-                  "flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all whitespace-nowrap",
-                  "hover:text-primary hover:bg-muted/50 rounded-t-lg",
-                  location.pathname === "/aprovacao-produtores"
-                    ? "text-primary bg-background border-b-2 border-primary"
-                    : "text-muted-foreground"
-                )}
-              >
-                <UserCheck className="h-4 w-4" />
-                Aprovações
-              </Link>
+              <>
+                <Link
+                  to="/aprovacao-produtores"
+                  className={cn(
+                    "flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all whitespace-nowrap",
+                    "hover:text-primary hover:bg-muted/50 rounded-t-lg",
+                    location.pathname === "/aprovacao-produtores"
+                      ? "text-primary bg-background border-b-2 border-primary"
+                      : "text-muted-foreground"
+                  )}
+                >
+                  <UserCheck className="h-4 w-4" />
+                  Aprovações
+                </Link>
+                <Link
+                  to="/configuracoes-usuarios"
+                  className={cn(
+                    "flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all whitespace-nowrap",
+                    "hover:text-primary hover:bg-muted/50 rounded-t-lg",
+                    location.pathname === "/configuracoes-usuarios"
+                      ? "text-primary bg-background border-b-2 border-primary"
+                      : "text-muted-foreground"
+                  )}
+                >
+                  <Settings className="h-4 w-4" />
+                  Usuários
+                </Link>
+              </>
             )}
           </div>
         </div>
