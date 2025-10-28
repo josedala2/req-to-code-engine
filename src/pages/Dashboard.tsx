@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import MapaAngolaInteractivo from "@/components/MapaAngolaInteractivo";
 
 const stats = [
   {
@@ -189,9 +188,6 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Mapa Interactivo de Angola */}
-      <MapaAngolaInteractivo producersByProvince={producersByProvince} />
 
       {/* Recent Batches */}
       <Card className="shadow-elegant">
