@@ -186,6 +186,8 @@ export function ProdutorForm({ onSuccess, initialData, isEditing = false }: Prod
   };
 
   const onSubmit = async (data: ProdutorFormData) => {
+    console.log("onSubmit called", { isEditing, initialData: initialData?.id });
+    
     // Validate that sum does not exceed total
     const total = parseInt(data.totalTrabalhadores || "0");
     const totalEfetivos = parseInt(data.trabalhadoresEfetivosHomens || "0") + parseInt(data.trabalhadoresEfetivosMulheres || "0");
@@ -202,6 +204,7 @@ export function ProdutorForm({ onSuccess, initialData, isEditing = false }: Prod
     }
 
     try {
+      console.log("Starting save operation...");
       // Upload documents if provided
       let documentoBIUrl = null;
       let fotografiaUrl = null;
@@ -251,29 +254,46 @@ export function ProdutorForm({ onSuccess, initialData, isEditing = false }: Prod
 
       let error;
       if (isEditing && initialData?.id) {
+        console.log("Updating producer with ID:", initialData.id);
+        console.log("Update data:", produtorData);
         const result = await supabase
           .from("produtores")
           .update(produtorData)
           .eq("id", initialData.id);
         error = result.error;
+        console.log("Update result:", { error, data: result.data });
       } else {
+        console.log("Inserting new producer");
         const result = await supabase.from("produtores").insert({
           ...produtorData,
           status: "pendente" as const
         });
         error = result.error;
+        console.log("Insert result:", { error, data: result.data });
       }
 
-      if (error) throw error;
+      if (error) {
+        console.error("Database error:", error);
+        throw error;
+      }
 
+      console.log("Save successful!");
       toast.success(isEditing ? "Produtor atualizado com sucesso!" : "Cadastro enviado! Aguarde aprovação do administrador.");
       form.reset();
       setDocumentoBI(null);
       setFotografia(null);
       setDocumentoPosseTerra(null);
       onSuccess?.();
-    } catch (error) {
-      toast.error("Erro ao cadastrar produtor. Tente novamente.");
+    } catch (error: any) {
+      console.error("Error saving producer:", error);
+      
+      if (error.code === '42501' || error.message?.includes('row-level security')) {
+        toast.error("Sem permissão para esta operação. Entre como administrador.");
+      } else if (error.code === 'PGRST116') {
+        toast.error("Sem permissão para editar produtores. Verifique suas credenciais.");
+      } else {
+        toast.error(`Erro ao ${isEditing ? 'atualizar' : 'cadastrar'} produtor: ${error.message || 'Tente novamente.'}`);
+      }
     }
   };
 
@@ -735,7 +755,7 @@ export function ProdutorForm({ onSuccess, initialData, isEditing = false }: Prod
         />
 
         <Button type="submit" className="w-full">
-          Cadastrar Produtor
+          {isEditing ? "Salvar Alterações" : "Cadastrar Produtor"}
         </Button>
       </form>
     </Form>
