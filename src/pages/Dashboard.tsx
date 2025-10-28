@@ -1,9 +1,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, Users, ClipboardCheck, TrendingUp, Coffee, Award, FileCheck } from "lucide-react";
+import { Package, Users, ClipboardCheck, TrendingUp, Coffee, Award, FileCheck, Building2, FileText, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
 
 const stats = [
   {
@@ -72,6 +74,8 @@ const recentBatches = [
 ];
 
 export default function Dashboard() {
+  const navigate = useNavigate();
+  
   const { data: produtores } = useQuery({
     queryKey: ['produtores-stats'],
     queryFn: async () => {
@@ -104,6 +108,37 @@ export default function Dashboard() {
       const { data, error } = await supabase
         .from('qualidade')
         .select('id');
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: empresas } = useQuery({
+    queryKey: ['empresas-list'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('empresas')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(5);
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: pedidosCertificacao } = useQuery({
+    queryKey: ['pedidos-certificacao-list'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('pedidos_certificacao')
+        .select(`
+          *,
+          empresas (nome_empresa)
+        `)
+        .order('created_at', { ascending: false })
+        .limit(5);
       
       if (error) throw error;
       return data;
@@ -351,6 +386,91 @@ export default function Dashboard() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Solicitações Recentes */}
+      <div className="grid gap-6 md:grid-cols-2 mt-6">
+        {/* Pedidos de Certificação */}
+        <Card className="shadow-elegant">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-primary" />
+                  Pedidos de Certificação
+                </CardTitle>
+                <CardDescription>Últimas solicitações de empresas</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {!pedidosCertificacao || pedidosCertificacao.length === 0 ? (
+              <p className="text-center text-muted-foreground py-4">Nenhum pedido ainda</p>
+            ) : (
+              <div className="space-y-3">
+                {pedidosCertificacao.map((pedido: any) => (
+                  <div key={pedido.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/30 transition-colors">
+                    <div className="flex-1">
+                      <p className="font-mono font-semibold text-sm text-primary">{pedido.numero_pedido}</p>
+                      <p className="text-sm text-muted-foreground">{pedido.empresas?.nome_empresa}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {format(new Date(pedido.created_at), 'dd/MM/yyyy HH:mm')}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-xs">
+                        {pedido.status.replace('_', ' ')}
+                      </Badge>
+                      <Button size="sm" variant="ghost">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Empresas Cadastradas */}
+        <Card className="shadow-elegant">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Building2 className="h-5 w-5 text-primary" />
+                  Empresas Registadas
+                </CardTitle>
+                <CardDescription>Últimas empresas cadastradas</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {!empresas || empresas.length === 0 ? (
+              <p className="text-center text-muted-foreground py-4">Nenhuma empresa ainda</p>
+            ) : (
+              <div className="space-y-3">
+                {empresas.map((empresa: any) => (
+                  <div key={empresa.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/30 transition-colors">
+                    <div className="flex-1">
+                      <p className="font-semibold text-sm">{empresa.nome_empresa}</p>
+                      <p className="text-xs text-muted-foreground">NIF: {empresa.nif}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {empresa.cidade}, {empresa.provincia}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {format(new Date(empresa.created_at), 'dd/MM/yyyy')}
+                      </p>
+                    </div>
+                    <Button size="sm" variant="ghost">
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
