@@ -26,7 +26,7 @@ import { Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 
 const auditoriaSchema = z.object({
-  codigo: z.string().min(1, "Código é obrigatório"),
+  codigo: z.string().optional(),
   lote_id: z.string().optional(),
   produtor_id: z.string().optional(),
   data_auditoria: z.string().min(1, "Data é obrigatória"),
@@ -61,7 +61,6 @@ export function AuditoriaForm({ onSuccess, defaultValues, auditoriaId }: Auditor
   const form = useForm<AuditoriaFormData>({
     resolver: zodResolver(auditoriaSchema),
     defaultValues: defaultValues || {
-      codigo: "",
       data_auditoria: new Date().toISOString().split("T")[0],
       status: "em_andamento",
       certificado_emitido: false,
@@ -100,7 +99,7 @@ export function AuditoriaForm({ onSuccess, defaultValues, auditoriaId }: Auditor
         : [];
 
       const auditoriaData = {
-        codigo: data.codigo,
+        codigo: data.codigo || null,
         lote_id: data.lote_id || null,
         produtor_id: data.produtor_id || null,
         data_auditoria: data.data_auditoria,
@@ -143,21 +142,23 @@ export function AuditoriaForm({ onSuccess, defaultValues, auditoriaId }: Auditor
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            control={form.control}
-            name="codigo"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Código da Auditoria</FormLabel>
-                <FormControl>
-                  <Input placeholder="AUD-2025-001" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        {!auditoriaId && (
+          <div className="bg-muted/50 border border-border rounded-lg p-4">
+            <p className="text-sm text-muted-foreground">
+              <span className="font-semibold text-foreground">Código:</span> Será gerado automaticamente no formato AUD-AAAA-XXX
+            </p>
+          </div>
+        )}
 
+        {auditoriaId && (
+          <div className="bg-muted/50 border border-border rounded-lg p-4">
+            <p className="text-sm text-muted-foreground">
+              <span className="font-semibold text-foreground">Código:</span> {defaultValues?.codigo}
+            </p>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             control={form.control}
             name="data_auditoria"
