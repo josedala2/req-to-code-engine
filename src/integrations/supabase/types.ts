@@ -179,16 +179,27 @@ export type Database = {
           approved_by: string | null
           area: string | null
           certificacoes: string[] | null
+          comuna: string | null
           created_at: string | null
           email: string | null
+          forma_aquisicao: string | null
+          georeferencia: string | null
           id: string
+          identificacao_fazenda: string | null
           localizacao: string
+          municipio: string | null
           nif: string | null
           nome: string
           nome_fazenda: string
           observacoes: string | null
+          provincia: string | null
           status: Database["public"]["Enums"]["producer_status"] | null
           telefone: string | null
+          tipo_producao: string | null
+          trabalhadores_colaboradores_homens: number | null
+          trabalhadores_colaboradores_mulheres: number | null
+          trabalhadores_efetivos_homens: number | null
+          trabalhadores_efetivos_mulheres: number | null
           updated_at: string | null
           user_id: string | null
           variedades: string[] | null
@@ -199,16 +210,27 @@ export type Database = {
           approved_by?: string | null
           area?: string | null
           certificacoes?: string[] | null
+          comuna?: string | null
           created_at?: string | null
           email?: string | null
+          forma_aquisicao?: string | null
+          georeferencia?: string | null
           id?: string
+          identificacao_fazenda?: string | null
           localizacao: string
+          municipio?: string | null
           nif?: string | null
           nome: string
           nome_fazenda: string
           observacoes?: string | null
+          provincia?: string | null
           status?: Database["public"]["Enums"]["producer_status"] | null
           telefone?: string | null
+          tipo_producao?: string | null
+          trabalhadores_colaboradores_homens?: number | null
+          trabalhadores_colaboradores_mulheres?: number | null
+          trabalhadores_efetivos_homens?: number | null
+          trabalhadores_efetivos_mulheres?: number | null
           updated_at?: string | null
           user_id?: string | null
           variedades?: string[] | null
@@ -219,16 +241,27 @@ export type Database = {
           approved_by?: string | null
           area?: string | null
           certificacoes?: string[] | null
+          comuna?: string | null
           created_at?: string | null
           email?: string | null
+          forma_aquisicao?: string | null
+          georeferencia?: string | null
           id?: string
+          identificacao_fazenda?: string | null
           localizacao?: string
+          municipio?: string | null
           nif?: string | null
           nome?: string
           nome_fazenda?: string
           observacoes?: string | null
+          provincia?: string | null
           status?: Database["public"]["Enums"]["producer_status"] | null
           telefone?: string | null
+          tipo_producao?: string | null
+          trabalhadores_colaboradores_homens?: number | null
+          trabalhadores_colaboradores_mulheres?: number | null
+          trabalhadores_efetivos_homens?: number | null
+          trabalhadores_efetivos_mulheres?: number | null
           updated_at?: string | null
           user_id?: string | null
           variedades?: string[] | null
