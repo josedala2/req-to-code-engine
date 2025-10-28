@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import MapaAngolaInteractivo from "@/components/MapaAngolaInteractivo";
 
 const stats = [
   {
@@ -189,58 +190,8 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Geographic Distribution */}
-      <Card className="shadow-elegant">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Distribuição Geográfica de Produtores</CardTitle>
-              <CardDescription>Produtores activos por província</CardDescription>
-            </div>
-            <Badge variant="outline" className="text-lg px-4 py-2">
-              {Object.keys(producersByProvince).length} Províncias
-            </Badge>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {Object.entries(producersByProvince)
-              .sort((a, b) => b[1] - a[1])
-              .map(([province, count]) => (
-                <Card 
-                  key={province} 
-                  className="relative overflow-hidden hover:shadow-lg transition-all border-2 hover:border-primary/50"
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-sm mb-1">{province}</h3>
-                        <p className="text-xs text-muted-foreground">Produtores registados</p>
-                      </div>
-                      <Badge className="ml-2 bg-primary/10 text-primary hover:bg-primary/20">
-                        {count}
-                      </Badge>
-                    </div>
-                    <div className="mt-3 h-2 bg-muted rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-gradient-coffee transition-all"
-                        style={{ 
-                          width: `${(count / Math.max(...Object.values(producersByProvince))) * 100}%` 
-                        }}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-          </div>
-          {Object.keys(producersByProvince).length === 0 && (
-            <div className="text-center py-8 text-muted-foreground">
-              <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <p>Nenhum produtor registado ainda</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* Mapa Interactivo de Angola */}
+      <MapaAngolaInteractivo producersByProvince={producersByProvince} />
 
       {/* Recent Batches */}
       <Card className="shadow-elegant">
