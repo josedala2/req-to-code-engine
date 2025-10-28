@@ -8,9 +8,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { useEmpresaAuth } from "@/hooks/useEmpresaAuth";
-import { Building2, Mail, Lock, User, Phone, MapPin, FileText } from "lucide-react";
+import { Building2, Mail, Lock, User, Phone, MapPin, FileText, Upload } from "lucide-react";
 import mukafeLogo from "@/assets/mukafe-logo.png";
 import { provinciasAngola } from "@/data/angolaDivisaoAdministrativa";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function EmpresaAuth() {
   const navigate = useNavigate();
@@ -33,6 +34,10 @@ export default function EmpresaAuth() {
   const [provincia, setProvincia] = useState("");
   const [responsavelNome, setResponsavelNome] = useState("");
   const [responsavelCargo, setResponsavelCargo] = useState("");
+  const [docCertidao, setDocCertidao] = useState<File | null>(null);
+  const [docNif, setDocNif] = useState<File | null>(null);
+  const [docAlvara, setDocAlvara] = useState<File | null>(null);
+  const [docOutros, setDocOutros] = useState<File | null>(null);
 
   useEffect(() => {
     if (user && !loading) {
@@ -59,6 +64,29 @@ export default function EmpresaAuth() {
     }
   };
 
+  const uploadDocument = async (file: File, folder: string): Promise<string | null> => {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `${folder}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('producer-documents')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('producer-documents')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error) {
+      console.error("Erro ao fazer upload:", error);
+      return null;
+    }
+  };
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -75,6 +103,17 @@ export default function EmpresaAuth() {
     setIsSubmitting(true);
 
     try {
+      // Upload documents
+      let certidaoUrl = null;
+      let nifUrl = null;
+      let alvaraUrl = null;
+      let outrosUrl = null;
+
+      if (docCertidao) certidaoUrl = await uploadDocument(docCertidao, 'empresas');
+      if (docNif) nifUrl = await uploadDocument(docNif, 'empresas');
+      if (docAlvara) alvaraUrl = await uploadDocument(docAlvara, 'empresas');
+      if (docOutros) outrosUrl = await uploadDocument(docOutros, 'empresas');
+
       const { error } = await signUp(signupEmail, signupPassword, {
         nome_empresa: nomeEmpresa,
         nif,
@@ -85,12 +124,16 @@ export default function EmpresaAuth() {
         provincia,
         responsavel_nome: responsavelNome,
         responsavel_cargo: responsavelCargo,
+        documento_certidao: certidaoUrl,
+        documento_nif: nifUrl,
+        documento_alvara: alvaraUrl,
+        documento_outros: outrosUrl,
       });
 
       if (error) {
         toast.error(error.message);
       } else {
-        toast.success("Conta criada com sucesso! Pode fazer login.");
+        toast.success("Conta criada com sucesso! Aguarde aprovação para fazer login.");
       }
     } catch (error: any) {
       toast.error("Erro ao criar conta");
@@ -298,6 +341,67 @@ export default function EmpresaAuth() {
                         value={responsavelCargo}
                         onChange={(e) => setResponsavelCargo(e.target.value)}
                       />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4 pt-4 border-t">
+                  <h3 className="font-semibold text-sm">Documentos da Empresa</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Faça upload dos documentos necessários (PDF, JPG ou PNG)
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="doc-certidao">Certidão Comercial</Label>
+                      <div className="relative">
+                        <Input
+                          id="doc-certidao"
+                          type="file"
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          onChange={(e) => setDocCertidao(e.target.files?.[0] || null)}
+                          className="cursor-pointer"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="doc-nif">Comprovativo NIF</Label>
+                      <div className="relative">
+                        <Input
+                          id="doc-nif"
+                          type="file"
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          onChange={(e) => setDocNif(e.target.files?.[0] || null)}
+                          className="cursor-pointer"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="doc-alvara">Alvará</Label>
+                      <div className="relative">
+                        <Input
+                          id="doc-alvara"
+                          type="file"
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          onChange={(e) => setDocAlvara(e.target.files?.[0] || null)}
+                          className="cursor-pointer"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="doc-outros">Outros Documentos</Label>
+                      <div className="relative">
+                        <Input
+                          id="doc-outros"
+                          type="file"
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          onChange={(e) => setDocOutros(e.target.files?.[0] || null)}
+                          className="cursor-pointer"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>

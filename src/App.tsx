@@ -25,6 +25,8 @@ import EmpresaAuth from "./pages/EmpresaAuth";
 import EmpresaDashboard from "./pages/EmpresaDashboard";
 import SolicitarCertificacao from "./pages/SolicitarCertificacao";
 import EmpresaPedidoDetalhes from "./pages/EmpresaPedidoDetalhes";
+import AprovarEmpresa from "./pages/AprovarEmpresa";
+import AprovarPedidoCertificacao from "./pages/AprovarPedidoCertificacao";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +50,8 @@ const App = () => (
                 <Route path="/produtores" element={<Produtores />} />
                 <Route path="/produtores/:id" element={<ProdutorDetalhes />} />
                 <Route path="/aprovacao-produtores" element={<AprovacaoProdutores />} />
+                <Route path="/aprovar-empresa/:id" element={<AprovarEmpresa />} />
+                <Route path="/aprovar-pedido/:id" element={<AprovarPedidoCertificacao />} />
                 <Route path="/lotes" element={<Lotes />} />
                 <Route path="/lotes/:id" element={<LoteDetalhes />} />
                 <Route path="/qualidade" element={<Qualidade />} />

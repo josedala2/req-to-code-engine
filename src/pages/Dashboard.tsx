@@ -427,8 +427,12 @@ export default function Dashboard() {
                       <Badge variant="outline" className="text-xs">
                         {pedido.status.replace('_', ' ')}
                       </Badge>
-                      <Button size="sm" variant="ghost">
-                        <Eye className="h-4 w-4" />
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => navigate(`/aprovar-pedido/${pedido.id}`)}
+                      >
+                        Processar
                       </Button>
                     </div>
                   </div>
@@ -475,8 +479,12 @@ export default function Dashboard() {
                         {format(new Date(empresa.created_at), 'dd/MM/yyyy')}
                       </p>
                     </div>
-                    <Button size="sm" variant="ghost">
-                      <Eye className="h-4 w-4" />
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => navigate(`/aprovar-empresa/${empresa.id}`)}
+                    >
+                      Ver Detalhes
                     </Button>
                   </div>
                 ))}

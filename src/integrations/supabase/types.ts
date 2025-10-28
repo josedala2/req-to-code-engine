@@ -256,46 +256,70 @@ export type Database = {
       }
       empresas: {
         Row: {
+          aprovado_em: string | null
+          aprovado_por: string | null
           cidade: string
           created_at: string | null
+          documento_alvara: string | null
+          documento_certidao: string | null
+          documento_nif: string | null
+          documento_outros: string | null
           email: string
           endereco: string
           id: string
           nif: string
           nome_empresa: string
+          observacoes_aprovacao: string | null
           provincia: string
           responsavel_cargo: string | null
           responsavel_nome: string
+          status: string | null
           telefone: string
           updated_at: string | null
           user_id: string | null
         }
         Insert: {
+          aprovado_em?: string | null
+          aprovado_por?: string | null
           cidade: string
           created_at?: string | null
+          documento_alvara?: string | null
+          documento_certidao?: string | null
+          documento_nif?: string | null
+          documento_outros?: string | null
           email: string
           endereco: string
           id?: string
           nif: string
           nome_empresa: string
+          observacoes_aprovacao?: string | null
           provincia: string
           responsavel_cargo?: string | null
           responsavel_nome: string
+          status?: string | null
           telefone: string
           updated_at?: string | null
           user_id?: string | null
         }
         Update: {
+          aprovado_em?: string | null
+          aprovado_por?: string | null
           cidade?: string
           created_at?: string | null
+          documento_alvara?: string | null
+          documento_certidao?: string | null
+          documento_nif?: string | null
+          documento_outros?: string | null
           email?: string
           endereco?: string
           id?: string
           nif?: string
           nome_empresa?: string
+          observacoes_aprovacao?: string | null
           provincia?: string
           responsavel_cargo?: string | null
           responsavel_nome?: string
+          status?: string | null
           telefone?: string
           updated_at?: string | null
           user_id?: string | null
