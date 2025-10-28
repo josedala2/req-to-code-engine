@@ -8,6 +8,7 @@ import { Plus, Search, Calendar, Weight, MapPin, FileText, Tag } from "lucide-re
 import { useNavigate } from "react-router-dom";
 import { LoteForm } from "@/components/forms/LoteForm";
 import { SealForm } from "@/components/forms/SealForm";
+import { AlterarStatusLoteDialog } from "@/components/forms/AlterarStatusLoteDialog";
 import { generateLotesPDF } from "@/lib/pdfGenerator";
 import {
   Table,
@@ -230,13 +231,20 @@ export default function Lotes() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => navigate(`/lotes/${batch.id}`)}
-                      >
-                        Ver Detalhes
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => navigate(`/lotes/${batch.id}`)}
+                        >
+                          Ver Detalhes
+                        </Button>
+                        <AlterarStatusLoteDialog
+                          loteId={batch.id}
+                          statusAtual={batch.status}
+                          onSuccess={() => window.location.reload()}
+                        />
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

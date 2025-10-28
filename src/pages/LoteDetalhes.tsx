@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Calendar, Weight, MapPin, Thermometer, Droplets, Users, Download } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AlterarStatusLoteDialog } from "@/components/forms/AlterarStatusLoteDialog";
 import { generateRastreabilidadePDF } from "@/lib/pdfGenerator";
 import { toast } from "sonner";
 
@@ -67,13 +68,20 @@ export default function LoteDetalhes() {
           <ArrowLeft className="h-4 w-4 mr-2" />
           Voltar
         </Button>
-        <Button onClick={() => {
-          generateRastreabilidadePDF(id || "LOTE-2024-001");
-          toast.success("Relatório de rastreabilidade exportado!");
-        }}>
-          <Download className="mr-2 h-4 w-4" />
-          Exportar Rastreabilidade
-        </Button>
+        <div className="flex gap-2">
+          <AlterarStatusLoteDialog
+            loteId={batch.id}
+            statusAtual={batch.status}
+            onSuccess={() => window.location.reload()}
+          />
+          <Button onClick={() => {
+            generateRastreabilidadePDF(id || "LOTE-2024-001");
+            toast.success("Relatório de rastreabilidade exportado!");
+          }}>
+            <Download className="mr-2 h-4 w-4" />
+            Exportar Rastreabilidade
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
