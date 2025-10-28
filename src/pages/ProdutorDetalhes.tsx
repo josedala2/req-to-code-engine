@@ -67,20 +67,6 @@ export default function ProdutorDetalhes() {
         </Button>
       </div>
 
-      {/* Map Section */}
-      <Card className="shadow-elegant">
-        <CardHeader>
-          <CardTitle>Localização da Fazenda</CardTitle>
-          <CardDescription>{producer.nome_fazenda}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <FarmMap 
-            georeferencia={producer.georeferencia} 
-            nomeFazenda={producer.nome_fazenda}
-          />
-        </CardContent>
-      </Card>
-
       <div className="grid gap-6 md:grid-cols-3">
         <Card className="md:col-span-2 shadow-elegant">
           <CardHeader>
@@ -221,6 +207,20 @@ export default function ProdutorDetalhes() {
               <p className="text-muted-foreground">{producer.altitude}</p>
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Map Section */}
+      <Card className="shadow-elegant">
+        <CardHeader>
+          <CardTitle>Localização da Fazenda</CardTitle>
+          <CardDescription>{producer.nome_fazenda}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <FarmMap 
+            georeferencia={producer.georeferencia} 
+            nomeFazenda={producer.nome_fazenda}
+          />
         </CardContent>
       </Card>
     </div>
