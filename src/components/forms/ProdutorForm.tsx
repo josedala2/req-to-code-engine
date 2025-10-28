@@ -31,7 +31,7 @@ const produtorSchema = z.object({
   variedades: z.array(z.string()).min(1, "Selecione pelo menos um tipo de café"),
   areaArabica: z.string().optional(),
   areaRobusta: z.string().optional(),
-  tipoProducao: z.enum(["com_sombra", "sem_sombra"], {
+  tipoProducao: z.enum(["com_sombra", "sem_sombra", "mista"], {
     required_error: "Tipo de produção é obrigatório",
   }),
   totalTrabalhadores: z.string().min(1, "Total de funcionários é obrigatório"),
@@ -216,6 +216,17 @@ export function ProdutorForm({ onSuccess, initialData, isEditing = false }: Prod
       return;
     }
 
+    // Validar que a área de produção não exceda a área total da fazenda
+    const areaTotal = parseFloat(data.area) || 0;
+    const areaArabicaNum = parseFloat(data.areaArabica || "0");
+    const areaRobustaNum = parseFloat(data.areaRobusta || "0");
+    const areaProducaoTotal = areaArabicaNum + areaRobustaNum;
+
+    if (data.variedades.length === 2 && areaProducaoTotal > areaTotal) {
+      toast.error(`A área total de produção (${areaProducaoTotal.toFixed(2)} ha) não pode ser superior à área da fazenda (${areaTotal.toFixed(2)} ha).`);
+      return;
+    }
+
     try {
       console.log("Starting save operation...");
       // Upload documents if provided
@@ -254,8 +265,8 @@ export function ProdutorForm({ onSuccess, initialData, isEditing = false }: Prod
         altitude: data.altitude,
         forma_aquisicao: data.formaAquisicao,
         variedades: data.variedades || [],
-        area_arabica: data.areaArabica || null,
-        area_robusta: data.areaRobusta || null,
+        area_arabica: data.areaArabica ? parseFloat(data.areaArabica) : null,
+        area_robusta: data.areaRobusta ? parseFloat(data.areaRobusta) : null,
         tipo_producao: data.tipoProducao,
         trabalhadores_efetivos_homens: parseInt(data.trabalhadoresEfetivosHomens),
         trabalhadores_efetivos_mulheres: parseInt(data.trabalhadoresEfetivosMulheres),
@@ -677,6 +688,7 @@ export function ProdutorForm({ onSuccess, initialData, isEditing = false }: Prod
                       <option value="">Selecione...</option>
                       <option value="com_sombra">Com Sombra</option>
                       <option value="sem_sombra">Sem Sombra</option>
+                      <option value="mista">Mista</option>
                     </select>
                   </FormControl>
                   <FormMessage />
