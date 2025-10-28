@@ -1,13 +1,16 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MapPin, Phone, Mail, Leaf, Award, TrendingUp, Users } from "lucide-react";
+import { ArrowLeft, MapPin, Phone, Mail, Leaf, Award, TrendingUp, Users, Edit, Trash2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import FarmMap from "@/components/FarmMap";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { ProdutorForm } from "@/components/forms/ProdutorForm";
 
 export default function ProdutorDetalhes() {
   const navigate = useNavigate();
@@ -15,34 +18,65 @@ export default function ProdutorDetalhes() {
   const { toast } = useToast();
   const [producer, setProducer] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+
+  const fetchProducer = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('produtores')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+      setProducer(data);
+    } catch (error: any) {
+      toast({
+        title: "Erro ao carregar dados",
+        description: error.message,
+        variant: "destructive",
+      });
+      navigate('/produtores');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchProducer = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('produtores')
-          .select('*')
-          .eq('id', id)
-          .single();
-
-        if (error) throw error;
-        setProducer(data);
-      } catch (error: any) {
-        toast({
-          title: "Erro ao carregar dados",
-          description: error.message,
-          variant: "destructive",
-        });
-        navigate('/produtores');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     if (id) {
       fetchProducer();
     }
-  }, [id, navigate, toast]);
+  }, [id]);
+
+  const handleDelete = async () => {
+    try {
+      const { error } = await supabase
+        .from('produtores')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Produtor excluído",
+        description: "O produtor foi excluído com sucesso.",
+      });
+      navigate('/produtores');
+    } catch (error: any) {
+      toast({
+        title: "Erro ao excluir",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEditSuccess = () => {
+    setEditDialogOpen(false);
+    if (id) {
+      fetchProducer();
+    }
+  };
 
   if (loading) {
     return (
@@ -60,11 +94,56 @@ export default function ProdutorDetalhes() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between">
         <Button variant="ghost" onClick={() => navigate("/produtores")}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Voltar
         </Button>
+        <div className="flex gap-2">
+          <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <Edit className="h-4 w-4 mr-2" />
+                Editar
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Editar Produtor</DialogTitle>
+                <DialogDescription>
+                  Atualize os dados do produtor e da propriedade
+                </DialogDescription>
+              </DialogHeader>
+              <ProdutorForm 
+                initialData={producer} 
+                isEditing={true}
+                onSuccess={handleEditSuccess} 
+              />
+            </DialogContent>
+          </Dialog>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive">
+                <Trash2 className="h-4 w-4 mr-2" />
+                Excluir
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Tem certeza que deseja excluir este produtor? Esta ação não pode ser desfeita.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete}>
+                  Excluir
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">

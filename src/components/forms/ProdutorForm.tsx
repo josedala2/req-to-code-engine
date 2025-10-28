@@ -44,9 +44,11 @@ type ProdutorFormData = z.infer<typeof produtorSchema>;
 
 interface ProdutorFormProps {
   onSuccess?: () => void;
+  initialData?: any;
+  isEditing?: boolean;
 }
 
-export function ProdutorForm({ onSuccess }: ProdutorFormProps) {
+export function ProdutorForm({ onSuccess, initialData, isEditing = false }: ProdutorFormProps) {
   const [selectedProvincia, setSelectedProvincia] = useState<string>("");
   const [selectedMunicipio, setSelectedMunicipio] = useState<string>("");
   const [municipios, setMunicipios] = useState<string[]>([]);
@@ -57,7 +59,30 @@ export function ProdutorForm({ onSuccess }: ProdutorFormProps) {
 
   const form = useForm<ProdutorFormData>({
     resolver: zodResolver(produtorSchema),
-    defaultValues: {
+    defaultValues: initialData ? {
+      nome: initialData.nome || "",
+      nif: initialData.nif || "",
+      email: initialData.email || "",
+      telefone: initialData.telefone || "",
+      identificacaoFazenda: initialData.identificacao_fazenda || "",
+      nomeFazenda: initialData.nome_fazenda || "",
+      georeferencia: initialData.georeferencia || "",
+      provincia: initialData.provincia || "",
+      municipio: initialData.municipio || "",
+      comuna: initialData.comuna || "",
+      localizacao: initialData.localizacao || "",
+      area: initialData.area || "",
+      altitude: initialData.altitude || "",
+      formaAquisicao: initialData.forma_aquisicao || undefined,
+      variedades: Array.isArray(initialData.variedades) ? initialData.variedades.join(", ") : "",
+      tipoProducao: initialData.tipo_producao || undefined,
+      totalTrabalhadores: ((initialData.trabalhadores_efetivos_homens || 0) + (initialData.trabalhadores_efetivos_mulheres || 0) + (initialData.trabalhadores_colaboradores_homens || 0) + (initialData.trabalhadores_colaboradores_mulheres || 0)).toString(),
+      trabalhadoresEfetivosHomens: (initialData.trabalhadores_efetivos_homens || 0).toString(),
+      trabalhadoresEfetivosMulheres: (initialData.trabalhadores_efetivos_mulheres || 0).toString(),
+      trabalhadoresColaboradoresHomens: (initialData.trabalhadores_colaboradores_homens || 0).toString(),
+      trabalhadoresColaboradoresMulheres: (initialData.trabalhadores_colaboradores_mulheres || 0).toString(),
+      observacoes: initialData.observacoes || "",
+    } : {
       nome: "",
       nif: "",
       email: "",
@@ -82,6 +107,13 @@ export function ProdutorForm({ onSuccess }: ProdutorFormProps) {
       observacoes: "",
     },
   });
+
+  useEffect(() => {
+    if (initialData) {
+      setSelectedProvincia(initialData.provincia || "");
+      setSelectedMunicipio(initialData.municipio || "");
+    }
+  }, [initialData]);
 
   useEffect(() => {
     if (selectedProvincia) {
@@ -190,7 +222,7 @@ export function ProdutorForm({ onSuccess }: ProdutorFormProps) {
         documentoPosseTerraUrl = await uploadFile(documentoPosseTerra, `posse_terra/${timestamp}_${documentoPosseTerra.name}`);
       }
 
-      const { error } = await supabase.from("produtores").insert({
+      const produtorData = {
         nome: data.nome,
         nif: data.nif,
         email: data.email,
@@ -212,15 +244,29 @@ export function ProdutorForm({ onSuccess }: ProdutorFormProps) {
         trabalhadores_colaboradores_homens: parseInt(data.trabalhadoresColaboradoresHomens),
         trabalhadores_colaboradores_mulheres: parseInt(data.trabalhadoresColaboradoresMulheres),
         observacoes: data.observacoes,
-        documento_bi: documentoBIUrl,
-        fotografia: fotografiaUrl,
-        documento_posse_terra: documentoPosseTerraUrl,
-        status: "pendente",
-      });
+        ...(documentoBIUrl && { documento_bi: documentoBIUrl }),
+        ...(fotografiaUrl && { fotografia: fotografiaUrl }),
+        ...(documentoPosseTerraUrl && { documento_posse_terra: documentoPosseTerraUrl }),
+      };
+
+      let error;
+      if (isEditing && initialData?.id) {
+        const result = await supabase
+          .from("produtores")
+          .update(produtorData)
+          .eq("id", initialData.id);
+        error = result.error;
+      } else {
+        const result = await supabase.from("produtores").insert({
+          ...produtorData,
+          status: "pendente" as const
+        });
+        error = result.error;
+      }
 
       if (error) throw error;
 
-      toast.success("Cadastro enviado! Aguarde aprovação do administrador.");
+      toast.success(isEditing ? "Produtor atualizado com sucesso!" : "Cadastro enviado! Aguarde aprovação do administrador.");
       form.reset();
       setDocumentoBI(null);
       setFotografia(null);
