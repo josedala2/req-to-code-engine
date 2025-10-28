@@ -4,55 +4,70 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Award, Coffee, Sparkles } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Progress } from "@/components/ui/progress";
-
-const qualityData = {
-  "LOT-2025-001": {
-    id: "LOT-2025-001",
-    date: "20/01/2025",
-    analyst: "Maria Clara - Q-Grader",
-    batch: "LOT-2025-001",
-    producer: "Fazenda Santa Clara",
-    variety: "Bourbon Amarelo",
-    totalScore: 87.5,
-    classification: "Especial",
-    attributes: [
-      { name: "Fragrância/Aroma", score: 8.5, max: 10 },
-      { name: "Sabor", score: 8.75, max: 10 },
-      { name: "Acidez", score: 8.5, max: 10 },
-      { name: "Corpo", score: 8.25, max: 10 },
-      { name: "Finalização", score: 8.5, max: 10 },
-      { name: "Equilíbrio", score: 8.5, max: 10 },
-      { name: "Doçura", score: 9.0, max: 10 },
-      { name: "Uniformidade", score: 9.0, max: 10 },
-      { name: "Xícara Limpa", score: 9.0, max: 10 },
-      { name: "Impressão Geral", score: 9.5, max: 10 },
-    ],
-    descriptors: [
-      "Chocolate ao leite",
-      "Caramelo",
-      "Frutas vermelhas",
-      "Mel",
-      "Amêndoas",
-      "Florais suaves",
-    ],
-    defects: {
-      category1: 0,
-      category2: 2,
-      total: "Sem defeitos graves",
-    },
-    notes: "Café de excelente qualidade com perfil sensorial complexo e bem equilibrado. Ideal para microlotes e cafés especiais premium.",
-    recommendations: [
-      "Recomendado para torras médias (city a full city)",
-      "Excelente para métodos de extração filtrados",
-      "Potencial para competições e leilões especiais",
-    ],
-  },
-};
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
 
 export default function QualidadeDetalhes() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const quality = qualityData[id as keyof typeof qualityData] || qualityData["LOT-2025-001"];
+
+  const { data: quality, isLoading } = useQuery({
+    queryKey: ['qualidade', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('qualidade')
+        .select(`
+          *,
+          lotes (codigo, produtor_nome, variedade)
+        `)
+        .eq('id', id)
+        .maybeSingle();
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <Card className="shadow-elegant">
+          <CardContent className="py-12 text-center">
+            <p className="text-muted-foreground">Carregando...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!quality) {
+    return (
+      <div className="space-y-6">
+        <Button variant="ghost" onClick={() => navigate("/qualidade")}>
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Voltar
+        </Button>
+        <Card className="shadow-elegant">
+          <CardContent className="py-12 text-center">
+            <p className="text-muted-foreground">Análise não encontrada.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const attributes = [
+    { name: "Fragrância/Aroma", score: quality.fragrancia || 0, max: 10 },
+    { name: "Sabor", score: quality.sabor || 0, max: 10 },
+    { name: "Pós-Gosto", score: quality.pos_gosto || 0, max: 10 },
+    { name: "Acidez", score: quality.acidez || 0, max: 10 },
+    { name: "Corpo", score: quality.corpo || 0, max: 10 },
+    { name: "Equilíbrio", score: quality.equilibrio || 0, max: 10 },
+    { name: "Uniformidade", score: quality.uniformidade || 0, max: 10 },
+    { name: "Xícara Limpa", score: quality.xicara_limpa || 0, max: 10 },
+    { name: "Doçura", score: quality.doçura || 0, max: 10 },
+  ];
 
   return (
     <div className="space-y-6">
@@ -69,45 +84,52 @@ export default function QualidadeDetalhes() {
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="text-3xl">Análise de Qualidade</CardTitle>
-                <CardDescription className="text-lg mt-2">Lote: {quality.batch}</CardDescription>
+                <CardDescription className="text-lg mt-2">
+                  Lote: {quality.lotes?.codigo || 'N/A'}
+                </CardDescription>
               </div>
-              <Badge className="bg-gradient-coffee text-primary-foreground text-lg px-4 py-2">
-                {quality.classification}
-              </Badge>
+              {quality.classificacao && (
+                <Badge className="bg-gradient-coffee text-primary-foreground text-lg px-4 py-2">
+                  {quality.classificacao}
+                </Badge>
+              )}
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Data da Análise</p>
-                <p className="font-medium">{quality.date}</p>
+                <p className="font-medium">{format(new Date(quality.data_analise), 'dd/MM/yyyy')}</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Analista</p>
-                <p className="font-medium">{quality.analyst}</p>
+                <p className="text-sm text-muted-foreground mb-1">Classificador</p>
+                <p className="font-medium">{quality.classificador_nome}</p>
+                {quality.classificador_certificacao && (
+                  <p className="text-xs text-muted-foreground">{quality.classificador_certificacao}</p>
+                )}
               </div>
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Produtor</p>
-                <p className="font-medium">{quality.producer}</p>
+                <p className="font-medium">{quality.lotes?.produtor_nome || 'N/A'}</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Variedade</p>
-                <Badge variant="secondary">{quality.variety}</Badge>
+                <Badge variant="secondary">{quality.lotes?.variedade || 'N/A'}</Badge>
               </div>
             </div>
 
             <div className="pt-4 border-t">
               <h3 className="font-semibold mb-4 flex items-center gap-2">
                 <Coffee className="h-5 w-5 text-primary" />
-                Atributos Sensoriais SCA
+                Atributos Sensoriais
               </h3>
               <div className="space-y-4">
-                {quality.attributes.map((attr) => (
+                {attributes.map((attr) => (
                   <div key={attr.name}>
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm font-medium">{attr.name}</span>
                       <span className="text-sm font-bold text-primary">
-                        {attr.score.toFixed(2)} / {attr.max}
+                        {attr.score.toFixed(1)} / {attr.max}
                       </span>
                     </div>
                     <Progress value={(attr.score / attr.max) * 100} className="h-2" />
@@ -127,8 +149,8 @@ export default function QualidadeDetalhes() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-5xl font-bold text-primary">{quality.totalScore}</p>
-              <p className="text-muted-foreground mt-2">/ 100 pontos SCA</p>
+              <p className="text-5xl font-bold text-primary">{quality.nota_final?.toFixed(1) || 0}</p>
+              <p className="text-muted-foreground mt-2">/ 100 pontos</p>
             </CardContent>
           </Card>
 
@@ -141,62 +163,30 @@ export default function QualidadeDetalhes() {
             </CardHeader>
             <CardContent className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-sm">Categoria 1:</span>
-                <span className="font-bold">{quality.defects.category1}</span>
+                <span className="text-sm">Total de Defeitos:</span>
+                <span className="font-bold">{quality.defeitos || 0}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-sm">Categoria 2:</span>
-                <span className="font-bold">{quality.defects.category2}</span>
-              </div>
-              <p className="text-sm text-success mt-3 font-medium">{quality.defects.total}</p>
+              {quality.umidade && (
+                <div className="flex justify-between mt-3">
+                  <span className="text-sm">Umidade:</span>
+                  <span className="font-bold">{quality.umidade}%</span>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      {quality.observacoes && (
         <Card className="shadow-elegant">
           <CardHeader>
-            <CardTitle>Descritores Sensoriais</CardTitle>
-            <CardDescription>Notas e aromas identificados</CardDescription>
+            <CardTitle>Observações</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap gap-2">
-              {quality.descriptors.map((descriptor) => (
-                <Badge key={descriptor} variant="secondary" className="text-sm px-3 py-1">
-                  {descriptor}
-                </Badge>
-              ))}
-            </div>
+            <p className="text-muted-foreground leading-relaxed">{quality.observacoes}</p>
           </CardContent>
         </Card>
-
-        <Card className="shadow-elegant">
-          <CardHeader>
-            <CardTitle>Recomendações</CardTitle>
-            <CardDescription>Sugestões de uso e preparo</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              {quality.recommendations.map((rec, index) => (
-                <li key={index} className="flex items-start gap-2">
-                  <span className="text-primary mt-1">•</span>
-                  <span className="text-sm text-muted-foreground">{rec}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card className="shadow-elegant">
-        <CardHeader>
-          <CardTitle>Observações do Analista</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground leading-relaxed">{quality.notes}</p>
-        </CardContent>
-      </Card>
+      )}
     </div>
   );
 }

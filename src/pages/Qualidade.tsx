@@ -7,45 +7,9 @@ import { Plus, ClipboardCheck, Droplet, Bug, Eye, Star, FileText } from "lucide-
 import { useNavigate } from "react-router-dom";
 import { QualidadeForm } from "@/components/forms/QualidadeForm";
 import { generateQualidadePDF } from "@/lib/pdfGenerator";
-
-const qualityTests = [
-  {
-    id: "QA-2025-012",
-    batchId: "LOT-2025-001",
-    date: "16/01/2025",
-    inspector: "Dr. Roberto Café",
-    sensoryScore: 87,
-    defects: 2,
-    moisture: "11.5%",
-    classification: "Premium",
-    notes: "Aroma intenso, corpo médio, acidez balanceada",
-    approved: true,
-  },
-  {
-    id: "QA-2025-011",
-    batchId: "LOT-2025-002",
-    date: "14/01/2025",
-    inspector: "Ana Clara Barista",
-    sensoryScore: 84,
-    defects: 4,
-    moisture: "12.0%",
-    classification: "Gourmet",
-    notes: "Doçura pronunciada, notas de chocolate",
-    approved: true,
-  },
-  {
-    id: "QA-2025-010",
-    batchId: "LOT-2024-458",
-    date: "05/01/2025",
-    inspector: "Dr. Roberto Café",
-    sensoryScore: 89,
-    defects: 1,
-    moisture: "11.2%",
-    classification: "Premium",
-    notes: "Excepcional equilíbrio, finalização longa",
-    approved: true,
-  },
-];
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
 
 const getScoreColor = (score: number) => {
   if (score >= 85) return "text-primary";
@@ -62,6 +26,29 @@ const getScoreBg = (score: number) => {
 export default function Qualidade() {
   const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState(false);
+
+  const { data: qualityTests, refetch } = useQuery({
+    queryKey: ['qualidade'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('qualidade')
+        .select(`
+          *,
+          lotes (codigo)
+        `)
+        .order('data_analise', { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const stats = {
+    avgScore: qualityTests?.reduce((acc, test) => acc + (test.nota_final || 0), 0) / (qualityTests?.length || 1),
+    approvalRate: qualityTests?.filter(t => (t.nota_final || 0) >= 80).length / (qualityTests?.length || 1) * 100,
+    avgMoisture: qualityTests?.reduce((acc, test) => acc + (test.umidade || 0), 0) / (qualityTests?.length || 1),
+    avgDefects: qualityTests?.reduce((acc, test) => acc + (test.defeitos || 0), 0) / (qualityTests?.length || 1),
+  };
   
   return (
     <div className="space-y-6">
@@ -89,7 +76,10 @@ export default function Qualidade() {
                   Registre a análise sensorial e classificação do café
                 </DialogDescription>
               </DialogHeader>
-              <QualidadeForm onSuccess={() => setDialogOpen(false)} />
+              <QualidadeForm onSuccess={() => {
+                setDialogOpen(false);
+                refetch();
+              }} />
             </DialogContent>
           </Dialog>
         </div>
@@ -105,7 +95,7 @@ export default function Qualidade() {
           </CardHeader>
           <CardContent>
             <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-bold text-primary">86.7</span>
+              <span className="text-4xl font-bold text-primary">{stats.avgScore.toFixed(1)}</span>
               <span className="text-muted-foreground">/100</span>
             </div>
             <div className="flex items-center gap-1 mt-2">
@@ -113,7 +103,7 @@ export default function Qualidade() {
                 <Star
                   key={star}
                   className={`h-4 w-4 ${
-                    star <= 4 ? "fill-accent text-accent" : "text-muted"
+                    star <= Math.round(stats.avgScore / 20) ? "fill-accent text-accent" : "text-muted"
                   }`}
                 />
               ))}
@@ -129,9 +119,11 @@ export default function Qualidade() {
           </CardHeader>
           <CardContent>
             <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-bold text-success">94%</span>
+              <span className="text-4xl font-bold text-success">{stats.approvalRate.toFixed(0)}%</span>
             </div>
-            <p className="text-sm text-muted-foreground mt-2">146 de 156 análises</p>
+            <p className="text-sm text-muted-foreground mt-2">
+              {qualityTests?.filter(t => (t.nota_final || 0) >= 80).length || 0} de {qualityTests?.length || 0} análises
+            </p>
           </CardContent>
         </Card>
 
@@ -144,9 +136,11 @@ export default function Qualidade() {
           <CardContent>
             <div className="flex items-center gap-2">
               <Droplet className="h-8 w-8 text-primary" />
-              <span className="text-4xl font-bold text-foreground">11.6%</span>
+              <span className="text-4xl font-bold text-foreground">{stats.avgMoisture.toFixed(1)}%</span>
             </div>
-            <p className="text-sm text-success mt-2">✓ Dentro do ideal</p>
+            <p className="text-sm text-success mt-2">
+              {stats.avgMoisture >= 10 && stats.avgMoisture <= 12 ? "✓ Dentro do ideal" : "⚠ Atenção"}
+            </p>
           </CardContent>
         </Card>
 
@@ -159,7 +153,7 @@ export default function Qualidade() {
           <CardContent>
             <div className="flex items-center gap-2">
               <Bug className="h-8 w-8 text-warning" />
-              <span className="text-4xl font-bold text-foreground">2.4</span>
+              <span className="text-4xl font-bold text-foreground">{stats.avgDefects.toFixed(1)}</span>
             </div>
             <p className="text-sm text-muted-foreground mt-2">por amostra de 300g</p>
           </CardContent>
@@ -168,78 +162,94 @@ export default function Qualidade() {
 
       {/* Quality Tests List */}
       <div className="space-y-4">
-        {qualityTests.map((test) => (
-          <Card key={test.id} className="shadow-elegant hover:shadow-glow transition-all">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <CardTitle className="text-lg font-mono">{test.id}</CardTitle>
-                    <Badge variant="outline">Lote: {test.batchId}</Badge>
-                    {test.approved && (
-                      <Badge className="bg-success text-success-foreground">
-                        ✓ Aprovado
+        {!qualityTests || qualityTests.length === 0 ? (
+          <Card className="shadow-elegant">
+            <CardContent className="py-12 text-center">
+              <ClipboardCheck className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">Nenhuma análise de qualidade cadastrada ainda.</p>
+            </CardContent>
+          </Card>
+        ) : (
+          qualityTests.map((test) => (
+            <Card key={test.id} className="shadow-elegant hover:shadow-glow transition-all">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="flex items-center gap-3 mb-2">
+                      <CardTitle className="text-lg font-mono">
+                        Lote: {test.lotes?.codigo || 'N/A'}
+                      </CardTitle>
+                      {(test.nota_final || 0) >= 80 && (
+                        <Badge className="bg-success text-success-foreground">
+                          ✓ Aprovado
+                        </Badge>
+                      )}
+                    </div>
+                    <CardDescription>
+                      {format(new Date(test.data_analise), 'dd/MM/yyyy')} • Classificador: {test.classificador_nome}
+                    </CardDescription>
+                  </div>
+                  <div className="text-right">
+                    <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg ${getScoreBg(test.nota_final || 0)} text-white font-bold text-2xl`}>
+                      <ClipboardCheck className="h-6 w-6" />
+                      {test.nota_final?.toFixed(1) || 0}
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1">Score Final</p>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-6 md:grid-cols-4 mb-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Bug className="h-4 w-4" />
+                      Defeitos
+                    </div>
+                    <p className="text-2xl font-bold text-foreground">{test.defeitos || 0}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Droplet className="h-4 w-4" />
+                      Umidade
+                    </div>
+                    <p className="text-2xl font-bold text-foreground">
+                      {test.umidade ? `${test.umidade}%` : 'N/A'}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Eye className="h-4 w-4" />
+                      Classificação
+                    </div>
+                    {test.classificacao && (
+                      <Badge className={getScoreBg(test.nota_final || 0) + " text-white"}>
+                        {test.classificacao}
                       </Badge>
                     )}
                   </div>
-                  <CardDescription>
-                    {test.date} • Inspetor: {test.inspector}
-                  </CardDescription>
                 </div>
-                <div className="text-right">
-                  <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg ${getScoreBg(test.sensoryScore)} text-white font-bold text-2xl`}>
-                    <ClipboardCheck className="h-6 w-6" />
-                    {test.sensoryScore}
+                {test.observacoes && (
+                  <div className="pt-4 border-t border-border">
+                    <p className="text-sm font-medium mb-1">Observações:</p>
+                    <p className="text-sm text-muted-foreground italic">"{test.observacoes}"</p>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1">Score Sensorial</p>
+                )}
+                <div className="flex gap-2 mt-4">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => navigate(`/qualidade/${test.id}`)}
+                  >
+                    Ver Relatório Completo
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    Exportar PDF
+                  </Button>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-6 md:grid-cols-4 mb-4">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Bug className="h-4 w-4" />
-                    Defeitos
-                  </div>
-                  <p className="text-2xl font-bold text-foreground">{test.defects}</p>
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Droplet className="h-4 w-4" />
-                    Umidade
-                  </div>
-                  <p className="text-2xl font-bold text-foreground">{test.moisture}</p>
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Eye className="h-4 w-4" />
-                    Classificação
-                  </div>
-                  <Badge className={getScoreBg(test.sensoryScore) + " text-white"}>
-                    {test.classification}
-                  </Badge>
-                </div>
-              </div>
-              <div className="pt-4 border-t border-border">
-                <p className="text-sm font-medium mb-1">Notas do Degustador:</p>
-                <p className="text-sm text-muted-foreground italic">"{test.notes}"</p>
-              </div>
-              <div className="flex gap-2 mt-4">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => navigate(`/qualidade/${test.batchId}`)}
-                >
-                  Ver Relatório Completo
-                </Button>
-                <Button variant="outline" size="sm">
-                  Exportar PDF
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          ))
+        )}
       </div>
     </div>
   );

@@ -298,6 +298,95 @@ export type Database = {
         }
         Relationships: []
       }
+      qualidade: {
+        Row: {
+          acidez: number | null
+          classificacao: string | null
+          classificador_certificacao: string | null
+          classificador_nome: string
+          corpo: number | null
+          created_at: string | null
+          created_by: string | null
+          data_analise: string
+          defeitos: number | null
+          descritores: string[] | null
+          doçura: number | null
+          equilibrio: number | null
+          fragrancia: number | null
+          id: string
+          lote_id: string | null
+          nota_final: number | null
+          observacoes: string | null
+          pos_gosto: number | null
+          recomendacoes: string | null
+          sabor: number | null
+          umidade: number | null
+          uniformidade: number | null
+          updated_at: string | null
+          xicara_limpa: number | null
+        }
+        Insert: {
+          acidez?: number | null
+          classificacao?: string | null
+          classificador_certificacao?: string | null
+          classificador_nome: string
+          corpo?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          data_analise: string
+          defeitos?: number | null
+          descritores?: string[] | null
+          doçura?: number | null
+          equilibrio?: number | null
+          fragrancia?: number | null
+          id?: string
+          lote_id?: string | null
+          nota_final?: number | null
+          observacoes?: string | null
+          pos_gosto?: number | null
+          recomendacoes?: string | null
+          sabor?: number | null
+          umidade?: number | null
+          uniformidade?: number | null
+          updated_at?: string | null
+          xicara_limpa?: number | null
+        }
+        Update: {
+          acidez?: number | null
+          classificacao?: string | null
+          classificador_certificacao?: string | null
+          classificador_nome?: string
+          corpo?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          data_analise?: string
+          defeitos?: number | null
+          descritores?: string[] | null
+          doçura?: number | null
+          equilibrio?: number | null
+          fragrancia?: number | null
+          id?: string
+          lote_id?: string | null
+          nota_final?: number | null
+          observacoes?: string | null
+          pos_gosto?: number | null
+          recomendacoes?: string | null
+          sabor?: number | null
+          umidade?: number | null
+          uniformidade?: number | null
+          updated_at?: string | null
+          xicara_limpa?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qualidade_lote_id_fkey"
+            columns: ["lote_id"]
+            isOneToOne: false
+            referencedRelation: "lotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
