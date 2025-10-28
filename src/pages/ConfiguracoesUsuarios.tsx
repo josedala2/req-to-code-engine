@@ -100,11 +100,11 @@ export default function ConfiguracoesUsuarios() {
       // Remover todas as roles existentes
       await supabase.from("user_roles").delete().eq("user_id", userId);
 
-      // Adicionar nova role (usando any devido aos tipos não atualizados)
-      const { error } = await supabase.from("user_roles").insert([{
+      // Adicionar nova role - usando rpc ou raw para contornar tipos não atualizados
+      const { error } = await (supabase as any).from("user_roles").insert({
         user_id: userId,
-        role: newRole as any,
-      }]);
+        role: newRole,
+      });
 
       if (error) throw error;
     },
