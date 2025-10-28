@@ -1,285 +1,136 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useNavigate, useParams } from "react-router-dom";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Shield, Calendar, FileCheck, AlertCircle, Building, Download } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
-import { Separator } from "@/components/ui/separator";
-import { 
-  generateCertificadoOrganicoPDF, 
-  generateRelatorioAuditoriaPDF, 
-  generatePlanoManejoOrganicoPDF, 
-  generateRegistroInsumosPDF 
-} from "@/lib/pdfGenerator";
+import { ArrowLeft, Award, History as HistoryIcon } from "lucide-react";
+import { RenovarCertificacaoDialog } from "@/components/forms/RenovarCertificacaoDialog";
+import { AlterarStatusDialog } from "@/components/forms/AlterarStatusDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
+import { format } from "date-fns";
 import { toast } from "sonner";
-
-const certificationData = {
-  "CERT-001": {
-    id: "CERT-001",
-    type: "Orgânico",
-    certifier: "ECOCERT Angola",
-    producer: "Fazenda Santa Clara",
-    issueDate: "15/03/2024",
-    expiryDate: "15/03/2025",
-    status: "Ativa",
-    certificateNumber: "AO-BIO-001-2024",
-    scope: "Produção de café arábica orgânico",
-    standards: [
-      "Regulamento CE 834/2007 (União Europeia)",
-      "USDA NOP (Estados Unidos)",
-      "JAS (Japão)",
-      "Normas ECOCERT para África",
-    ],
-    requirements: [
-      "Ausência de agrotóxicos sintéticos",
-      "Não utilização de fertilizantes químicos",
-      "Preservação de áreas de mata nativa",
-      "Manejo sustentável do solo",
-      "Rastreabilidade completa da produção",
-    ],
-    audits: [
-      {
-        date: "10/03/2024",
-        type: "Auditoria de Renovação",
-        result: "Aprovado",
-        auditor: "Carlos Mendes - ECOCERT",
-      },
-      {
-        date: "15/09/2023",
-        type: "Auditoria de Acompanhamento",
-        result: "Aprovado",
-        auditor: "Ana Paula Santos - ECOCERT",
-      },
-    ],
-    documents: [
-      "Certificado Orgânico 2024-2025",
-      "Relatório de Auditoria",
-      "Plano de Manejo Orgânico",
-      "Registro de Insumos Permitidos",
-    ],
-    benefits: [
-      "Acesso a mercados premium",
-      "Valorização do produto (20-30%)",
-      "Diferenciação no mercado",
-      "Sustentabilidade ambiental",
-    ],
-  },
-};
 
 export default function CertificacaoDetalhes() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const cert = certificationData[id as keyof typeof certificationData] || certificationData["CERT-001"];
+  const [certificacao, setCertificacao] = useState<any>(null);
+  const [historico, setHistorico] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Ativa":
-        return "bg-success/10 text-success border-success/20";
-      case "Pendente":
-        return "bg-warning/10 text-warning border-warning/20";
-      case "Expirada":
-        return "bg-destructive/10 text-destructive border-destructive/20";
-      default:
-        return "bg-muted text-muted-foreground border-border";
+  useEffect(() => {
+    if (id) {
+      fetchData();
+    }
+  }, [id]);
+
+  const fetchData = async () => {
+    try {
+      const { data: cert } = await supabase
+        .from("certificacoes")
+        .select(`*, produtores (nome, nome_fazenda)`)
+        .eq("id", id)
+        .single();
+
+      const { data: hist } = await supabase
+        .from("certificacoes_historico")
+        .select("*")
+        .eq("certificacao_id", id)
+        .order("data_alteracao", { ascending: false });
+
+      setCertificacao(cert);
+      setHistorico(hist || []);
+    } catch (error: any) {
+      toast.error("Erro ao carregar certificação");
+    } finally {
+      setLoading(false);
     }
   };
 
+  if (loading) return <div className="text-center py-12">Carregando...</div>;
+  if (!certificacao) return <div className="text-center py-12">Certificação não encontrada</div>;
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" onClick={() => navigate("/certificacoes")}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Voltar
-        </Button>
-      </div>
+      <Button variant="ghost" onClick={() => navigate("/certificacoes")}>
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Voltar
+      </Button>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        <Card className="md:col-span-2 shadow-elegant">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-3xl flex items-center gap-3">
-                  <Shield className="h-8 w-8 text-primary" />
-                  {cert.type}
-                </CardTitle>
-                <CardDescription className="text-lg mt-2">{cert.producer}</CardDescription>
-              </div>
-              <Badge variant="outline" className={`${getStatusColor(cert.status)} text-lg px-4 py-2`}>
-                {cert.status}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Certificadora</p>
-                <div className="flex items-center gap-2">
-                  <Building className="h-4 w-4 text-primary" />
-                  <p className="font-medium">{cert.certifier}</p>
-                </div>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Número do Certificado</p>
-                <p className="font-mono font-medium">{cert.certificateNumber}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Emissão</p>
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-primary" />
-                  <p className="font-medium">{cert.issueDate}</p>
-                </div>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Validade</p>
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-primary" />
-                  <p className="font-medium">{cert.expiryDate}</p>
-                </div>
-              </div>
-            </div>
-
-            <Separator />
-
-            <div>
-              <h3 className="font-semibold mb-3 flex items-center gap-2">
-                <FileCheck className="h-5 w-5 text-primary" />
-                Escopo da Certificação
-              </h3>
-              <p className="text-muted-foreground">{cert.scope}</p>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-3">Normas e Regulamentos</h3>
-              <div className="flex flex-wrap gap-2">
-                {cert.standards.map((standard) => (
-                  <Badge key={standard} variant="secondary">
-                    {standard}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-3 flex items-center gap-2">
-                <AlertCircle className="h-5 w-5 text-primary" />
-                Requisitos Principais
-              </h3>
-              <ul className="space-y-2">
-                {cert.requirements.map((req, index) => (
-                  <li key={index} className="flex items-start gap-2">
-                    <span className="text-primary mt-1">•</span>
-                    <span className="text-sm text-muted-foreground">{req}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="space-y-6">
-          <Card className="shadow-elegant">
-            <CardHeader>
-              <CardTitle>Benefícios</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                {cert.benefits.map((benefit, index) => (
-                  <li key={index} className="flex items-start gap-2">
-                    <span className="text-primary mt-1">✓</span>
-                    <span className="text-sm">{benefit}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-elegant">
-            <CardHeader>
-              <CardTitle>Documentos</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start" 
-                  size="sm"
-                  onClick={() => {
-                    generateCertificadoOrganicoPDF(cert.id);
-                    toast.success("Certificado Orgânico gerado!");
-                  }}
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Certificado Orgânico 2024-2025
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start" 
-                  size="sm"
-                  onClick={() => {
-                    generateRelatorioAuditoriaPDF(cert.id);
-                    toast.success("Relatório de Auditoria gerado!");
-                  }}
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Relatório de Auditoria
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start" 
-                  size="sm"
-                  onClick={() => {
-                    generatePlanoManejoOrganicoPDF(cert.id);
-                    toast.success("Plano de Manejo Orgânico gerado!");
-                  }}
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Plano de Manejo Orgânico
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start" 
-                  size="sm"
-                  onClick={() => {
-                    generateRegistroInsumosPDF(cert.id);
-                    toast.success("Registro de Insumos gerado!");
-                  }}
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Registro de Insumos Permitidos
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-4">
+          <Award className="h-8 w-8 text-primary" />
+          <div>
+            <h1 className="text-3xl font-bold">{certificacao.tipo}</h1>
+            <p className="text-muted-foreground">{certificacao.produtores?.nome}</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <AlterarStatusDialog
+            certificacaoId={certificacao.id}
+            statusAtual={certificacao.status}
+            onSuccess={fetchData}
+          />
+          <RenovarCertificacaoDialog
+            certificacaoId={certificacao.id}
+            onSuccess={fetchData}
+          />
         </div>
       </div>
 
-      <Card className="shadow-elegant">
+      <Card>
         <CardHeader>
-          <CardTitle>Histórico de Auditorias</CardTitle>
-          <CardDescription>Registro de inspeções e avaliações</CardDescription>
+          <CardTitle>Detalhes</CardTitle>
+        </CardHeader>
+        <CardContent className="grid md:grid-cols-2 gap-4">
+          <div>
+            <p className="text-sm text-muted-foreground">Certificadora</p>
+            <p className="font-medium">{certificacao.certificadora}</p>
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Número</p>
+            <p className="font-medium">{certificacao.numero_certificado}</p>
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Emissão</p>
+            <p className="font-medium">{format(new Date(certificacao.data_emissao), "dd/MM/yyyy")}</p>
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Validade</p>
+            <p className="font-medium">{format(new Date(certificacao.data_validade), "dd/MM/yyyy")}</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <HistoryIcon className="h-5 w-5" />
+            Histórico
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {cert.audits.map((audit, index) => (
-              <div key={index} className="border rounded-lg p-4 space-y-2">
-                <div className="flex items-center justify-between">
-                  <p className="font-medium">{audit.type}</p>
-                  <Badge className="bg-success/10 text-success border-success/20">
-                    {audit.result}
-                  </Badge>
-                </div>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Data: </span>
-                    <span className="font-medium">{audit.date}</span>
+          {historico.length === 0 ? (
+            <p className="text-muted-foreground text-center py-4">Nenhum histórico</p>
+          ) : (
+            <div className="space-y-3">
+              {historico.map((item) => (
+                <div key={item.id} className="p-4 border rounded-lg">
+                  <div className="flex justify-between mb-2">
+                    <span className="font-medium">{item.tipo_alteracao}</span>
+                    <span className="text-sm text-muted-foreground">
+                      {format(new Date(item.data_alteracao), "dd/MM/yyyy HH:mm")}
+                    </span>
                   </div>
-                  <div>
-                    <span className="text-muted-foreground">Auditor: </span>
-                    <span className="font-medium">{audit.auditor}</span>
-                  </div>
+                  {item.status_anterior && (
+                    <p className="text-sm">
+                      <Badge variant="outline">{item.status_anterior}</Badge> →{" "}
+                      <Badge variant="outline">{item.status_novo}</Badge>
+                    </p>
+                  )}
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

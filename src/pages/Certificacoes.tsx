@@ -1,249 +1,185 @@
-import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Award, Calendar, CheckCircle2, AlertCircle, FileText } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { CertificacaoForm } from "@/components/forms/CertificacaoForm";
-import { generateCertificacoesPDF } from "@/lib/pdfGenerator";
-
-const certifications = [
-  {
-    id: 1,
-    name: "Certificação Orgânica",
-    organization: "ECOCERT Angola",
-    producer: "Fazenda Santa Clara",
-    issueDate: "15/03/2024",
-    expiryDate: "15/03/2025",
-    status: "Ativa",
-    scope: "Produção de café orgânico certificado",
-    number: "AO-ORG-001-2024",
-  },
-  {
-    id: 2,
-    name: "Fair Trade",
-    organization: "FLO-CERT",
-    producer: "Fazenda Santa Clara",
-    issueDate: "10/01/2024",
-    expiryDate: "10/01/2026",
-    status: "Ativa",
-    scope: "Comércio justo e sustentável",
-    number: "FT-AO-12345",
-  },
-  {
-    id: 3,
-    name: "UTZ Certified",
-    organization: "UTZ",
-    producer: "Quinta Bela Vista",
-    issueDate: "20/06/2024",
-    expiryDate: "20/06/2025",
-    status: "Ativa",
-    scope: "Práticas agrícolas sustentáveis",
-    number: "UTZ-2024-6789",
-  },
-  {
-    id: 4,
-    name: "Rainforest Alliance",
-    organization: "Rainforest Alliance",
-    producer: "Quinta Bela Vista",
-    issueDate: "05/02/2024",
-    expiryDate: "05/02/2025",
-    status: "Renovação Pendente",
-    scope: "Conservação ambiental e social",
-    number: "RA-AO-2024-001",
-  },
-  {
-    id: 5,
-    name: "4C Association",
-    organization: "4C Services GmbH",
-    producer: "Fazenda São José",
-    issueDate: "12/09/2024",
-    expiryDate: "12/09/2027",
-    status: "Ativa",
-    scope: "Código de conduta para café sustentável",
-    number: "4C-AO-54321",
-  },
-];
+import { RenovarCertificacaoDialog } from "@/components/forms/RenovarCertificacaoDialog";
+import { AlterarStatusDialog } from "@/components/forms/AlterarStatusDialog";
+import { Award, FileText, Plus, Clock, CheckCircle, AlertCircle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { format } from "date-fns";
 
 const getStatusConfig = (status: string) => {
-  switch (status) {
-    case "Ativa":
-      return {
-        color: "bg-success/10 text-success border-success/20",
-        icon: CheckCircle2,
-      };
-    case "Renovação Pendente":
-      return {
-        color: "bg-warning/10 text-warning border-warning/20",
-        icon: AlertCircle,
-      };
-    default:
-      return {
-        color: "bg-muted text-muted-foreground border-border",
-        icon: Award,
-      };
-  }
+  const configs = {
+    ativa: { color: "bg-green-500", icon: CheckCircle, label: "Ativa" },
+    pendente: { color: "bg-yellow-500", icon: Clock, label: "Pendente" },
+    expirada: { color: "bg-red-500", icon: AlertCircle, label: "Expirada" },
+    suspensa: { color: "bg-gray-500", icon: AlertCircle, label: "Suspensa" },
+    renovacao: { color: "bg-blue-500", icon: AlertCircle, label: "Em Renovação" },
+  };
+  return configs[status as keyof typeof configs] || configs.ativa;
 };
 
 export default function Certificacoes() {
   const navigate = useNavigate();
-  const [dialogOpen, setDialogOpen] = useState(false);
-  
+  const [showDialog, setShowDialog] = useState(false);
+  const [certificacoes, setCertificacoes] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCertificacoes();
+  }, []);
+
+  const fetchCertificacoes = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("certificacoes")
+        .select(`*, produtores (nome)`)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setCertificacoes(data || []);
+    } catch (error: any) {
+      toast.error("Erro ao carregar certificações");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSuccess = () => {
+    setShowDialog(false);
+    fetchCertificacoes();
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-foreground">Certificações</h2>
+          <h2 className="text-3xl font-bold">Certificações</h2>
           <p className="text-muted-foreground">Gestão de certificações e conformidades</p>
         </div>
-        <div className="flex gap-2">
-          <Button onClick={generateCertificacoesPDF} variant="outline">
-            <FileText className="mr-2 h-4 w-4" />
-            Exportar PDF
-          </Button>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-gradient-coffee hover:opacity-90 shadow-glow">
-                <Plus className="h-4 w-4 mr-2" />
-                Nova Certificação
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Cadastrar Nova Certificação</DialogTitle>
-                <DialogDescription>
-                  Registre uma certificação de qualidade ou sustentabilidade
-                </DialogDescription>
-              </DialogHeader>
-              <CertificacaoForm onSuccess={() => setDialogOpen(false)} />
-            </DialogContent>
-          </Dialog>
-        </div>
+        <Dialog open={showDialog} onOpenChange={setShowDialog}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Nova Certificação
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Cadastrar Nova Certificação</DialogTitle>
+              <DialogDescription>Registre uma certificação de qualidade</DialogDescription>
+            </DialogHeader>
+            <CertificacaoForm onSuccess={handleSuccess} />
+          </DialogContent>
+        </Dialog>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid gap-6 md:grid-cols-3">
-        <Card className="shadow-elegant">
+      <div className="grid md:grid-cols-3 gap-4">
+        <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total de Certificações
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Total</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-3">
-              <Award className="h-10 w-10 text-primary" />
-              <span className="text-4xl font-bold text-foreground">34</span>
-            </div>
-            <p className="text-sm text-muted-foreground mt-2">Em todos os produtores</p>
+            <div className="text-2xl font-bold">{certificacoes.length}</div>
           </CardContent>
         </Card>
-
-        <Card className="shadow-elegant">
+        <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Certificações Ativas
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Ativas</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-3">
-              <CheckCircle2 className="h-10 w-10 text-success" />
-              <span className="text-4xl font-bold text-success">31</span>
+            <div className="text-2xl font-bold text-green-600">
+              {certificacoes.filter(c => c.status === "ativa").length}
             </div>
-            <p className="text-sm text-muted-foreground mt-2">91% do total</p>
           </CardContent>
         </Card>
-
-        <Card className="shadow-elegant">
+        <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Renovação Pendente
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Pendentes</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-3">
-              <AlertCircle className="h-10 w-10 text-warning" />
-              <span className="text-4xl font-bold text-warning">3</span>
+            <div className="text-2xl font-bold text-yellow-600">
+              {certificacoes.filter(c => c.status === "pendente" || c.status === "renovacao").length}
             </div>
-            <p className="text-sm text-muted-foreground mt-2">Requer atenção</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Certifications List */}
-      <div className="space-y-4">
-        {certifications.map((cert) => {
-          const statusConfig = getStatusConfig(cert.status);
-          const StatusIcon = statusConfig.icon;
+      {loading ? (
+        <div className="text-center py-12">Carregando...</div>
+      ) : (
+        <div className="grid gap-4">
+          {certificacoes.map((cert) => {
+            const statusConfig = getStatusConfig(cert.status);
+            
+            return (
+              <Card key={cert.id}>
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <Award className="h-5 w-5 text-primary" />
+                      <div>
+                        <h3 className="font-semibold text-lg">{cert.tipo}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {cert.produtores?.nome || "Produtor não informado"}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge variant="outline" className="flex items-center gap-1">
+                      <div className={`w-2 h-2 rounded-full ${statusConfig.color}`} />
+                      {statusConfig.label}
+                    </Badge>
+                  </div>
 
-          return (
-            <Card key={cert.id} className="shadow-elegant hover:shadow-glow transition-all">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <Award className="h-6 w-6 text-primary" />
-                      <CardTitle className="text-xl">{cert.name}</CardTitle>
-                      <Badge variant="outline" className={statusConfig.color}>
-                        <StatusIcon className="h-3 w-3 mr-1" />
-                        {cert.status}
-                      </Badge>
+                  <div className="grid md:grid-cols-4 gap-4 mb-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Certificadora</p>
+                      <p className="font-medium">{cert.certificadora}</p>
                     </div>
-                    <CardDescription>{cert.organization}</CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-4">
-                  <div className="space-y-1">
-                    <p className="text-sm text-muted-foreground">Produtor</p>
-                    <p className="font-medium text-foreground">{cert.producer}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-sm text-muted-foreground">Número</p>
-                    <p className="font-mono font-medium text-foreground">{cert.number}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <Calendar className="h-3 w-3" />
-                      Emissão
+                    <div>
+                      <p className="text-sm text-muted-foreground">Número</p>
+                      <p className="font-medium">{cert.numero_certificado}</p>
                     </div>
-                    <p className="font-medium text-foreground">{cert.issueDate}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <Calendar className="h-3 w-3" />
-                      Validade
+                    <div>
+                      <p className="text-sm text-muted-foreground">Emissão</p>
+                      <p className="font-medium">{format(new Date(cert.data_emissao), "dd/MM/yyyy")}</p>
                     </div>
-                    <p className="font-medium text-foreground">{cert.expiryDate}</p>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Validade</p>
+                      <p className="font-medium">{format(new Date(cert.data_validade), "dd/MM/yyyy")}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="pt-4 border-t border-border">
-                  <p className="text-sm font-medium mb-1">Escopo:</p>
-                  <p className="text-sm text-muted-foreground">{cert.scope}</p>
-                </div>
-                <div className="flex gap-2 mt-4">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => navigate(`/certificacoes/CERT-00${cert.id}`)}
-                  >
-                    Ver Certificado
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    Histórico
-                  </Button>
-                  {cert.status === "Renovação Pendente" && (
-                    <Button size="sm" className="bg-gradient-coffee hover:opacity-90">
-                      Renovar
+
+                  <div className="flex gap-2 flex-wrap">
+                    <Button variant="outline" size="sm" onClick={() => navigate(`/certificacoes/${cert.id}`)}>
+                      <FileText className="h-4 w-4 mr-2" />
+                      Ver Detalhes
                     </Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+                    
+                    <AlterarStatusDialog
+                      certificacaoId={cert.id}
+                      statusAtual={cert.status}
+                      onSuccess={fetchCertificacoes}
+                    />
+                    
+                    {(cert.status === "pendente" || cert.status === "renovacao" || cert.status === "expirada") && (
+                      <RenovarCertificacaoDialog
+                        certificacaoId={cert.id}
+                        onSuccess={fetchCertificacoes}
+                      />
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

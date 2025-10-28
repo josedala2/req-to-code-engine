@@ -104,6 +104,156 @@ export type Database = {
           },
         ]
       }
+      certificacoes: {
+        Row: {
+          certificadora: string
+          created_at: string | null
+          created_by: string | null
+          data_emissao: string
+          data_validade: string
+          escopo: string
+          id: string
+          normas: string[] | null
+          numero_certificado: string
+          observacoes: string | null
+          produtor_id: string | null
+          requisitos: string[] | null
+          status: string
+          tipo: string
+          updated_at: string | null
+        }
+        Insert: {
+          certificadora: string
+          created_at?: string | null
+          created_by?: string | null
+          data_emissao: string
+          data_validade: string
+          escopo: string
+          id?: string
+          normas?: string[] | null
+          numero_certificado: string
+          observacoes?: string | null
+          produtor_id?: string | null
+          requisitos?: string[] | null
+          status?: string
+          tipo: string
+          updated_at?: string | null
+        }
+        Update: {
+          certificadora?: string
+          created_at?: string | null
+          created_by?: string | null
+          data_emissao?: string
+          data_validade?: string
+          escopo?: string
+          id?: string
+          normas?: string[] | null
+          numero_certificado?: string
+          observacoes?: string | null
+          produtor_id?: string | null
+          requisitos?: string[] | null
+          status?: string
+          tipo?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "certificacoes_produtor_id_fkey"
+            columns: ["produtor_id"]
+            isOneToOne: false
+            referencedRelation: "produtores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      certificacoes_auditorias: {
+        Row: {
+          auditor: string
+          certificacao_id: string
+          created_at: string | null
+          data_auditoria: string
+          id: string
+          nao_conformidades: string[] | null
+          observacoes: string | null
+          pontuacao: number | null
+          resultado: string
+        }
+        Insert: {
+          auditor: string
+          certificacao_id: string
+          created_at?: string | null
+          data_auditoria: string
+          id?: string
+          nao_conformidades?: string[] | null
+          observacoes?: string | null
+          pontuacao?: number | null
+          resultado: string
+        }
+        Update: {
+          auditor?: string
+          certificacao_id?: string
+          created_at?: string | null
+          data_auditoria?: string
+          id?: string
+          nao_conformidades?: string[] | null
+          observacoes?: string | null
+          pontuacao?: number | null
+          resultado?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "certificacoes_auditorias_certificacao_id_fkey"
+            columns: ["certificacao_id"]
+            isOneToOne: false
+            referencedRelation: "certificacoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      certificacoes_historico: {
+        Row: {
+          alterado_por: string | null
+          certificacao_id: string
+          dados_alteracao: Json | null
+          data_alteracao: string | null
+          id: string
+          observacoes: string | null
+          status_anterior: string | null
+          status_novo: string | null
+          tipo_alteracao: string
+        }
+        Insert: {
+          alterado_por?: string | null
+          certificacao_id: string
+          dados_alteracao?: Json | null
+          data_alteracao?: string | null
+          id?: string
+          observacoes?: string | null
+          status_anterior?: string | null
+          status_novo?: string | null
+          tipo_alteracao: string
+        }
+        Update: {
+          alterado_por?: string | null
+          certificacao_id?: string
+          dados_alteracao?: Json | null
+          data_alteracao?: string | null
+          id?: string
+          observacoes?: string | null
+          status_anterior?: string | null
+          status_novo?: string | null
+          tipo_alteracao?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "certificacoes_historico_certificacao_id_fkey"
+            columns: ["certificacao_id"]
+            isOneToOne: false
+            referencedRelation: "certificacoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lotes: {
         Row: {
           certificacao: string | null
