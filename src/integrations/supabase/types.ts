@@ -328,6 +328,8 @@ export type Database = {
           approved_at: string | null
           approved_by: string | null
           area: string | null
+          area_arabica: number | null
+          area_robusta: number | null
           certificacoes: string[] | null
           comuna: string | null
           created_at: string | null
@@ -362,6 +364,8 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           area?: string | null
+          area_arabica?: number | null
+          area_robusta?: number | null
           certificacoes?: string[] | null
           comuna?: string | null
           created_at?: string | null
@@ -396,6 +400,8 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           area?: string | null
+          area_arabica?: number | null
+          area_robusta?: number | null
           certificacoes?: string[] | null
           comuna?: string | null
           created_at?: string | null
