@@ -52,7 +52,7 @@ export default function CertificadoExportacaoForm() {
     },
   });
 
-  const { data: lotes, isLoading: lotesLoading } = useQuery({
+  const { data: lotes, isLoading: lotesLoading, refetch: refetchLotes } = useQuery({
     queryKey: ["lotes-produtor", selectedProdutorId],
     queryFn: async () => {
       if (!selectedProdutorId) return [];
@@ -64,7 +64,7 @@ export default function CertificadoExportacaoForm() {
         .eq("status", "ativo");
       
       if (error) throw error;
-      return data;
+      return data || [];
     },
     enabled: !!selectedProdutorId,
   });
@@ -73,6 +73,8 @@ export default function CertificadoExportacaoForm() {
     setSelectedProdutorId(produtorId);
     setSelectedLotes([]);
     setValue("produtor_id", produtorId);
+    // Força reload dos lotes
+    setTimeout(() => refetchLotes(), 100);
   };
 
   const toggleLote = (lote: any) => {
