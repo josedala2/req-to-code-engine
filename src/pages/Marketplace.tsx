@@ -240,38 +240,54 @@ export default function Marketplace() {
                   </div>
                 )}
 
-                {/* Contato */}
-                <div className="pt-4 border-t space-y-2">
-                  <p className="text-sm font-medium">Contato:</p>
+                {/* Botão Principal de Negociação */}
+                <div className="pt-4 border-t">
+                  {oferta.contato_whatsapp ? (
+                    <Button
+                      className="w-full"
+                      size="lg"
+                      onClick={() => {
+                        incrementarVisualizacao(oferta.id, oferta.visualizacoes);
+                        window.open(`https://wa.me/${oferta.contato_whatsapp.replace(/\D/g, '')}?text=Olá, tenho interesse na oferta: ${oferta.titulo}`, '_blank');
+                      }}
+                    >
+                      <Package className="h-5 w-5 mr-2" />
+                      Iniciar Negociação
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      size="lg"
+                      onClick={() => {
+                        incrementarVisualizacao(oferta.id, oferta.visualizacoes);
+                        toast.info("Entre em contato pelos dados abaixo");
+                      }}
+                    >
+                      <Package className="h-5 w-5 mr-2" />
+                      Ver Contatos
+                    </Button>
+                  )}
+                </div>
+
+                {/* Informações de Contato */}
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground">Informações de contato:</p>
                   <div className="space-y-1 text-sm">
                     <p className="font-medium">{oferta.contato_nome}</p>
-                    <div className="flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-muted-foreground" />
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Phone className="h-3 w-3" />
                       <a href={`tel:${oferta.contato_telefone}`} className="hover:underline">
                         {oferta.contato_telefone}
                       </a>
                     </div>
                     {oferta.contato_email && (
-                      <div className="flex items-center gap-2">
-                        <Mail className="h-4 w-4 text-muted-foreground" />
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Mail className="h-3 w-3" />
                         <a href={`mailto:${oferta.contato_email}`} className="hover:underline">
                           {oferta.contato_email}
                         </a>
                       </div>
-                    )}
-                    {oferta.contato_whatsapp && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full mt-2"
-                        onClick={() => {
-                          incrementarVisualizacao(oferta.id, oferta.visualizacoes);
-                          window.open(`https://wa.me/${oferta.contato_whatsapp.replace(/\D/g, '')}`, '_blank');
-                        }}
-                      >
-                        <Package className="h-4 w-4 mr-2" />
-                        Iniciar Negociação via WhatsApp
-                      </Button>
                     )}
                   </div>
                 </div>
