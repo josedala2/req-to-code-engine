@@ -30,6 +30,8 @@ import AprovarPedidoCertificacao from "./pages/AprovarPedidoCertificacao";
 import Aprovacoes from "./pages/Aprovacoes";
 import AprovacaoEmpresas from "./pages/AprovacaoEmpresas";
 import AprovacaoPedidos from "./pages/AprovacaoPedidos";
+import Marketplace from "./pages/Marketplace";
+import MinhasOfertas from "./pages/MinhasOfertas";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +43,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/auth" element={<Auth />} />
+          <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/lote-publico/:codigo" element={<LotePublico />} />
           <Route path="/empresa/auth" element={<EmpresaAuth />} />
           <Route path="/empresa/dashboard" element={<EmpresaDashboard />} />
@@ -67,6 +70,7 @@ const App = () => (
                 <Route path="/auditorias" element={<Auditorias />} />
                 <Route path="/auditorias/:id" element={<AuditoriaDetalhes />} />
                 <Route path="/relatorios" element={<Relatorios />} />
+                <Route path="/minhas-ofertas" element={<MinhasOfertas />} />
                 <Route path="/configuracoes-usuarios" element={<ConfiguracoesUsuarios />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

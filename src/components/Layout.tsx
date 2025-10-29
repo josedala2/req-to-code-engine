@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Coffee, Home, Users, Package, ClipboardCheck, FileText, BarChart3, LogOut, UserCheck, FileCheck, Settings } from "lucide-react";
+import { Coffee, Home, Users, Package, ClipboardCheck, FileText, BarChart3, LogOut, UserCheck, FileCheck, Settings, Store } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -44,20 +44,28 @@ export default function Layout({ children }: LayoutProps) {
                 <p className="text-sm text-muted-foreground">Sistema Nacional de Rastreabilidade do Café</p>
               </div>
             </div>
-            {user && (
-              <div className="flex items-center gap-4">
-                <div className="text-right">
-                  <p className="text-sm font-medium text-foreground">{user.email}</p>
-                  {isAdmin && (
-                    <p className="text-xs text-muted-foreground">Administrador</p>
-                  )}
-                </div>
-                <Button variant="outline" size="sm" onClick={handleLogout}>
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Sair
-                </Button>
-              </div>
-            )}
+            <div className="flex items-center gap-4">
+              <Button variant="outline" asChild>
+                <Link to="/marketplace">
+                  <Store className="h-4 w-4 mr-2" />
+                  Marketplace
+                </Link>
+              </Button>
+              {user && (
+                <>
+                  <div className="text-right">
+                    <p className="text-sm font-medium text-foreground">{user.email}</p>
+                    {isAdmin && (
+                      <p className="text-xs text-muted-foreground">Administrador</p>
+                    )}
+                  </div>
+                  <Button variant="outline" size="sm" onClick={handleLogout}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sair
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -86,6 +94,19 @@ export default function Layout({ children }: LayoutProps) {
             })}
             {isAdmin && (
               <>
+                <Link
+                  to="/minhas-ofertas"
+                  className={cn(
+                    "flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all whitespace-nowrap",
+                    "hover:text-primary hover:bg-muted/50 rounded-t-lg",
+                    location.pathname === "/minhas-ofertas"
+                      ? "text-primary bg-background border-b-2 border-primary"
+                      : "text-muted-foreground"
+                  )}
+                >
+                  <Store className="h-4 w-4" />
+                  Minhas Ofertas
+                </Link>
                 <Link
                   to="/aprovacoes"
                   className={cn(

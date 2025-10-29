@@ -438,6 +438,150 @@ export type Database = {
           },
         ]
       }
+      ofertas_venda: {
+        Row: {
+          altitude: string | null
+          certificado: boolean | null
+          classificacao: string | null
+          condicoes_venda: string | null
+          contato_email: string | null
+          contato_nome: string
+          contato_telefone: string
+          contato_whatsapp: string | null
+          created_at: string | null
+          created_by: string | null
+          data_colheita: string | null
+          data_disponibilidade: string | null
+          descricao: string | null
+          descritores: string[] | null
+          documentos_urls: string[] | null
+          fazenda: string | null
+          fotos_urls: string[] | null
+          id: string
+          lote_id: string | null
+          moeda: string | null
+          municipio: string | null
+          negociavel: boolean | null
+          nota_qualidade: number | null
+          observacoes: string | null
+          peneira: string | null
+          preco_sugerido: number | null
+          processo: string
+          produtor_id: string | null
+          provincia: string
+          quantidade_disponivel: number
+          status_cafe: string
+          status_oferta: string
+          tipo_certificacao: string[] | null
+          titulo: string
+          umidade: number | null
+          unidade: string
+          updated_at: string | null
+          validade_oferta: string | null
+          variedade: string[]
+          visualizacoes: number | null
+        }
+        Insert: {
+          altitude?: string | null
+          certificado?: boolean | null
+          classificacao?: string | null
+          condicoes_venda?: string | null
+          contato_email?: string | null
+          contato_nome: string
+          contato_telefone: string
+          contato_whatsapp?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          data_colheita?: string | null
+          data_disponibilidade?: string | null
+          descricao?: string | null
+          descritores?: string[] | null
+          documentos_urls?: string[] | null
+          fazenda?: string | null
+          fotos_urls?: string[] | null
+          id?: string
+          lote_id?: string | null
+          moeda?: string | null
+          municipio?: string | null
+          negociavel?: boolean | null
+          nota_qualidade?: number | null
+          observacoes?: string | null
+          peneira?: string | null
+          preco_sugerido?: number | null
+          processo: string
+          produtor_id?: string | null
+          provincia: string
+          quantidade_disponivel: number
+          status_cafe: string
+          status_oferta?: string
+          tipo_certificacao?: string[] | null
+          titulo: string
+          umidade?: number | null
+          unidade?: string
+          updated_at?: string | null
+          validade_oferta?: string | null
+          variedade?: string[]
+          visualizacoes?: number | null
+        }
+        Update: {
+          altitude?: string | null
+          certificado?: boolean | null
+          classificacao?: string | null
+          condicoes_venda?: string | null
+          contato_email?: string | null
+          contato_nome?: string
+          contato_telefone?: string
+          contato_whatsapp?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          data_colheita?: string | null
+          data_disponibilidade?: string | null
+          descricao?: string | null
+          descritores?: string[] | null
+          documentos_urls?: string[] | null
+          fazenda?: string | null
+          fotos_urls?: string[] | null
+          id?: string
+          lote_id?: string | null
+          moeda?: string | null
+          municipio?: string | null
+          negociavel?: boolean | null
+          nota_qualidade?: number | null
+          observacoes?: string | null
+          peneira?: string | null
+          preco_sugerido?: number | null
+          processo?: string
+          produtor_id?: string | null
+          provincia?: string
+          quantidade_disponivel?: number
+          status_cafe?: string
+          status_oferta?: string
+          tipo_certificacao?: string[] | null
+          titulo?: string
+          umidade?: number | null
+          unidade?: string
+          updated_at?: string | null
+          validade_oferta?: string | null
+          variedade?: string[]
+          visualizacoes?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ofertas_venda_lote_id_fkey"
+            columns: ["lote_id"]
+            isOneToOne: false
+            referencedRelation: "lotes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ofertas_venda_produtor_id_fkey"
+            columns: ["produtor_id"]
+            isOneToOne: false
+            referencedRelation: "produtores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pedidos_certificacao: {
         Row: {
           certificado_url: string | null
