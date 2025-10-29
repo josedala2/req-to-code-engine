@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Coffee, Home, Users, Package, ClipboardCheck, FileText, BarChart3, LogOut, UserCheck, FileCheck, Settings, Store } from "lucide-react";
+import { Coffee, Home, Users, Package, ClipboardCheck, FileText, BarChart3, LogOut, UserCheck, FileCheck, Settings, Store, Plane } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -106,6 +106,19 @@ export default function Layout({ children }: LayoutProps) {
                 >
                   <Store className="h-4 w-4" />
                   Minhas Ofertas
+                </Link>
+                <Link
+                  to="/certificados-exportacao"
+                  className={cn(
+                    "flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all whitespace-nowrap",
+                    "hover:text-primary hover:bg-muted/50 rounded-t-lg",
+                    location.pathname.startsWith("/certificados-exportacao")
+                      ? "text-primary bg-background border-b-2 border-primary"
+                      : "text-muted-foreground"
+                  )}
+                >
+                  <Plane className="h-4 w-4" />
+                  Exportação
                 </Link>
                 <Link
                   to="/aprovacoes"

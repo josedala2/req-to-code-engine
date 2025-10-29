@@ -254,6 +254,92 @@ export type Database = {
           },
         ]
       }
+      certificados_exportacao: {
+        Row: {
+          aprovado_em: string | null
+          aprovado_por: string | null
+          created_at: string | null
+          data_emissao: string | null
+          data_solicitacao: string | null
+          data_validade: string | null
+          destino_cidade: string | null
+          destino_pais: string
+          documento_url: string | null
+          id: string
+          importador_documento: string | null
+          importador_nome: string
+          lotes_ids: string[]
+          moeda: string | null
+          normas_cumpridas: string[] | null
+          numero_certificado: string
+          observacoes: string | null
+          produtor_id: string | null
+          quantidade_total: number
+          status: string
+          unidade: string
+          updated_at: string | null
+          valor_total: number | null
+        }
+        Insert: {
+          aprovado_em?: string | null
+          aprovado_por?: string | null
+          created_at?: string | null
+          data_emissao?: string | null
+          data_solicitacao?: string | null
+          data_validade?: string | null
+          destino_cidade?: string | null
+          destino_pais: string
+          documento_url?: string | null
+          id?: string
+          importador_documento?: string | null
+          importador_nome: string
+          lotes_ids: string[]
+          moeda?: string | null
+          normas_cumpridas?: string[] | null
+          numero_certificado: string
+          observacoes?: string | null
+          produtor_id?: string | null
+          quantidade_total: number
+          status?: string
+          unidade?: string
+          updated_at?: string | null
+          valor_total?: number | null
+        }
+        Update: {
+          aprovado_em?: string | null
+          aprovado_por?: string | null
+          created_at?: string | null
+          data_emissao?: string | null
+          data_solicitacao?: string | null
+          data_validade?: string | null
+          destino_cidade?: string | null
+          destino_pais?: string
+          documento_url?: string | null
+          id?: string
+          importador_documento?: string | null
+          importador_nome?: string
+          lotes_ids?: string[]
+          moeda?: string | null
+          normas_cumpridas?: string[] | null
+          numero_certificado?: string
+          observacoes?: string | null
+          produtor_id?: string | null
+          quantidade_total?: number
+          status?: string
+          unidade?: string
+          updated_at?: string | null
+          valor_total?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "certificados_exportacao_produtor_id_fkey"
+            columns: ["produtor_id"]
+            isOneToOne: false
+            referencedRelation: "produtores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       empresas: {
         Row: {
           aprovado_em: string | null
@@ -974,6 +1060,7 @@ export type Database = {
     }
     Functions: {
       generate_auditoria_codigo: { Args: never; Returns: string }
+      generate_certificado_exportacao_numero: { Args: never; Returns: string }
       generate_pedido_numero: { Args: never; Returns: string }
       has_role: {
         Args: {

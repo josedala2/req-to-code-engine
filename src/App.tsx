@@ -33,6 +33,9 @@ import AprovacaoPedidos from "./pages/AprovacaoPedidos";
 import Marketplace from "./pages/Marketplace";
 import MinhasOfertas from "./pages/MinhasOfertas";
 import Negociacoes from "./pages/Negociacoes";
+import CertificadosExportacao from "./pages/CertificadosExportacao";
+import CertificadoExportacaoForm from "./components/forms/CertificadoExportacaoForm";
+import CertificadoExportacaoDetalhes from "./pages/CertificadoExportacaoDetalhes";
 
 const queryClient = new QueryClient();
 
@@ -73,6 +76,9 @@ const App = () => (
                 <Route path="/auditorias/:id" element={<AuditoriaDetalhes />} />
                 <Route path="/relatorios" element={<Relatorios />} />
                 <Route path="/minhas-ofertas" element={<MinhasOfertas />} />
+                <Route path="/certificados-exportacao" element={<CertificadosExportacao />} />
+                <Route path="/certificados-exportacao/novo" element={<CertificadoExportacaoForm />} />
+                <Route path="/certificados-exportacao/:id" element={<CertificadoExportacaoDetalhes />} />
                 <Route path="/configuracoes-usuarios" element={<ConfiguracoesUsuarios />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

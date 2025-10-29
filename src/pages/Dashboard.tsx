@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, Users, ClipboardCheck, TrendingUp, Coffee, Award, FileCheck, Building2, FileText, Eye, DollarSign, ShoppingCart } from "lucide-react";
+import { Package, Users, ClipboardCheck, TrendingUp, Coffee, Award, FileCheck, Building2, FileText, Eye, DollarSign, ShoppingCart, Plane } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
@@ -396,15 +396,15 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
             </Link>
-            <Link to="/auditorias">
+            <Link to="/certificados-exportacao">
               <Card className="cursor-pointer hover:shadow-lg transition-shadow border-2 border-transparent hover:border-primary/50">
                 <CardContent className="p-4 flex items-center gap-3">
-                  <div className="p-3 rounded-lg bg-success/10">
-                    <FileCheck className="h-6 w-6 text-success" />
+                  <div className="p-3 rounded-lg bg-blue-500/10">
+                    <Plane className="h-6 w-6 text-blue-500" />
                   </div>
                   <div>
-                    <p className="font-semibold">Auditorias</p>
-                    <p className="text-sm text-muted-foreground">Relatórios de auditoria</p>
+                    <p className="font-semibold">Exportação</p>
+                    <p className="text-sm text-muted-foreground">Certificados de exportação</p>
                   </div>
                 </CardContent>
               </Card>
