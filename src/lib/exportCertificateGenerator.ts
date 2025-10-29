@@ -71,7 +71,7 @@ export const generateExportCertificate = async (data: CertificadoData) => {
   doc.text(`Nº ${data.numero_certificado}`, pageWidth / 2, yPos, { align: "center" });
 
   // Gerar QR Code com link direto
-  const certificadoUrl = `https://cafe-angola.ao/verificar/${data.numero_certificado}`;
+  const certificadoUrl = `${window.location.origin}/certificado-exportacao/${data.numero_certificado}`;
   const qrCodeUrl = await QRCode.toDataURL(certificadoUrl, {
     width: 200,
     margin: 1,

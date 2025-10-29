@@ -37,6 +37,7 @@ import CertificadosExportacao from "./pages/CertificadosExportacao";
 import CertificadoExportacaoForm from "./components/forms/CertificadoExportacaoForm";
 import CertificadoExportacaoDetalhes from "./pages/CertificadoExportacaoDetalhes";
 import CertificadoExportacaoEditar from "./pages/CertificadoExportacaoEditar";
+import CertificadoExportacaoPublico from "./pages/CertificadoExportacaoPublico";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,7 @@ const App = () => (
           <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/negociacoes" element={<Negociacoes />} />
           <Route path="/lote-publico/:codigo" element={<LotePublico />} />
+          <Route path="/certificado-exportacao/:numero" element={<CertificadoExportacaoPublico />} />
           <Route path="/empresa/auth" element={<EmpresaAuth />} />
           <Route path="/empresa/dashboard" element={<EmpresaDashboard />} />
           <Route path="/empresa/pedido/:id" element={<EmpresaPedidoDetalhes />} />
