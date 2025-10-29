@@ -70,12 +70,26 @@ export const generateExportCertificate = async (data: CertificadoData) => {
   doc.setTextColor(0, 0, 0);
   doc.text(`Nº ${data.numero_certificado}`, pageWidth / 2, yPos, { align: "center" });
 
-  // Gerar QR Code
-  const qrCodeUrl = await QRCode.toDataURL(
-    `${window.location.origin}/certificado-exportacao/${data.numero_certificado}`,
-    { width: 80 }
-  );
-  doc.addImage(qrCodeUrl, "PNG", pageWidth - 30, 50, 20, 20);
+  // Gerar QR Code com link direto
+  const certificadoUrl = `https://cafe-angola.ao/verificar/${data.numero_certificado}`;
+  const qrCodeUrl = await QRCode.toDataURL(certificadoUrl, {
+    width: 200,
+    margin: 1,
+    color: {
+      dark: "#000000",
+      light: "#FFFFFF"
+    }
+  });
+  
+  // Adicionar QR Code no canto superior direito
+  const qrSize = 25;
+  doc.addImage(qrCodeUrl, "PNG", pageWidth - qrSize - 15, 15, qrSize, qrSize);
+  
+  // Texto abaixo do QR Code
+  doc.setFontSize(7);
+  doc.setFont("helvetica", "normal");
+  doc.text("Verificar", pageWidth - qrSize/2 - 15, 15 + qrSize + 3, { align: "center" });
+  doc.text("Autenticidade", pageWidth - qrSize/2 - 15, 15 + qrSize + 6, { align: "center" });
 
   // Informações do Produtor/Exportador
   yPos += 15;

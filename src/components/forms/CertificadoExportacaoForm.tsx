@@ -15,6 +15,8 @@ import { Loader2, Package, X } from "lucide-react";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { paisesECidades } from "@/data/paisesECidades";
+import { tiposCertificacao } from "@/data/certificacoesCafe";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const formSchema = z.object({
   produtor_id: z.string().min(1, "Selecione um produtor"),
@@ -36,6 +38,7 @@ export default function CertificadoExportacaoForm() {
   const [normasSelecionadas, setNormasSelecionadas] = useState<string[]>([]);
   const [novaNorma, setNovaNorma] = useState("");
   const [selectedPais, setSelectedPais] = useState<string>("");
+  const [certificacoesSelecionadas, setCertificacoesSelecionadas] = useState<string[]>([]);
 
   const { register, handleSubmit, formState: { errors }, setValue } = useForm({
     resolver: zodResolver(formSchema),
@@ -101,6 +104,16 @@ export default function CertificadoExportacaoForm() {
     setNormasSelecionadas(normasSelecionadas.filter((_, i) => i !== index));
   };
 
+  const toggleCertificacao = (value: string) => {
+    setCertificacoesSelecionadas((prev) => {
+      if (prev.includes(value)) {
+        return prev.filter((c) => c !== value);
+      } else {
+        return [...prev, value];
+      }
+    });
+  };
+
   const onSubmit = async (formData: any) => {
     if (selectedLotes.length === 0) {
       toast.error("Selecione pelo menos um lote");
@@ -128,7 +141,17 @@ export default function CertificadoExportacaoForm() {
       if (formData.importador_documento) insertData.importador_documento = formData.importador_documento;
       if (formData.valor_total) insertData.valor_total = parseFloat(formData.valor_total);
       if (formData.moeda) insertData.moeda = formData.moeda;
-      if (normasSelecionadas.length > 0) insertData.normas_cumpridas = normasSelecionadas;
+      
+      // Combinar normas e certificações
+      const todasNormas = [...normasSelecionadas];
+      if (certificacoesSelecionadas.length > 0) {
+        const labelsCertificacoes = certificacoesSelecionadas.map(
+          (value) => tiposCertificacao.find((c) => c.value === value)?.label || value
+        );
+        todasNormas.push(...labelsCertificacoes);
+      }
+      if (todasNormas.length > 0) insertData.normas_cumpridas = todasNormas;
+      
       if (formData.observacoes) insertData.observacoes = formData.observacoes;
 
       const { data, error } = await supabase
@@ -348,16 +371,48 @@ export default function CertificadoExportacaoForm() {
             </CardContent>
           </Card>
 
-          {/* Normas e Certificações */}
+          {/* Certificações de Café */}
           <Card>
             <CardHeader>
-              <CardTitle>Normas e Certificações</CardTitle>
-              <CardDescription>Adicione as normas e certificações cumpridas</CardDescription>
+              <CardTitle>Certificações de Café</CardTitle>
+              <CardDescription>Selecione as certificações do café exportado</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {tiposCertificacao.map((cert) => (
+                  <div key={cert.value} className="flex items-start space-x-3 space-y-0">
+                    <Checkbox
+                      id={cert.value}
+                      checked={certificacoesSelecionadas.includes(cert.value)}
+                      onCheckedChange={() => toggleCertificacao(cert.value)}
+                    />
+                    <div className="space-y-1 leading-none">
+                      <label
+                        htmlFor={cert.value}
+                        className="text-sm font-medium leading-none cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        {cert.label}
+                      </label>
+                      <p className="text-xs text-muted-foreground">
+                        {cert.descricao}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Normas Adicionais */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Normas Adicionais</CardTitle>
+              <CardDescription>Adicione outras normas ou padrões cumpridos</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex gap-2">
                 <Input
-                  placeholder="Ex: ISO 9001, Orgânico, Fair Trade..."
+                  placeholder="Ex: ISO 9001, HACCP, BRC..."
                   value={novaNorma}
                   onChange={(e) => setNovaNorma(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addNorma())}
