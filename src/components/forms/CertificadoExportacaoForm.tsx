@@ -206,9 +206,17 @@ export default function CertificadoExportacaoForm() {
                     <p className="font-medium text-muted-foreground mb-1">
                       Nenhum lote ativo encontrado
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-muted-foreground mb-4">
                       Este produtor não possui lotes ativos cadastrados no sistema.
                     </p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => navigate("/lotes")}
+                    >
+                      <Package className="h-4 w-4 mr-2" />
+                      Cadastrar Lotes
+                    </Button>
                   </div>
                 ) : (
                   <>
