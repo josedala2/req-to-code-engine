@@ -196,54 +196,75 @@ export default function CertificadoExportacaoForm() {
               </CardHeader>
               <CardContent>
                 {lotesLoading ? (
-                  <div className="flex justify-center py-4">
-                    <Loader2 className="h-6 w-6 animate-spin" />
+                  <div className="flex justify-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                    <span className="ml-2 text-sm text-muted-foreground">Carregando lotes...</span>
                   </div>
                 ) : !lotes || lotes.length === 0 ? (
-                  <p className="text-center text-muted-foreground py-4">
-                    Nenhum lote ativo encontrado para este produtor
-                  </p>
-                ) : (
-                  <div className="grid gap-3">
-                    {lotes.map((lote) => (
-                      <div
-                        key={lote.id}
-                        onClick={() => toggleLote(lote)}
-                        className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                          selectedLotes.find((l) => l.id === lote.id)
-                            ? "border-primary bg-primary/5"
-                            : "border-border hover:border-primary/50"
-                        }`}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <p className="font-mono font-semibold">{lote.codigo}</p>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {lote.variedade?.join(", ")} - {lote.processo}
-                            </p>
-                            <div className="flex gap-2 mt-2">
-                              <Badge variant="outline">{lote.quantidade} {lote.unidade}</Badge>
-                              <Badge variant="secondary">{lote.safra}</Badge>
-                              {lote.certificacao && <Badge>{lote.certificacao}</Badge>}
-                            </div>
-                          </div>
-                          {selectedLotes.find((l) => l.id === lote.id) && (
-                            <Badge className="bg-primary">Selecionado</Badge>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {selectedLotes.length > 0 && (
-                  <div className="mt-4 p-3 bg-muted rounded-lg">
-                    <p className="font-semibold">
-                      Total: {selectedLotes.reduce((acc, l) => acc + parseFloat(l.quantidade), 0)} {selectedLotes[0].unidade}
+                  <div className="text-center py-8 border-2 border-dashed rounded-lg">
+                    <Package className="h-12 w-12 mx-auto mb-3 text-muted-foreground opacity-50" />
+                    <p className="font-medium text-muted-foreground mb-1">
+                      Nenhum lote ativo encontrado
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {selectedLotes.length} lote(s) selecionado(s)
+                      Este produtor não possui lotes ativos cadastrados no sistema.
                     </p>
                   </div>
+                ) : (
+                  <>
+                    <div className="grid gap-3">
+                      {lotes.map((lote) => (
+                        <div
+                          key={lote.id}
+                          onClick={() => toggleLote(lote)}
+                          className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                            selectedLotes.find((l) => l.id === lote.id)
+                              ? "border-primary bg-primary/5 shadow-sm"
+                              : "border-border hover:border-primary/50 hover:shadow-sm"
+                          }`}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <p className="font-mono font-semibold text-primary">{lote.codigo}</p>
+                              <p className="text-sm text-muted-foreground mt-1">
+                                {lote.variedade?.join(", ")} - {lote.processo}
+                              </p>
+                              <div className="flex gap-2 mt-2 flex-wrap">
+                                <Badge variant="outline">{lote.quantidade} {lote.unidade}</Badge>
+                                <Badge variant="secondary">{lote.safra}</Badge>
+                                {lote.certificacao && <Badge>{lote.certificacao}</Badge>}
+                              </div>
+                            </div>
+                            {selectedLotes.find((l) => l.id === lote.id) && (
+                              <Badge className="bg-primary">✓ Selecionado</Badge>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    {selectedLotes.length > 0 && (
+                      <div className="mt-4 p-4 bg-primary/10 border border-primary/20 rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-semibold text-lg">
+                              Total: {selectedLotes.reduce((acc, l) => acc + parseFloat(l.quantidade), 0).toFixed(2)} {selectedLotes[0].unidade}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {selectedLotes.length} lote(s) selecionado(s)
+                            </p>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setSelectedLotes([])}
+                          >
+                            Limpar Seleção
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
               </CardContent>
             </Card>
