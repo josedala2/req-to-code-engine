@@ -1,15 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Search, Calendar, Weight, MapPin, FileText, Tag } from "lucide-react";
+import { Plus, Search, Calendar, Weight, MapPin, FileText, Tag, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { LoteForm } from "@/components/forms/LoteForm";
 import { SealForm } from "@/components/forms/SealForm";
 import { AlterarStatusLoteDialog } from "@/components/forms/AlterarStatusLoteDialog";
 import { generateLotesPDF } from "@/lib/pdfGenerator";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import {
   Table,
   TableBody,
@@ -18,64 +20,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-const batches = [
-  {
-    id: "LOT-2025-001",
-    producer: "Fazenda Santa Clara",
-    variety: "Bourbon Amarelo",
-    harvestDate: "15/01/2025",
-    quantity: "1.200 kg",
-    process: "Natural",
-    quality: "Premium",
-    status: "Em processamento",
-    location: "Secador 3",
-  },
-  {
-    id: "LOT-2025-002",
-    producer: "Quinta Bela Vista",
-    variety: "Catuaí Vermelho",
-    harvestDate: "12/01/2025",
-    quantity: "850 kg",
-    process: "Cereja Descascado",
-    quality: "Gourmet",
-    status: "Pronto",
-    location: "Armazém B",
-  },
-  {
-    id: "LOT-2024-458",
-    producer: "Fazenda São José",
-    variety: "Mundo Novo",
-    harvestDate: "28/12/2024",
-    quantity: "2.100 kg",
-    process: "Lavado",
-    quality: "Premium",
-    status: "Exportado",
-    location: "Container 45HC",
-  },
-  {
-    id: "LOT-2025-003",
-    producer: "Fazenda Santa Clara",
-    variety: "Catuaí Vermelho",
-    harvestDate: "18/01/2025",
-    quantity: "950 kg",
-    process: "Natural",
-    quality: "Especial",
-    status: "Em processamento",
-    location: "Terreiro 2",
-  },
-  {
-    id: "LOT-2024-459",
-    producer: "Quinta Bela Vista",
-    variety: "Bourbon Amarelo",
-    harvestDate: "30/12/2024",
-    quantity: "1.450 kg",
-    process: "Honey",
-    quality: "Premium",
-    status: "Pronto",
-    location: "Armazém A",
-  },
-];
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -107,6 +51,40 @@ export default function Lotes() {
   const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [sealDialogOpen, setSealDialogOpen] = useState(false);
+  const [lotes, setLotes] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const fetchLotes = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("lotes")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setLotes(data || []);
+    } catch (error: any) {
+      toast.error("Erro ao carregar lotes: " + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLotes();
+  }, []);
+
+  const filteredLotes = lotes.filter((lote) => {
+    const search = searchTerm.toLowerCase();
+    return (
+      lote.codigo?.toLowerCase().includes(search) ||
+      lote.produtor_nome?.toLowerCase().includes(search) ||
+      lote.variedade?.some((v: string) => v.toLowerCase().includes(search)) ||
+      lote.status?.toLowerCase().includes(search)
+    );
+  });
   
   return (
     <div className="space-y-6">
@@ -153,7 +131,10 @@ export default function Lotes() {
                   Registre um novo lote de café para rastreabilidade
                 </DialogDescription>
               </DialogHeader>
-              <LoteForm onSuccess={() => setDialogOpen(false)} />
+              <LoteForm onSuccess={() => {
+                setDialogOpen(false);
+                fetchLotes();
+              }} />
             </DialogContent>
           </Dialog>
         </div>
@@ -164,6 +145,8 @@ export default function Lotes() {
         <Input
           placeholder="Buscar por código, produtor, variedade ou status..."
           className="pl-10"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
 
@@ -190,64 +173,83 @@ export default function Lotes() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {batches.map((batch) => (
-                  <TableRow key={batch.id} className="hover:bg-muted/30">
-                    <TableCell className="font-mono font-semibold text-primary">
-                      {batch.id}
-                    </TableCell>
-                    <TableCell>{batch.producer}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">{batch.variety}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        {batch.harvestDate}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Weight className="h-4 w-4 text-muted-foreground" />
-                        {batch.quantity}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-sm">{batch.process}</span>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getQualityColor(batch.quality)}>
-                        {batch.quality}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className={getStatusColor(batch.status)}>
-                        {batch.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm">{batch.location}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => navigate(`/lotes/${batch.id}`)}
-                        >
-                          Ver Detalhes
-                        </Button>
-                        <AlterarStatusLoteDialog
-                          loteId={batch.id}
-                          statusAtual={batch.status}
-                          onSuccess={() => window.location.reload()}
-                        />
-                      </div>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={10} className="text-center py-8">
+                      <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+                      <p className="text-muted-foreground mt-2">Carregando lotes...</p>
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : filteredLotes.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={10} className="text-center py-8">
+                      <p className="text-muted-foreground">Nenhum lote encontrado</p>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredLotes.map((lote) => (
+                    <TableRow key={lote.id} className="hover:bg-muted/30">
+                      <TableCell className="font-mono font-semibold text-primary">
+                        {lote.codigo}
+                      </TableCell>
+                      <TableCell>{lote.produtor_nome}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {lote.variedade?.map((v: string, idx: number) => (
+                            <Badge key={idx} variant="secondary">{v}</Badge>
+                          ))}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-muted-foreground" />
+                          {new Date(lote.data_colheita).toLocaleDateString('pt-BR')}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Weight className="h-4 w-4 text-muted-foreground" />
+                          {lote.quantidade} {lote.unidade}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-sm">{lote.processo}</span>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className="bg-gradient-coffee text-primary-foreground">
+                          {lote.certificacao || "Standard"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className={getStatusColor(lote.status)}>
+                          {lote.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm">{lote.peneira || "N/A"}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => navigate(`/lotes/${lote.id}`)}
+                          >
+                            Ver Detalhes
+                          </Button>
+                          <AlterarStatusLoteDialog
+                            loteId={lote.id}
+                            statusAtual={lote.status}
+                            onSuccess={fetchLotes}
+                          />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </div>

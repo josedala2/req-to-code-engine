@@ -1,52 +1,45 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Calendar, Weight, MapPin, Thermometer, Droplets, Users, Download } from "lucide-react";
+import { ArrowLeft, Calendar, Weight, MapPin, Thermometer, Droplets, Users, Download, Loader2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AlterarStatusLoteDialog } from "@/components/forms/AlterarStatusLoteDialog";
 import { generateRastreabilidadePDF } from "@/lib/pdfGenerator";
 import { toast } from "sonner";
-
-const batchData = {
-  "LOT-2025-001": {
-    id: "LOT-2025-001",
-    producer: "Fazenda Santa Clara",
-    variety: "Bourbon Amarelo",
-    harvestDate: "15/01/2025",
-    quantity: "1.200 kg",
-    process: "Natural",
-    quality: "Premium",
-    status: "Em processamento",
-    location: "Secador 3",
-    details: {
-      altitude: "1.200m",
-      temperature: "24°C",
-      humidity: "45%",
-      fermentation: "48 horas",
-      drying: "Em andamento - Dia 8/15",
-    },
-    cupping: {
-      score: 87,
-      aroma: "Frutas vermelhas, chocolate",
-      flavor: "Doce, corpo médio, acidez equilibrada",
-      notes: "Notas de caramelo e frutas secas",
-    },
-    timeline: [
-      { date: "15/01/2025", event: "Colheita realizada", status: "completed" },
-      { date: "15/01/2025", event: "Recepção do lote", status: "completed" },
-      { date: "16/01/2025", event: "Início da fermentação", status: "completed" },
-      { date: "18/01/2025", event: "Início da secagem", status: "completed" },
-      { date: "25/01/2025", event: "Secagem completa", status: "pending" },
-      { date: "26/01/2025", event: "Beneficiamento", status: "pending" },
-    ],
-  },
-};
+import { supabase } from "@/integrations/supabase/client";
 
 export default function LoteDetalhes() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const batch = batchData[id as keyof typeof batchData] || batchData["LOT-2025-001"];
+  const [lote, setLote] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchLote = async () => {
+    if (!id) return;
+    
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("lotes")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if (error) throw error;
+      setLote(data);
+    } catch (error: any) {
+      toast.error("Erro ao carregar lote: " + error.message);
+      navigate("/lotes");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLote();
+  }, [id]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -61,6 +54,26 @@ export default function LoteDetalhes() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!lote) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <p className="text-muted-foreground">Lote não encontrado</p>
+        <Button onClick={() => navigate("/lotes")}>
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Voltar para Lotes
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -70,12 +83,12 @@ export default function LoteDetalhes() {
         </Button>
         <div className="flex gap-2">
           <AlterarStatusLoteDialog
-            loteId={batch.id}
-            statusAtual={batch.status}
-            onSuccess={() => window.location.reload()}
+            loteId={lote.id}
+            statusAtual={lote.status}
+            onSuccess={fetchLote}
           />
           <Button onClick={() => {
-            generateRastreabilidadePDF(id || "LOTE-2024-001");
+            generateRastreabilidadePDF(lote.codigo);
             toast.success("Relatório de rastreabilidade exportado!");
           }}>
             <Download className="mr-2 h-4 w-4" />
@@ -87,27 +100,33 @@ export default function LoteDetalhes() {
       <div className="grid gap-6 md:grid-cols-3">
         <Card className="md:col-span-2 shadow-elegant">
           <CardHeader>
-            <CardTitle className="text-3xl font-mono">{batch.id}</CardTitle>
-            <CardDescription className="text-lg">{batch.producer}</CardDescription>
+            <CardTitle className="text-3xl font-mono">{lote.codigo}</CardTitle>
+            <CardDescription className="text-lg">{lote.produtor_nome}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Variedade</p>
-                <Badge variant="secondary" className="text-base">{batch.variety}</Badge>
+                <div className="flex flex-wrap gap-1">
+                  {lote.variedade?.map((v: string, idx: number) => (
+                    <Badge key={idx} variant="secondary" className="text-base">{v}</Badge>
+                  ))}
+                </div>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Processo</p>
-                <p className="font-medium">{batch.process}</p>
+                <p className="font-medium">{lote.processo}</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Qualidade</p>
-                <Badge className="bg-gradient-coffee text-primary-foreground">{batch.quality}</Badge>
+                <p className="text-sm text-muted-foreground mb-1">Certificação</p>
+                <Badge className="bg-gradient-coffee text-primary-foreground">
+                  {lote.certificacao || "Standard"}
+                </Badge>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Status</p>
-                <Badge variant="outline" className={getStatusColor(batch.status)}>
-                  {batch.status}
+                <Badge variant="outline" className={getStatusColor(lote.status)}>
+                  {lote.status}
                 </Badge>
               </div>
             </div>
@@ -117,28 +136,28 @@ export default function LoteDetalhes() {
                 <Calendar className="h-5 w-5 text-primary" />
                 <div>
                   <p className="text-sm text-muted-foreground">Data da Colheita</p>
-                  <p className="font-medium">{batch.harvestDate}</p>
+                  <p className="font-medium">{new Date(lote.data_colheita).toLocaleDateString('pt-BR')}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Weight className="h-5 w-5 text-primary" />
                 <div>
                   <p className="text-sm text-muted-foreground">Quantidade</p>
-                  <p className="font-medium">{batch.quantity}</p>
+                  <p className="font-medium">{lote.quantidade} {lote.unidade}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="h-5 w-5 text-primary" />
                 <div>
-                  <p className="text-sm text-muted-foreground">Localização Atual</p>
-                  <p className="font-medium">{batch.location}</p>
+                  <p className="text-sm text-muted-foreground">Peneira</p>
+                  <p className="font-medium">{lote.peneira || "N/A"}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-primary" />
+                <Droplets className="h-5 w-5 text-primary" />
                 <div>
-                  <p className="text-sm text-muted-foreground">Altitude</p>
-                  <p className="font-medium">{batch.details.altitude}</p>
+                  <p className="text-sm text-muted-foreground">Umidade</p>
+                  <p className="font-medium">{lote.umidade ? `${lote.umidade}%` : "N/A"}</p>
                 </div>
               </div>
             </div>
@@ -148,108 +167,39 @@ export default function LoteDetalhes() {
         <div className="space-y-6">
           <Card className="shadow-elegant">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Thermometer className="h-5 w-5 text-primary" />
-                Temperatura
-              </CardTitle>
+              <CardTitle>Safra</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold text-primary">{batch.details.temperature}</p>
+              <p className="text-2xl font-bold text-primary">{lote.safra}</p>
             </CardContent>
           </Card>
 
-          <Card className="shadow-elegant">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Droplets className="h-5 w-5 text-primary" />
-                Umidade
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-primary">{batch.details.humidity}</p>
-            </CardContent>
-          </Card>
+          {lote.umidade && (
+            <Card className="shadow-elegant">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Droplets className="h-5 w-5 text-primary" />
+                  Umidade
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold text-primary">{lote.umidade}%</p>
+              </CardContent>
+            </Card>
+          )}
 
-          <Card className="shadow-elegant">
-            <CardHeader>
-              <CardTitle>Secagem</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">{batch.details.drying}</p>
-            </CardContent>
-          </Card>
+          {lote.observacoes && (
+            <Card className="shadow-elegant">
+              <CardHeader>
+                <CardTitle>Observações</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground text-sm">{lote.observacoes}</p>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
-
-      <Tabs defaultValue="timeline" className="w-full">
-        <TabsList className="grid w-full md:w-auto grid-cols-2">
-          <TabsTrigger value="timeline">Linha do Tempo</TabsTrigger>
-          <TabsTrigger value="cupping">Análise Sensorial</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="timeline" className="mt-6">
-          <Card className="shadow-elegant">
-            <CardHeader>
-              <CardTitle>Rastreamento do Lote</CardTitle>
-              <CardDescription>Acompanhe todas as etapas do processamento</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {batch.timeline.map((item, index) => (
-                  <div key={index} className="flex items-start gap-4">
-                    <div className={`w-3 h-3 rounded-full mt-1.5 ${
-                      item.status === "completed" 
-                        ? "bg-success" 
-                        : "bg-muted border-2 border-muted-foreground"
-                    }`} />
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <p className="font-medium">{item.event}</p>
-                        <p className="text-sm text-muted-foreground">{item.date}</p>
-                      </div>
-                      {item.status === "completed" && (
-                        <Badge variant="outline" className="mt-1 bg-success/10 text-success border-success/20">
-                          Concluído
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="cupping" className="mt-6">
-          <Card className="shadow-elegant">
-            <CardHeader>
-              <CardTitle>Análise Sensorial (Cupping)</CardTitle>
-              <CardDescription>Avaliação de qualidade e características</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <p className="font-medium mb-2">Pontuação SCA</p>
-                <div className="flex items-baseline gap-2">
-                  <p className="text-4xl font-bold text-primary">{batch.cupping.score}</p>
-                  <p className="text-muted-foreground">/ 100</p>
-                </div>
-              </div>
-              <div className="pt-4 border-t">
-                <p className="font-medium mb-1">Aroma</p>
-                <p className="text-muted-foreground">{batch.cupping.aroma}</p>
-              </div>
-              <div>
-                <p className="font-medium mb-1">Sabor</p>
-                <p className="text-muted-foreground">{batch.cupping.flavor}</p>
-              </div>
-              <div>
-                <p className="font-medium mb-1">Notas Adicionais</p>
-                <p className="text-muted-foreground">{batch.cupping.notes}</p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
     </div>
   );
 }
