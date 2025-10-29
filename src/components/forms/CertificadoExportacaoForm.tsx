@@ -430,7 +430,7 @@ export default function CertificadoExportacaoForm() {
             <Button type="button" variant="outline" onClick={() => navigate("/certificados-exportacao")}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={loading || selectedLotes.length === 0}>
+            <Button type="submit" disabled={loading}>
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
