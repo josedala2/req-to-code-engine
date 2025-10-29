@@ -74,6 +74,15 @@ export default function OfertaVendaForm({ onSuccess }: OfertaVendaFormProps) {
     fetchLotes();
   }, []);
 
+  // Watch lote_id changes to auto-fill form
+  const selectedLoteId = form.watch("lote_id");
+  
+  useEffect(() => {
+    if (selectedLoteId) {
+      fetchLoteData(selectedLoteId);
+    }
+  }, [selectedLoteId]);
+
   const fetchProdutores = async () => {
     const { data } = await supabase
       .from("produtores")
@@ -87,10 +96,66 @@ export default function OfertaVendaForm({ onSuccess }: OfertaVendaFormProps) {
   const fetchLotes = async () => {
     const { data } = await supabase
       .from("lotes")
-      .select("id, codigo, produtor_nome")
+      .select("id, codigo, produtor_nome, produtor_id")
       .order("codigo");
     
     if (data) setLotes(data);
+  };
+
+  const fetchLoteData = async (loteId: string) => {
+    try {
+      // Buscar dados do lote
+      const { data: lote, error: loteError } = await supabase
+        .from("lotes")
+        .select("*")
+        .eq("id", loteId)
+        .single();
+
+      if (loteError) throw loteError;
+
+      if (lote) {
+        // Buscar dados de qualidade do lote (se existir)
+        const { data: qualidade } = await supabase
+          .from("qualidade")
+          .select("nota_final, classificacao, descritores")
+          .eq("lote_id", loteId)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        // Preencher automaticamente os campos do formulário
+        form.setValue("produtor_id", lote.produtor_id);
+        form.setValue("variedade", lote.variedade.join(", "));
+        form.setValue("processo", lote.processo);
+        form.setValue("quantidade_disponivel", lote.quantidade);
+        form.setValue("unidade", lote.unidade);
+        
+        if (lote.peneira) form.setValue("peneira", lote.peneira);
+        if (lote.umidade) form.setValue("umidade", lote.umidade);
+        if (lote.certificacao) {
+          form.setValue("certificado", true);
+          form.setValue("tipo_certificacao", lote.certificacao);
+        }
+        if (lote.data_colheita) {
+          form.setValue("data_colheita", lote.data_colheita);
+        }
+        if (lote.observacoes) {
+          form.setValue("observacoes", lote.observacoes);
+        }
+
+        // Preencher dados de qualidade se existirem
+        if (qualidade) {
+          if (qualidade.nota_final) form.setValue("nota_qualidade", qualidade.nota_final);
+          if (qualidade.classificacao) form.setValue("classificacao", qualidade.classificacao);
+          if (qualidade.descritores) form.setValue("descritores", qualidade.descritores.join(", "));
+        }
+
+        toast.success("Dados do lote carregados automaticamente!");
+      }
+    } catch (error: any) {
+      console.error("Erro ao buscar dados do lote:", error);
+      toast.error("Erro ao carregar dados do lote");
+    }
   };
 
   const onSubmit = async (data: OfertaFormData) => {
@@ -159,11 +224,11 @@ export default function OfertaVendaForm({ onSuccess }: OfertaVendaFormProps) {
             name="lote_id"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Lote (opcional)</FormLabel>
+                <FormLabel>Lote (opcional - preencherá automaticamente)</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione um lote" />
+                      <SelectValue placeholder="Selecione um lote para preencher automaticamente" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
