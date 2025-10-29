@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 const loteSchema = z.object({
   codigo: z.string().min(3, "Código deve ter pelo menos 3 caracteres").max(50),
@@ -36,6 +37,20 @@ interface LoteFormProps {
 export function LoteForm({ onSuccess }: LoteFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
+  const { data: produtores, isLoading: produtoresLoading } = useQuery({
+    queryKey: ["produtores-aprovados"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("produtores")
+        .select("*")
+        .eq("status", "aprovado")
+        .order("nome");
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+  
   const form = useForm<LoteFormData>({
     resolver: zodResolver(loteSchema),
     defaultValues: {
@@ -57,9 +72,13 @@ export function LoteForm({ onSuccess }: LoteFormProps) {
   const onSubmit = async (data: LoteFormData) => {
     setIsSubmitting(true);
     try {
+      // Buscar o nome do produtor selecionado
+      const produtorSelecionado = produtores?.find(p => p.id === data.produtor);
+      
       const { error } = await supabase.from("lotes").insert({
         codigo: data.codigo,
-        produtor_nome: data.produtor,
+        produtor_id: data.produtor,
+        produtor_nome: produtorSelecionado?.nome || "",
         safra: data.safra,
         variedade: data.variedades,
         processo: data.processo,
@@ -109,16 +128,18 @@ export function LoteForm({ onSuccess }: LoteFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Produtor</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} defaultValue={field.value} disabled={produtoresLoading}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione o produtor" />
+                      <SelectValue placeholder={produtoresLoading ? "Carregando..." : "Selecione o produtor"} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="prod1">João Silva</SelectItem>
-                    <SelectItem value="prod2">Maria Santos</SelectItem>
-                    <SelectItem value="prod3">Carlos Oliveira</SelectItem>
+                    {produtores?.map((produtor) => (
+                      <SelectItem key={produtor.id} value={produtor.id}>
+                        {produtor.nome} - {produtor.nome_fazenda}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <FormMessage />
