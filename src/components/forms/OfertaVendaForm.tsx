@@ -167,7 +167,6 @@ export default function OfertaVendaForm({ onSuccess }: OfertaVendaFormProps) {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="">Nenhum</SelectItem>
                     {lotes.map((l) => (
                       <SelectItem key={l.id} value={l.id}>
                         {l.codigo} - {l.produtor_nome}
