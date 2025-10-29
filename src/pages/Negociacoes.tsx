@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, MessageSquare, Package, Send, MapPin, Calendar, Award, TrendingUp } from "lucide-react";
+import { Loader2, MessageSquare, Package, Send, MapPin, Calendar, Award, TrendingUp, FileText, Phone, Mail, User } from "lucide-react";
 import QRCode from "qrcode";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -207,135 +207,153 @@ export default function Negociacoes() {
 
         {/* Detalhes da Produção e Chat */}
         <div className="md:col-span-2 space-y-6">
-          {/* Informações da Produção */}
+          {/* Pro-forma Comercial */}
           <Card>
-            <CardHeader>
-              <CardTitle>{selectedNegociacao?.ofertas_venda.titulo}</CardTitle>
-              <CardDescription className="flex gap-2 items-center flex-wrap">
-                <Badge variant="outline">{selectedNegociacao?.ofertas_venda.status_oferta}</Badge>
-                {selectedNegociacao?.ofertas_venda.certificado && (
-                  <Badge variant="secondary" className="flex items-center gap-1">
-                    <Award className="h-3 w-3" />
-                    Certificado
-                  </Badge>
-                )}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Informações Básicas */}
-                <div className="space-y-3">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Quantidade Disponível</p>
-                    <p className="text-lg font-semibold">
-                      {selectedNegociacao?.ofertas_venda.quantidade_disponivel} {selectedNegociacao?.ofertas_venda.unidade}
-                    </p>
+            <CardHeader className="border-b bg-muted/50">
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-primary" />
+                    <CardTitle>Proposta Comercial</CardTitle>
                   </div>
-                  
-                  {selectedNegociacao?.ofertas_venda.preco_sugerido && (
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Preço Sugerido</p>
-                      <p className="text-lg font-semibold">
-                        {selectedNegociacao?.ofertas_venda.preco_sugerido} {selectedNegociacao?.ofertas_venda.moeda || 'AOA'}
-                      </p>
-                    </div>
-                  )}
-
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Variedade</p>
-                    <p className="text-sm">{selectedNegociacao?.ofertas_venda.variedade?.join(", ")}</p>
-                  </div>
-
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Processo</p>
-                    <p className="text-sm">{selectedNegociacao?.ofertas_venda.processo}</p>
-                  </div>
-
-                  {selectedNegociacao?.ofertas_venda.classificacao && (
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Classificação</p>
-                      <p className="text-sm">{selectedNegociacao?.ofertas_venda.classificacao}</p>
-                    </div>
-                  )}
-
-                  {selectedNegociacao?.ofertas_venda.nota_qualidade && (
-                    <div className="flex items-center gap-2">
-                      <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Nota de Qualidade</p>
-                        <p className="text-sm font-semibold">{selectedNegociacao?.ofertas_venda.nota_qualidade} pontos</p>
-                      </div>
-                    </div>
+                  <CardDescription>Referência: {selectedNegociacao?.id.slice(0, 8).toUpperCase()}</CardDescription>
+                </div>
+                <div className="text-right text-sm">
+                  <p className="font-medium">Data: {new Date(selectedNegociacao?.created_at || '').toLocaleDateString()}</p>
+                  {selectedNegociacao?.ofertas_venda.validade_oferta && (
+                    <p className="text-muted-foreground">Válido até: {new Date(selectedNegociacao.ofertas_venda.validade_oferta).toLocaleDateString()}</p>
                   )}
                 </div>
-
-                {/* Localização e Informações Complementares */}
-                <div className="space-y-3">
-                  <div className="flex items-start gap-2">
-                    <MapPin className="h-4 w-4 text-muted-foreground mt-1" />
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6 pt-6">
+              {/* Informações do Vendedor */}
+              <div className="space-y-3 pb-4 border-b">
+                <h3 className="font-semibold text-sm uppercase text-muted-foreground flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  Informações do Fornecedor
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-6">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Nome de Contato</p>
+                    <p className="font-medium">{selectedNegociacao?.ofertas_venda.contato_nome}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Fazenda</p>
+                    <p className="font-medium">{selectedNegociacao?.ofertas_venda.fazenda || 'Não especificado'}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Phone className="h-3 w-3 text-muted-foreground" />
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Localização</p>
-                      <p className="text-sm">
-                        {selectedNegociacao?.ofertas_venda.provincia}
-                        {selectedNegociacao?.ofertas_venda.municipio && `, ${selectedNegociacao.ofertas_venda.municipio}`}
-                      </p>
-                      {selectedNegociacao?.ofertas_venda.altitude && (
-                        <p className="text-xs text-muted-foreground">Altitude: {selectedNegociacao.ofertas_venda.altitude}m</p>
-                      )}
+                      <p className="text-xs text-muted-foreground">Telefone</p>
+                      <p className="font-medium">{selectedNegociacao?.ofertas_venda.contato_telefone}</p>
                     </div>
                   </div>
-
-                  {selectedNegociacao?.ofertas_venda.fazenda && (
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Fazenda</p>
-                      <p className="text-sm">{selectedNegociacao.ofertas_venda.fazenda}</p>
-                    </div>
-                  )}
-
-                  {selectedNegociacao?.ofertas_venda.data_colheita && (
+                  {selectedNegociacao?.ofertas_venda.contato_email && (
                     <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <Mail className="h-3 w-3 text-muted-foreground" />
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Data de Colheita</p>
-                        <p className="text-sm">{new Date(selectedNegociacao.ofertas_venda.data_colheita).toLocaleDateString()}</p>
+                        <p className="text-xs text-muted-foreground">Email</p>
+                        <p className="font-medium text-sm">{selectedNegociacao.ofertas_venda.contato_email}</p>
                       </div>
                     </div>
                   )}
+                  <div className="md:col-span-2">
+                    <p className="text-xs text-muted-foreground">Localização</p>
+                    <p className="font-medium">
+                      {selectedNegociacao?.ofertas_venda.provincia}
+                      {selectedNegociacao?.ofertas_venda.municipio && `, ${selectedNegociacao.ofertas_venda.municipio}`}
+                    </p>
+                  </div>
+                </div>
+              </div>
 
-                  {selectedNegociacao?.ofertas_venda.lotes && (
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Lote</p>
-                      <p className="text-sm font-mono">{selectedNegociacao.ofertas_venda.lotes.codigo}</p>
-                      <p className="text-xs text-muted-foreground">Produtor: {selectedNegociacao.ofertas_venda.lotes.produtor_nome}</p>
+              {/* Descrição do Produto */}
+              <div className="space-y-3 pb-4 border-b">
+                <h3 className="font-semibold text-sm uppercase text-muted-foreground">Especificações do Produto</h3>
+                <div className="bg-muted/30 p-4 rounded-lg space-y-3">
+                  <h4 className="font-semibold text-lg">{selectedNegociacao?.ofertas_venda.titulo}</h4>
+                  {selectedNegociacao?.ofertas_venda.descricao && (
+                    <p className="text-sm text-muted-foreground">{selectedNegociacao.ofertas_venda.descricao}</p>
+                  )}
+                  <div className="flex gap-2 flex-wrap">
+                    <Badge variant="outline">{selectedNegociacao?.ofertas_venda.status_oferta}</Badge>
+                    {selectedNegociacao?.ofertas_venda.certificado && (
+                      <Badge variant="secondary" className="flex items-center gap-1">
+                        <Award className="h-3 w-3" />
+                        Certificado
+                      </Badge>
+                    )}
+                    {selectedNegociacao?.ofertas_venda.tipo_certificacao && selectedNegociacao.ofertas_venda.tipo_certificacao.length > 0 && (
+                      selectedNegociacao.ofertas_venda.tipo_certificacao.map((cert: string, idx: number) => (
+                        <Badge key={idx} variant="secondary" className="text-xs">
+                          {cert}
+                        </Badge>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Detalhes Técnicos */}
+              <div className="space-y-3 pb-4 border-b">
+                <h3 className="font-semibold text-sm uppercase text-muted-foreground">Características Técnicas</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-background border rounded-lg p-3">
+                    <p className="text-xs text-muted-foreground mb-1">Variedade</p>
+                    <p className="font-medium text-sm">{selectedNegociacao?.ofertas_venda.variedade?.join(", ")}</p>
+                  </div>
+                  <div className="bg-background border rounded-lg p-3">
+                    <p className="text-xs text-muted-foreground mb-1">Processo</p>
+                    <p className="font-medium text-sm">{selectedNegociacao?.ofertas_venda.processo}</p>
+                  </div>
+                  <div className="bg-background border rounded-lg p-3">
+                    <p className="text-xs text-muted-foreground mb-1">Status</p>
+                    <p className="font-medium text-sm">{selectedNegociacao?.ofertas_venda.status_cafe}</p>
+                  </div>
+                  {selectedNegociacao?.ofertas_venda.peneira && (
+                    <div className="bg-background border rounded-lg p-3">
+                      <p className="text-xs text-muted-foreground mb-1">Peneira</p>
+                      <p className="font-medium text-sm">{selectedNegociacao.ofertas_venda.peneira}</p>
                     </div>
                   )}
-
-                  {selectedNegociacao?.ofertas_venda.certificado && qrCodeUrl && (
-                    <div className="flex flex-col items-start gap-2 p-4 border rounded-lg">
-                      <div className="flex items-center gap-2">
-                        <Award className="h-4 w-4 text-primary" />
-                        <p className="text-sm font-medium">QR Code de Certificação</p>
-                      </div>
-                      <img src={qrCodeUrl} alt="QR Code" className="w-32 h-32" />
-                      <p className="text-xs text-muted-foreground">Escaneie para verificar certificação</p>
+                  {selectedNegociacao?.ofertas_venda.umidade && (
+                    <div className="bg-background border rounded-lg p-3">
+                      <p className="text-xs text-muted-foreground mb-1">Umidade</p>
+                      <p className="font-medium text-sm">{selectedNegociacao.ofertas_venda.umidade}%</p>
+                    </div>
+                  )}
+                  {selectedNegociacao?.ofertas_venda.classificacao && (
+                    <div className="bg-background border rounded-lg p-3">
+                      <p className="text-xs text-muted-foreground mb-1">Classificação</p>
+                      <p className="font-medium text-sm">{selectedNegociacao.ofertas_venda.classificacao}</p>
+                    </div>
+                  )}
+                  {selectedNegociacao?.ofertas_venda.nota_qualidade && (
+                    <div className="bg-background border rounded-lg p-3">
+                      <p className="text-xs text-muted-foreground mb-1">Pontuação</p>
+                      <p className="font-medium text-sm flex items-center gap-1">
+                        <TrendingUp className="h-3 w-3 text-primary" />
+                        {selectedNegociacao.ofertas_venda.nota_qualidade} pts
+                      </p>
+                    </div>
+                  )}
+                  {selectedNegociacao?.ofertas_venda.altitude && (
+                    <div className="bg-background border rounded-lg p-3">
+                      <p className="text-xs text-muted-foreground mb-1">Altitude</p>
+                      <p className="font-medium text-sm">{selectedNegociacao.ofertas_venda.altitude}m</p>
                     </div>
                   )}
                 </div>
               </div>
 
-              {selectedNegociacao?.ofertas_venda.descricao && (
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-1">Descrição</p>
-                  <p className="text-sm">{selectedNegociacao.ofertas_venda.descricao}</p>
-                </div>
-              )}
-
+              {/* Descritores de Sabor */}
               {selectedNegociacao?.ofertas_venda.descritores && selectedNegociacao.ofertas_venda.descritores.length > 0 && (
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-2">Descritores</p>
+                <div className="space-y-3 pb-4 border-b">
+                  <h3 className="font-semibold text-sm uppercase text-muted-foreground">Perfil Sensorial</h3>
                   <div className="flex flex-wrap gap-2">
                     {selectedNegociacao.ofertas_venda.descritores.map((descritor: string, idx: number) => (
-                      <Badge key={idx} variant="secondary" className="text-xs">
+                      <Badge key={idx} variant="secondary">
                         {descritor}
                       </Badge>
                     ))}
@@ -343,10 +361,93 @@ export default function Negociacoes() {
                 </div>
               )}
 
-              {selectedNegociacao?.ofertas_venda.condicoes_venda && (
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-1">Condições de Venda</p>
-                  <p className="text-sm">{selectedNegociacao.ofertas_venda.condicoes_venda}</p>
+              {/* Quantidade e Preço */}
+              <div className="space-y-3 pb-4 border-b">
+                <h3 className="font-semibold text-sm uppercase text-muted-foreground">Condições Comerciais</h3>
+                <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Quantidade Disponível</p>
+                      <p className="text-2xl font-bold text-primary">
+                        {selectedNegociacao?.ofertas_venda.quantidade_disponivel} {selectedNegociacao?.ofertas_venda.unidade}
+                      </p>
+                    </div>
+                    {selectedNegociacao?.ofertas_venda.preco_sugerido && (
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Preço {selectedNegociacao?.ofertas_venda.negociavel && '(Negociável)'}</p>
+                        <p className="text-2xl font-bold">
+                          {selectedNegociacao.ofertas_venda.preco_sugerido.toLocaleString()} {selectedNegociacao.ofertas_venda.moeda || 'AOA'}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  {selectedNegociacao?.ofertas_venda.data_disponibilidade && (
+                    <div className="mt-3 pt-3 border-t border-primary/20">
+                      <p className="text-xs text-muted-foreground">Disponível a partir de</p>
+                      <p className="font-medium">{new Date(selectedNegociacao.ofertas_venda.data_disponibilidade).toLocaleDateString()}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Rastreabilidade */}
+              {selectedNegociacao?.ofertas_venda.lotes && (
+                <div className="space-y-3 pb-4 border-b">
+                  <h3 className="font-semibold text-sm uppercase text-muted-foreground">Rastreabilidade</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <div>
+                        <p className="text-xs text-muted-foreground">Código do Lote</p>
+                        <p className="font-mono font-bold text-lg">{selectedNegociacao.ofertas_venda.lotes.codigo}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Produtor</p>
+                        <p className="font-medium">{selectedNegociacao.ofertas_venda.lotes.produtor_nome}</p>
+                      </div>
+                      {selectedNegociacao.ofertas_venda.lotes.data_colheita && (
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-3 w-3 text-muted-foreground" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">Colheita</p>
+                            <p className="text-sm font-medium">{new Date(selectedNegociacao.ofertas_venda.lotes.data_colheita).toLocaleDateString()}</p>
+                          </div>
+                        </div>
+                      )}
+                      {selectedNegociacao.ofertas_venda.lotes.safra && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Safra</p>
+                          <p className="text-sm font-medium">{selectedNegociacao.ofertas_venda.lotes.safra}</p>
+                        </div>
+                      )}
+                    </div>
+                    {selectedNegociacao?.ofertas_venda.certificado && qrCodeUrl && (
+                      <div className="flex flex-col items-center justify-center gap-2 p-4 bg-background border-2 border-dashed rounded-lg">
+                        <Award className="h-5 w-5 text-primary" />
+                        <p className="text-xs font-medium text-center">Certificação Verificável</p>
+                        <img src={qrCodeUrl} alt="QR Code" className="w-32 h-32" />
+                        <p className="text-xs text-muted-foreground text-center">Escaneie para verificar autenticidade</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Condições e Observações */}
+              {(selectedNegociacao?.ofertas_venda.condicoes_venda || selectedNegociacao?.ofertas_venda.observacoes) && (
+                <div className="space-y-3">
+                  <h3 className="font-semibold text-sm uppercase text-muted-foreground">Termos e Condições</h3>
+                  {selectedNegociacao?.ofertas_venda.condicoes_venda && (
+                    <div className="bg-muted/30 rounded-lg p-4">
+                      <p className="text-sm font-medium mb-2">Condições de Venda</p>
+                      <p className="text-sm text-muted-foreground whitespace-pre-line">{selectedNegociacao.ofertas_venda.condicoes_venda}</p>
+                    </div>
+                  )}
+                  {selectedNegociacao?.ofertas_venda.observacoes && (
+                    <div className="bg-muted/30 rounded-lg p-4">
+                      <p className="text-sm font-medium mb-2">Observações</p>
+                      <p className="text-sm text-muted-foreground whitespace-pre-line">{selectedNegociacao.ofertas_venda.observacoes}</p>
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>
