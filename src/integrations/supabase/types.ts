@@ -438,6 +438,76 @@ export type Database = {
           },
         ]
       }
+      mensagens_negociacao: {
+        Row: {
+          created_at: string | null
+          id: string
+          mensagem: string
+          negociacao_id: string
+          usuario_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          mensagem: string
+          negociacao_id: string
+          usuario_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          mensagem?: string
+          negociacao_id?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mensagens_negociacao_negociacao_id_fkey"
+            columns: ["negociacao_id"]
+            isOneToOne: false
+            referencedRelation: "negociacoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      negociacoes: {
+        Row: {
+          comprador_id: string
+          created_at: string | null
+          id: string
+          oferta_id: string
+          status: string
+          updated_at: string | null
+          vendedor_id: string | null
+        }
+        Insert: {
+          comprador_id: string
+          created_at?: string | null
+          id?: string
+          oferta_id: string
+          status?: string
+          updated_at?: string | null
+          vendedor_id?: string | null
+        }
+        Update: {
+          comprador_id?: string
+          created_at?: string | null
+          id?: string
+          oferta_id?: string
+          status?: string
+          updated_at?: string | null
+          vendedor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "negociacoes_oferta_id_fkey"
+            columns: ["oferta_id"]
+            isOneToOne: false
+            referencedRelation: "ofertas_venda"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ofertas_venda: {
         Row: {
           altitude: string | null

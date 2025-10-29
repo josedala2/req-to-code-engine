@@ -32,6 +32,7 @@ import AprovacaoEmpresas from "./pages/AprovacaoEmpresas";
 import AprovacaoPedidos from "./pages/AprovacaoPedidos";
 import Marketplace from "./pages/Marketplace";
 import MinhasOfertas from "./pages/MinhasOfertas";
+import Negociacoes from "./pages/Negociacoes";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const App = () => (
         <Routes>
           <Route path="/auth" element={<Auth />} />
           <Route path="/marketplace" element={<Marketplace />} />
+          <Route path="/negociacoes" element={<Negociacoes />} />
           <Route path="/lote-publico/:codigo" element={<LotePublico />} />
           <Route path="/empresa/auth" element={<EmpresaAuth />} />
           <Route path="/empresa/dashboard" element={<EmpresaDashboard />} />

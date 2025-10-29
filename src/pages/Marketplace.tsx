@@ -1,14 +1,18 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Phone, Mail, MapPin, Calendar, Package, Award, Loader2 } from "lucide-react";
+import { Search, Phone, Mail, MapPin, Calendar, Package, Award, Loader2, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function Marketplace() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [ofertas, setOfertas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -45,6 +49,48 @@ export default function Marketplace() {
       .eq("id", id);
   };
 
+  const iniciarNegociacao = async (ofertaId: string, vendedorId: string | null) => {
+    if (!user) {
+      toast.error("Você precisa fazer login para iniciar uma negociação");
+      navigate("/auth");
+      return;
+    }
+
+    try {
+      // Verificar se já existe negociação
+      const { data: existente } = await supabase
+        .from("negociacoes")
+        .select("id")
+        .eq("oferta_id", ofertaId)
+        .eq("comprador_id", user.id)
+        .maybeSingle();
+
+      if (existente) {
+        toast.info("Você já tem uma negociação aberta para esta oferta");
+        navigate("/negociacoes");
+        return;
+      }
+
+      // Criar nova negociação
+      const { error } = await supabase
+        .from("negociacoes")
+        .insert({
+          oferta_id: ofertaId,
+          comprador_id: user.id,
+          vendedor_id: vendedorId,
+          status: "aberta"
+        });
+
+      if (error) throw error;
+
+      toast.success("Negociação iniciada com sucesso!");
+      navigate("/negociacoes");
+    } catch (error) {
+      console.error("Erro ao iniciar negociação:", error);
+      toast.error("Erro ao iniciar negociação");
+    }
+  };
+
   const provincias = [...new Set(ofertas.map(o => o.provincia))];
 
   const ofertasFiltradas = ofertas.filter(oferta => {
@@ -70,8 +116,18 @@ export default function Marketplace() {
   return (
     <div className="container mx-auto px-4 py-8 space-y-6">
       <div className="text-center space-y-2">
-        <h1 className="text-4xl font-bold">Marketplace de Café Angolano</h1>
-        <p className="text-muted-foreground">Conectando produtores e compradores de café de qualidade</p>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex-1 text-center">
+            <h1 className="text-4xl font-bold">Marketplace de Café Angolano</h1>
+            <p className="text-muted-foreground">Conectando produtores e compradores de café de qualidade</p>
+          </div>
+          {user && (
+            <Button variant="outline" onClick={() => navigate("/negociacoes")}>
+              <MessageSquare className="h-4 w-4 mr-2" />
+              Minhas Negociações
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Filtros */}
@@ -242,32 +298,17 @@ export default function Marketplace() {
 
                 {/* Botão Principal de Negociação */}
                 <div className="pt-4 border-t">
-                  {oferta.contato_whatsapp ? (
-                    <Button
-                      className="w-full"
-                      size="lg"
-                      onClick={() => {
-                        incrementarVisualizacao(oferta.id, oferta.visualizacoes);
-                        window.open(`https://wa.me/${oferta.contato_whatsapp.replace(/\D/g, '')}?text=Olá, tenho interesse na oferta: ${oferta.titulo}`, '_blank');
-                      }}
-                    >
-                      <Package className="h-5 w-5 mr-2" />
-                      Iniciar Negociação
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      size="lg"
-                      onClick={() => {
-                        incrementarVisualizacao(oferta.id, oferta.visualizacoes);
-                        toast.info("Entre em contato pelos dados abaixo");
-                      }}
-                    >
-                      <Package className="h-5 w-5 mr-2" />
-                      Ver Contatos
-                    </Button>
-                  )}
+                  <Button
+                    className="w-full"
+                    size="lg"
+                    onClick={() => {
+                      incrementarVisualizacao(oferta.id, oferta.visualizacoes);
+                      iniciarNegociacao(oferta.id, oferta.created_by);
+                    }}
+                  >
+                    <Package className="h-5 w-5 mr-2" />
+                    Iniciar Negociação
+                  </Button>
                 </div>
 
                 {/* Informações de Contato */}
