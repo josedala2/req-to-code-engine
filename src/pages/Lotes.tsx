@@ -86,6 +86,12 @@ export default function Lotes() {
     );
   });
   
+  const statusCount = {
+    "Em processamento": lotes.filter(l => l.status === "Em processamento").length,
+    "Pronto": lotes.filter(l => l.status === "Pronto").length,
+    "Exportado": lotes.filter(l => l.status === "Exportado").length,
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -138,6 +144,50 @@ export default function Lotes() {
             </DialogContent>
           </Dialog>
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Em processamento</p>
+                <p className="text-2xl font-bold text-warning">{statusCount["Em processamento"]}</p>
+              </div>
+              <Badge variant="outline" className="bg-warning/10 text-warning border-warning/20">
+                Em processamento
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Pronto</p>
+                <p className="text-2xl font-bold text-success">{statusCount["Pronto"]}</p>
+              </div>
+              <Badge variant="outline" className="bg-success/10 text-success border-success/20">
+                Pronto
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Exportado</p>
+                <p className="text-2xl font-bold text-primary">{statusCount["Exportado"]}</p>
+              </div>
+              <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                Exportado
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="relative">
