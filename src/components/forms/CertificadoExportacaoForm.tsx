@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, Package, X } from "lucide-react";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
+import { paisesECidades } from "@/data/paisesECidades";
 
 const formSchema = z.object({
   produtor_id: z.string().min(1, "Selecione um produtor"),
@@ -34,6 +35,7 @@ export default function CertificadoExportacaoForm() {
   const [selectedProdutorId, setSelectedProdutorId] = useState<string>("");
   const [normasSelecionadas, setNormasSelecionadas] = useState<string[]>([]);
   const [novaNorma, setNovaNorma] = useState("");
+  const [selectedPais, setSelectedPais] = useState<string>("");
 
   const { register, handleSubmit, formState: { errors }, setValue } = useForm({
     resolver: zodResolver(formSchema),
@@ -287,14 +289,47 @@ export default function CertificadoExportacaoForm() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="destino_pais">País de Destino *</Label>
-                  <Input id="destino_pais" {...register("destino_pais")} />
+                  <Select 
+                    onValueChange={(value) => {
+                      setSelectedPais(value);
+                      setValue("destino_pais", value);
+                      setValue("destino_cidade", "");
+                    }}
+                  >
+                    <SelectTrigger id="destino_pais">
+                      <SelectValue placeholder="Selecione um país" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {paisesECidades.map((pais) => (
+                        <SelectItem key={pais.codigo} value={pais.nome}>
+                          {pais.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   {errors.destino_pais && (
                     <p className="text-sm text-destructive">{errors.destino_pais.message as string}</p>
                   )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="destino_cidade">Cidade de Destino</Label>
-                  <Input id="destino_cidade" {...register("destino_cidade")} />
+                  <Select 
+                    onValueChange={(value) => setValue("destino_cidade", value)}
+                    disabled={!selectedPais}
+                  >
+                    <SelectTrigger id="destino_cidade">
+                      <SelectValue placeholder={selectedPais ? "Selecione uma cidade" : "Selecione um país primeiro"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {paisesECidades
+                        .find((p) => p.nome === selectedPais)
+                        ?.cidades.map((cidade) => (
+                          <SelectItem key={cidade.nome} value={cidade.nome}>
+                            {cidade.nome}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
