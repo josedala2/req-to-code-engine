@@ -87,11 +87,11 @@ export default function Layout({ children }: LayoutProps) {
             {isAdmin && (
               <>
                 <Link
-                  to="/aprovacao-produtores"
+                  to="/aprovacoes"
                   className={cn(
                     "flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all whitespace-nowrap",
                     "hover:text-primary hover:bg-muted/50 rounded-t-lg",
-                    location.pathname === "/aprovacao-produtores"
+                    location.pathname.startsWith("/aprovacao")
                       ? "text-primary bg-background border-b-2 border-primary"
                       : "text-muted-foreground"
                   )}
