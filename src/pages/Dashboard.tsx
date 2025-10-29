@@ -1,11 +1,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, Users, ClipboardCheck, TrendingUp, Coffee, Award, FileCheck, Building2, FileText, Eye } from "lucide-react";
+import { Package, Users, ClipboardCheck, TrendingUp, Coffee, Award, FileCheck, Building2, FileText, Eye, DollarSign, ShoppingCart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const stats = [
   {
@@ -139,6 +140,31 @@ export default function Dashboard() {
         `)
         .order('created_at', { ascending: false })
         .limit(5);
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: negociacoes } = useQuery({
+    queryKey: ['negociacoes-em-andamento'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('negociacoes')
+        .select(`
+          *,
+          ofertas_venda (
+            titulo,
+            quantidade_disponivel,
+            unidade,
+            preco_sugerido,
+            moeda,
+            contato_nome
+          )
+        `)
+        .in('status', ['aberta', 'em_negociacao'])
+        .order('created_at', { ascending: false })
+        .limit(10);
       
       if (error) throw error;
       return data;
@@ -384,6 +410,123 @@ export default function Dashboard() {
               </Card>
             </Link>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Transações em Andamento */}
+      <Card className="shadow-elegant">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <ShoppingCart className="h-5 w-5 text-primary" />
+                Transações em Andamento
+              </CardTitle>
+              <CardDescription>Negociações ativas no marketplace</CardDescription>
+            </div>
+            <Button 
+              size="sm" 
+              variant="outline"
+              onClick={() => navigate("/negociacoes")}
+            >
+              Ver Todas
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {!negociacoes || negociacoes.length === 0 ? (
+            <div className="text-center py-8">
+              <ShoppingCart className="h-12 w-12 mx-auto mb-2 text-muted-foreground opacity-50" />
+              <p className="text-muted-foreground">Nenhuma transação em andamento</p>
+            </div>
+          ) : (
+            <ScrollArea className="h-[400px] pr-4">
+              <div className="space-y-3">
+                {negociacoes.map((neg: any) => (
+                  <div key={neg.id} className="border rounded-lg p-4 hover:bg-muted/30 transition-colors space-y-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-sm line-clamp-1">{neg.ofertas_venda?.titulo}</h4>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Fornecedor: {neg.ofertas_venda?.contato_nome}
+                        </p>
+                      </div>
+                      <Badge variant="outline" className="text-xs">
+                        {neg.status === 'aberta' ? 'Aberta' : 'Em Negociação'}
+                      </Badge>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="bg-background border rounded p-2">
+                        <p className="text-muted-foreground mb-1">Quantidade</p>
+                        <p className="font-semibold">
+                          {neg.ofertas_venda?.quantidade_disponivel} {neg.ofertas_venda?.unidade}
+                        </p>
+                      </div>
+                      {neg.ofertas_venda?.preco_sugerido && (
+                        <div className="bg-background border rounded p-2">
+                          <p className="text-muted-foreground mb-1">Preço Inicial</p>
+                          <p className="font-semibold">
+                            {neg.ofertas_venda.preco_sugerido.toLocaleString()} {neg.ofertas_venda.moeda || 'AOA'}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {neg.valor_proposto && (
+                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-xs font-medium flex items-center gap-1">
+                            <DollarSign className="h-3 w-3" />
+                            Proposta do Comprador
+                          </p>
+                          <Badge 
+                            variant={
+                              neg.proposta_status === 'aceita' ? 'default' :
+                              neg.proposta_status === 'rejeitada' ? 'destructive' :
+                              'secondary'
+                            }
+                            className="text-xs"
+                          >
+                            {neg.proposta_status === 'aceita' ? '✓ Aceita' :
+                             neg.proposta_status === 'rejeitada' ? '✗ Rejeitada' :
+                             neg.proposta_status === 'nova_proposta' ? 'Aguardando' :
+                             'Pendente'}
+                          </Badge>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div>
+                            <p className="text-muted-foreground">Valor</p>
+                            <p className="font-bold text-primary">
+                              {neg.valor_proposto.toLocaleString()} {neg.ofertas_venda?.moeda || 'AOA'}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-muted-foreground">Pagamento</p>
+                            <p className="font-semibold">{neg.metodo_pagamento}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between pt-2 border-t">
+                      <p className="text-xs text-muted-foreground">
+                        {format(new Date(neg.created_at), 'dd/MM/yyyy HH:mm')}
+                      </p>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => navigate("/negociacoes")}
+                      >
+                        <Eye className="h-3 w-3 mr-1" />
+                        Ver Detalhes
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          )}
         </CardContent>
       </Card>
 
