@@ -475,27 +475,39 @@ export type Database = {
           comprador_id: string
           created_at: string | null
           id: string
+          metodo_pagamento: string | null
+          observacoes_proposta: string | null
           oferta_id: string
+          proposta_status: string | null
           status: string
           updated_at: string | null
+          valor_proposto: number | null
           vendedor_id: string | null
         }
         Insert: {
           comprador_id: string
           created_at?: string | null
           id?: string
+          metodo_pagamento?: string | null
+          observacoes_proposta?: string | null
           oferta_id: string
+          proposta_status?: string | null
           status?: string
           updated_at?: string | null
+          valor_proposto?: number | null
           vendedor_id?: string | null
         }
         Update: {
           comprador_id?: string
           created_at?: string | null
           id?: string
+          metodo_pagamento?: string | null
+          observacoes_proposta?: string | null
           oferta_id?: string
+          proposta_status?: string | null
           status?: string
           updated_at?: string | null
+          valor_proposto?: number | null
           vendedor_id?: string | null
         }
         Relationships: [

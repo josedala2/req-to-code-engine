@@ -6,13 +6,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, MessageSquare, Package, Send, MapPin, Calendar, Award, TrendingUp, FileText, Phone, Mail, User } from "lucide-react";
+import { Loader2, MessageSquare, Package, Send, MapPin, Calendar, Award, TrendingUp, FileText, Phone, Mail, User, DollarSign, CreditCard, CheckCircle, XCircle } from "lucide-react";
 import QRCode from "qrcode";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useUserRole } from "@/hooks/useUserRole";
 
 export default function Negociacoes() {
   const { user, loading: authLoading } = useAuth();
+  const { isAdmin } = useUserRole();
   const navigate = useNavigate();
   const [negociacoes, setNegociacoes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,6 +26,12 @@ export default function Negociacoes() {
   const [novaMensagem, setNovaMensagem] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
+  
+  // Estados para contra-proposta
+  const [valorProposto, setValorProposto] = useState("");
+  const [metodoPagamento, setMetodoPagamento] = useState("");
+  const [observacoesProposta, setObservacoesProposta] = useState("");
+  const [enviandoProposta, setEnviandoProposta] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -130,6 +141,83 @@ export default function Negociacoes() {
       setEnviando(false);
     }
   };
+
+  const enviarContraProposta = async () => {
+    if (!valorProposto || !metodoPagamento || !selectedNegociacao) {
+      toast.error("Preencha o valor e o método de pagamento");
+      return;
+    }
+
+    try {
+      setEnviandoProposta(true);
+      const { error } = await supabase
+        .from("negociacoes")
+        .update({
+          valor_proposto: parseFloat(valorProposto),
+          metodo_pagamento: metodoPagamento,
+          observacoes_proposta: observacoesProposta,
+          proposta_status: "nova_proposta"
+        })
+        .eq("id", selectedNegociacao.id);
+
+      if (error) throw error;
+
+      // Enviar mensagem automática no chat
+      await supabase.from("mensagens_negociacao").insert({
+        negociacao_id: selectedNegociacao.id,
+        usuario_id: user!.id,
+        mensagem: `Nova proposta enviada: ${parseFloat(valorProposto).toLocaleString()} ${selectedNegociacao.ofertas_venda.moeda || "AOA"} - Método: ${metodoPagamento}`
+      });
+
+      setValorProposto("");
+      setMetodoPagamento("");
+      setObservacoesProposta("");
+      await fetchNegociacoes();
+      await fetchMensagens(selectedNegociacao.id);
+      toast.success("Contra-proposta enviada com sucesso!");
+    } catch (error) {
+      console.error("Erro ao enviar proposta:", error);
+      toast.error("Erro ao enviar proposta");
+    } finally {
+      setEnviandoProposta(false);
+    }
+  };
+
+  const responderProposta = async (aceitar: boolean) => {
+    if (!selectedNegociacao) return;
+
+    try {
+      const novoStatus = aceitar ? "aceita" : "rejeitada";
+      const { error } = await supabase
+        .from("negociacoes")
+        .update({
+          proposta_status: novoStatus,
+          status: aceitar ? "concluida" : "aberta"
+        })
+        .eq("id", selectedNegociacao.id);
+
+      if (error) throw error;
+
+      // Enviar mensagem automática
+      await supabase.from("mensagens_negociacao").insert({
+        negociacao_id: selectedNegociacao.id,
+        usuario_id: user!.id,
+        mensagem: aceitar 
+          ? "✅ Proposta aceita! Entraremos em contato para finalizar a transação."
+          : "❌ Proposta rejeitada. Você pode enviar uma nova proposta."
+      });
+
+      await fetchNegociacoes();
+      await fetchMensagens(selectedNegociacao.id);
+      toast.success(aceitar ? "Proposta aceita!" : "Proposta rejeitada");
+    } catch (error) {
+      console.error("Erro ao responder proposta:", error);
+      toast.error("Erro ao processar resposta");
+    }
+  };
+
+  const isComprador = selectedNegociacao?.comprador_id === user?.id;
+  const isVendedor = selectedNegociacao?.vendedor_id === user?.id;
 
   if (authLoading || loading) {
     return (
@@ -525,6 +613,176 @@ export default function Negociacoes() {
                   )}
                 </Button>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Área de Proposta Comercial */}
+          <Card className="border-primary/20">
+            <CardHeader className="bg-primary/5">
+              <CardTitle className="flex items-center gap-2">
+                <DollarSign className="h-5 w-5" />
+                {isComprador ? "Fazer Contra-Proposta" : "Proposta do Cliente"}
+              </CardTitle>
+              <CardDescription>
+                {isComprador 
+                  ? "Envie sua proposta de valor e condições de pagamento"
+                  : "Revise e responda às propostas recebidas"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4 pt-6">
+              {/* Exibir proposta existente se houver */}
+              {selectedNegociacao?.valor_proposto && (
+                <div className={`border-2 rounded-lg p-4 ${
+                  selectedNegociacao.proposta_status === 'aceita' 
+                    ? 'border-green-500 bg-green-50 dark:bg-green-950/20' 
+                    : selectedNegociacao.proposta_status === 'rejeitada'
+                    ? 'border-red-500 bg-red-50 dark:bg-red-950/20'
+                    : 'border-primary bg-primary/5'
+                }`}>
+                  <div className="flex items-start justify-between mb-3">
+                    <h4 className="font-semibold flex items-center gap-2">
+                      <CreditCard className="h-4 w-4" />
+                      Proposta Atual
+                    </h4>
+                    <Badge variant={
+                      selectedNegociacao.proposta_status === 'aceita' ? 'default' :
+                      selectedNegociacao.proposta_status === 'rejeitada' ? 'destructive' :
+                      'secondary'
+                    }>
+                      {selectedNegociacao.proposta_status === 'aceita' ? '✓ Aceita' :
+                       selectedNegociacao.proposta_status === 'rejeitada' ? '✗ Rejeitada' :
+                       selectedNegociacao.proposta_status === 'nova_proposta' ? 'Aguardando Resposta' :
+                       'Pendente'}
+                    </Badge>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Valor Proposto</p>
+                      <p className="text-2xl font-bold text-primary">
+                        {selectedNegociacao.valor_proposto.toLocaleString()} {selectedNegociacao.ofertas_venda.moeda || 'AOA'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Método de Pagamento</p>
+                      <p className="font-semibold text-lg">{selectedNegociacao.metodo_pagamento}</p>
+                    </div>
+                  </div>
+
+                  {selectedNegociacao.observacoes_proposta && (
+                    <div className="mt-3 pt-3 border-t">
+                      <p className="text-xs text-muted-foreground mb-1">Observações</p>
+                      <p className="text-sm">{selectedNegociacao.observacoes_proposta}</p>
+                    </div>
+                  )}
+
+                  {/* Botões de ação para vendedor */}
+                  {isVendedor && selectedNegociacao.proposta_status === 'nova_proposta' && (
+                    <div className="flex gap-2 mt-4 pt-3 border-t">
+                      <Button 
+                        onClick={() => responderProposta(true)}
+                        className="flex-1"
+                        variant="default"
+                      >
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Aceitar Proposta
+                      </Button>
+                      <Button 
+                        onClick={() => responderProposta(false)}
+                        className="flex-1"
+                        variant="destructive"
+                      >
+                        <XCircle className="h-4 w-4 mr-2" />
+                        Rejeitar
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Formulário de nova proposta (apenas para comprador) */}
+              {isComprador && (!selectedNegociacao?.valor_proposto || selectedNegociacao?.proposta_status === 'rejeitada') && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="valor">
+                        Valor Proposto ({selectedNegociacao?.ofertas_venda.moeda || 'AOA'}) *
+                      </Label>
+                      <Input
+                        id="valor"
+                        type="number"
+                        placeholder="Digite o valor"
+                        value={valorProposto}
+                        onChange={(e) => setValorProposto(e.target.value)}
+                        min="0"
+                        step="0.01"
+                      />
+                      {selectedNegociacao?.ofertas_venda.preco_sugerido && (
+                        <p className="text-xs text-muted-foreground">
+                          Preço sugerido: {selectedNegociacao.ofertas_venda.preco_sugerido.toLocaleString()}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="metodo">Método de Pagamento *</Label>
+                      <Select value={metodoPagamento} onValueChange={setMetodoPagamento}>
+                        <SelectTrigger id="metodo">
+                          <SelectValue placeholder="Selecione o método" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="transferencia">Transferência Bancária</SelectItem>
+                          <SelectItem value="deposito">Depósito Bancário</SelectItem>
+                          <SelectItem value="multicaixa">Multicaixa Express</SelectItem>
+                          <SelectItem value="cheque">Cheque</SelectItem>
+                          <SelectItem value="dinheiro">Dinheiro</SelectItem>
+                          <SelectItem value="parcelado">Pagamento Parcelado</SelectItem>
+                          <SelectItem value="outro">Outro</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="observacoes">Observações (Opcional)</Label>
+                    <Textarea
+                      id="observacoes"
+                      placeholder="Adicione detalhes sobre sua proposta, condições especiais, prazos, etc."
+                      value={observacoesProposta}
+                      onChange={(e) => setObservacoesProposta(e.target.value)}
+                      rows={3}
+                    />
+                  </div>
+
+                  <Button 
+                    onClick={enviarContraProposta}
+                    disabled={enviandoProposta || !valorProposto || !metodoPagamento}
+                    className="w-full"
+                    size="lg"
+                  >
+                    {enviandoProposta ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Enviando...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="h-4 w-4 mr-2" />
+                        Enviar Proposta
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
+
+              {/* Informação para admin */}
+              {isAdmin && !isComprador && !isVendedor && (
+                <div className="bg-muted/50 rounded-lg p-4">
+                  <p className="text-sm text-muted-foreground">
+                    👤 Modo Administrador - Você está visualizando esta negociação entre comprador e vendedor.
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
