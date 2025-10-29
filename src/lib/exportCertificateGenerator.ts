@@ -1,5 +1,5 @@
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 import QRCode from "qrcode";
 
 interface LoteInfo {
@@ -137,7 +137,7 @@ export const generateExportCertificate = async (data: CertificadoData) => {
     lote.certificacao || "N/A"
   ]);
 
-  (doc as any).autoTable({
+  autoTable(doc, {
     startY: yPos,
     head: [["Código", "Variedade", "Processo", "Quantidade", "Safra", "Certificação"]],
     body: loteTableData,
