@@ -54,17 +54,7 @@ export default function ConfiguracoesUsuarios() {
   const navigate = useNavigate();
   const { isAdmin } = useUserRole();
 
-  // Verificar se o usuário é admin
-  if (!isAdmin) {
-    return (
-      <div className="flex flex-col items-center justify-center h-96 gap-4">
-        <Shield className="h-12 w-12 text-muted-foreground" />
-        <p className="text-muted-foreground">Acesso restrito a administradores</p>
-        <Button onClick={() => navigate("/")}>Voltar ao Dashboard</Button>
-      </div>
-    );
-  }
-
+  // Todos os hooks devem vir ANTES de qualquer early return
   const { data: users, isLoading } = useQuery({
     queryKey: ["users-with-roles"],
     queryFn: async () => {
@@ -93,7 +83,19 @@ export default function ConfiguracoesUsuarios() {
 
       return usersWithRoles;
     },
+    enabled: isAdmin, // Só executa a query se for admin
   });
+
+  // Verificar se o usuário é admin DEPOIS de todos os hooks
+  if (!isAdmin) {
+    return (
+      <div className="flex flex-col items-center justify-center h-96 gap-4">
+        <Shield className="h-12 w-12 text-muted-foreground" />
+        <p className="text-muted-foreground">Acesso restrito a administradores</p>
+        <Button onClick={() => navigate("/")}>Voltar ao Dashboard</Button>
+      </div>
+    );
+  }
 
   const updateRoleMutation = useMutation({
     mutationFn: async ({ userId, newRole }: { userId: string; newRole: string }) => {
