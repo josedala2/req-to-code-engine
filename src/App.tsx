@@ -36,6 +36,7 @@ import Negociacoes from "./pages/Negociacoes";
 import CertificadosExportacao from "./pages/CertificadosExportacao";
 import CertificadoExportacaoForm from "./components/forms/CertificadoExportacaoForm";
 import CertificadoExportacaoDetalhes from "./pages/CertificadoExportacaoDetalhes";
+import CertificadoExportacaoEditar from "./pages/CertificadoExportacaoEditar";
 
 const queryClient = new QueryClient();
 
@@ -79,6 +80,7 @@ const App = () => (
                 <Route path="/certificados-exportacao" element={<CertificadosExportacao />} />
                 <Route path="/certificados-exportacao/novo" element={<CertificadoExportacaoForm />} />
                 <Route path="/certificados-exportacao/:id" element={<CertificadoExportacaoDetalhes />} />
+                <Route path="/certificados-exportacao/:id/editar" element={<CertificadoExportacaoEditar />} />
                 <Route path="/configuracoes-usuarios" element={<ConfiguracoesUsuarios />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

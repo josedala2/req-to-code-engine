@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, ArrowLeft, Download, CheckCircle, XCircle, FileText, Package, User, Plane } from "lucide-react";
+import { Loader2, ArrowLeft, Download, CheckCircle, XCircle, FileText, Package, User, Plane, Edit } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { generateExportCertificate } from "@/lib/exportCertificateGenerator";
@@ -177,6 +177,15 @@ export default function CertificadoExportacaoDetalhes() {
           Voltar
         </Button>
         <div className="flex gap-2">
+          {(certificado.status === "pendente" || certificado.status === "aprovado") && (
+            <Button
+              variant="outline"
+              onClick={() => navigate(`/certificados-exportacao/${id}/editar`)}
+            >
+              <Edit className="h-4 w-4 mr-2" />
+              Editar
+            </Button>
+          )}
           {certificado.status === "pendente" && (
             <>
               <Button

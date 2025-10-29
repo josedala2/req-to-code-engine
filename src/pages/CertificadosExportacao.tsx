@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Loader2, FileText, Download, Eye, Plus, Search, Plane } from "lucide-react";
+import { Loader2, FileText, Download, Eye, Plus, Search, Plane, Edit } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { generateExportCertificate } from "@/lib/exportCertificateGenerator";
@@ -227,6 +227,16 @@ export default function CertificadosExportacao() {
                     <Eye className="h-4 w-4 mr-2" />
                     Ver Detalhes
                   </Button>
+                  {(certificado.status === "pendente" || certificado.status === "aprovado") && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => navigate(`/certificados-exportacao/${certificado.id}/editar`)}
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Editar
+                    </Button>
+                  )}
                   {certificado.status === "emitido" && (
                     <Button
                       size="sm"
