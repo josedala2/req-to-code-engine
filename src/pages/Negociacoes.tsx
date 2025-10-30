@@ -188,12 +188,24 @@ export default function Negociacoes() {
 
     try {
       const novoStatus = aceitar ? "aceita" : "rejeitada";
+      
+      // Se rejeitada, limpar os valores da proposta para permitir nova proposta
+      const updateData = aceitar 
+        ? {
+            proposta_status: novoStatus,
+            status: "concluida"
+          }
+        : {
+            proposta_status: novoStatus,
+            status: "aberta",
+            valor_proposto: null,
+            metodo_pagamento: null,
+            observacoes_proposta: null
+          };
+      
       const { error } = await supabase
         .from("negociacoes")
-        .update({
-          proposta_status: novoStatus,
-          status: aceitar ? "concluida" : "aberta"
-        })
+        .update(updateData)
         .eq("id", selectedNegociacao.id);
 
       if (error) throw error;
@@ -204,12 +216,12 @@ export default function Negociacoes() {
         usuario_id: user!.id,
         mensagem: aceitar 
           ? "✅ Proposta aceita! Entraremos em contato para finalizar a transação."
-          : "❌ Proposta rejeitada. Você pode enviar uma nova proposta."
+          : "❌ Proposta rejeitada. Por favor, envie uma nova proposta com valores diferentes."
       });
 
       await fetchNegociacoes();
       await fetchMensagens(selectedNegociacao.id);
-      toast.success(aceitar ? "Proposta aceita!" : "Proposta rejeitada");
+      toast.success(aceitar ? "Proposta aceita!" : "Proposta rejeitada - comprador pode fazer nova proposta");
     } catch (error) {
       console.error("Erro ao responder proposta:", error);
       toast.error("Erro ao processar resposta");
@@ -701,8 +713,15 @@ export default function Negociacoes() {
               )}
 
               {/* Formulário de nova proposta (apenas para comprador) */}
-              {isComprador && (!selectedNegociacao?.valor_proposto || selectedNegociacao?.proposta_status === 'rejeitada') && (
+              {isComprador && !selectedNegociacao?.valor_proposto && (
                 <div className="space-y-4">
+                  {selectedNegociacao?.proposta_status === 'rejeitada' && (
+                    <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+                      <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
+                        💡 Sua proposta anterior foi rejeitada. Faça uma nova proposta com valores diferentes.
+                      </p>
+                    </div>
+                  )}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="valor">

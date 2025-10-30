@@ -31,6 +31,7 @@ export default function MinhasOfertas() {
   const [ofertas, setOfertas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [negociacoesCount, setNegociacoesCount] = useState(0);
 
   useEffect(() => {
     fetchOfertas();
@@ -41,10 +42,20 @@ export default function MinhasOfertas() {
       setLoading(true);
       const { data, error } = await supabase
         .from("ofertas_venda")
-        .select("*")
+        .select(`
+          *,
+          negociacoes(count)
+        `)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
+      
+      // Calcular total de negociações ativas
+      const totalNegociacoes = data?.reduce((acc, oferta) => {
+        return acc + (oferta.negociacoes?.[0]?.count || 0);
+      }, 0) || 0;
+      
+      setNegociacoesCount(totalNegociacoes);
       setOfertas(data || []);
     } catch (error) {
       console.error("Erro ao buscar ofertas:", error);
@@ -145,9 +156,9 @@ export default function MinhasOfertas() {
           <CardContent className="pt-6">
             <div className="text-center">
               <p className="text-2xl font-bold text-warning">
-                {ofertas.filter(o => o.status_oferta === "em_negociacao").length}
+                {negociacoesCount}
               </p>
-              <p className="text-sm text-muted-foreground">Em Negociação</p>
+              <p className="text-sm text-muted-foreground">Negociações em Curso</p>
             </div>
           </CardContent>
         </Card>
