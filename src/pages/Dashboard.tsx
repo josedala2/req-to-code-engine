@@ -1,6 +1,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Package, Users, ClipboardCheck, TrendingUp, Coffee, Award, FileCheck, Building2, FileText, Eye, DollarSign, ShoppingCart, Plane } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import ModuleHelp from "@/components/ModuleHelp";
+import { dashboardHelp } from "@/data/moduleHelpContent";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -180,9 +182,12 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8">
-        <div>
-          <h2 className="text-3xl font-bold text-foreground mb-2">Dashboard</h2>
-          <p className="text-muted-foreground">Visão geral do sistema de rastreabilidade</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-3xl font-bold text-foreground mb-2">Dashboard</h2>
+            <p className="text-muted-foreground">Visão geral do sistema de rastreabilidade</p>
+          </div>
+          <ModuleHelp moduleName="Dashboard" sections={dashboardHelp} />
         </div>
 
       {/* Stats Grid */}

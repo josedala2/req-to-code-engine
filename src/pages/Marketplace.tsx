@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Search, Phone, Mail, MapPin, Calendar, Package, Award, Loader2, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import ModuleHelp from "@/components/ModuleHelp";
+import { marketplaceHelp } from "@/data/moduleHelpContent";
 
 export default function Marketplace() {
   const { user } = useAuth();
@@ -127,12 +129,15 @@ export default function Marketplace() {
             <h1 className="text-4xl font-bold">Marketplace de Café Angolano</h1>
             <p className="text-muted-foreground">Conectando produtores e compradores de café de qualidade</p>
           </div>
-          {user && (
-            <Button variant="outline" onClick={() => navigate("/negociacoes")}>
-              <MessageSquare className="h-4 w-4 mr-2" />
-              Minhas Negociações
-            </Button>
-          )}
+          <div className="flex gap-2">
+            <ModuleHelp moduleName="Marketplace" sections={marketplaceHelp} />
+            {user && (
+              <Button variant="outline" onClick={() => navigate("/negociacoes")}>
+                <MessageSquare className="h-4 w-4 mr-2" />
+                Minhas Negociações
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 

@@ -18,6 +18,8 @@ import { AuditoriaForm } from "@/components/forms/AuditoriaForm";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import ModuleHelp from "@/components/ModuleHelp";
+import { auditoriasHelp } from "@/data/moduleHelpContent";
 
 const statusColors = {
   em_andamento: "bg-blue-500/10 text-blue-500 border-blue-500/20",
@@ -80,23 +82,26 @@ export default function Auditorias() {
           <h2 className="text-3xl font-bold text-foreground mb-2">Auditorias</h2>
           <p className="text-muted-foreground">Gestão de auditorias e relatórios</p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" />
-              Nova Auditoria
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Nova Auditoria</DialogTitle>
-              <DialogDescription>
-                Cadastre uma nova auditoria no sistema
-              </DialogDescription>
-            </DialogHeader>
-            <AuditoriaForm onSuccess={handleSuccess} />
-          </DialogContent>
-        </Dialog>
+        <div className="flex gap-2">
+          <ModuleHelp moduleName="Auditorias" sections={auditoriasHelp} />
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="gap-2">
+                <Plus className="h-4 w-4" />
+                Nova Auditoria
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Nova Auditoria</DialogTitle>
+                <DialogDescription>
+                  Cadastre uma nova auditoria no sistema
+                </DialogDescription>
+              </DialogHeader>
+              <AuditoriaForm onSuccess={handleSuccess} />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <Card>

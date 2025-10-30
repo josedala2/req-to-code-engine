@@ -9,6 +9,8 @@ import {
   generateCertificacoesPDF 
 } from "@/lib/pdfGenerator";
 import { toast } from "sonner";
+import ModuleHelp from "@/components/ModuleHelp";
+import { relatoriosHelp } from "@/data/moduleHelpContent";
 
 const reports = [
   {
@@ -95,10 +97,13 @@ export default function Relatorios() {
           <h2 className="text-3xl font-bold text-foreground">Relatórios</h2>
           <p className="text-muted-foreground">Análises e exportação de dados</p>
         </div>
-        <Button className="bg-gradient-coffee hover:opacity-90 shadow-glow">
-          <FileText className="h-4 w-4 mr-2" />
-          Novo Relatório
-        </Button>
+        <div className="flex gap-2">
+          <ModuleHelp moduleName="Relatórios" sections={relatoriosHelp} />
+          <Button className="bg-gradient-coffee hover:opacity-90 shadow-glow">
+            <FileText className="h-4 w-4 mr-2" />
+            Novo Relatório
+          </Button>
+        </div>
       </div>
 
       {/* Quick Reports */}

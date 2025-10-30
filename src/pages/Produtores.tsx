@@ -8,6 +8,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Plus, Search, MapPin, Phone, Mail, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ProdutorForm } from "@/components/forms/ProdutorForm";
+import ModuleHelp from "@/components/ModuleHelp";
+import { produtoresHelp } from "@/data/moduleHelpContent";
 import { generateProdutoresPDF } from "@/lib/pdfGenerator";
 
 interface Produtor {
@@ -64,6 +66,7 @@ export default function Produtores() {
           <p className="text-muted-foreground">Gestão de produtores e fazendas</p>
         </div>
         <div className="flex gap-2">
+          <ModuleHelp moduleName="Produtores" sections={produtoresHelp} />
           <Button onClick={generateProdutoresPDF} variant="outline">
             <FileText className="mr-2 h-4 w-4" />
             Exportar PDF

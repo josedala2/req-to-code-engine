@@ -10,6 +10,8 @@ import { generateQualidadePDF } from "@/lib/pdfGenerator";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import ModuleHelp from "@/components/ModuleHelp";
+import { qualidadeHelp } from "@/data/moduleHelpContent";
 
 const getScoreColor = (score: number) => {
   if (score >= 85) return "text-primary";
@@ -58,6 +60,7 @@ export default function Qualidade() {
           <p className="text-muted-foreground">Análises sensoriais e testes de qualidade</p>
         </div>
         <div className="flex gap-2">
+          <ModuleHelp moduleName="Análise de Qualidade" sections={qualidadeHelp} />
           <Button onClick={generateQualidadePDF} variant="outline">
             <FileText className="mr-2 h-4 w-4" />
             Exportar PDF

@@ -9,6 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Loader2, MessageSquare, Package, Send, MapPin, Calendar, Award, TrendingUp, FileText, Phone, Mail, User, DollarSign, CreditCard, CheckCircle, XCircle } from "lucide-react";
 import QRCode from "qrcode";
 import { toast } from "sonner";
+import ModuleHelp from "@/components/ModuleHelp";
+import { negociacoesHelp } from "@/data/moduleHelpContent";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -361,9 +363,12 @@ export default function Negociacoes() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Minhas Negociações</h1>
-        <p className="text-muted-foreground">Gerencie suas conversas de compra e venda</p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Minhas Negociações</h1>
+          <p className="text-muted-foreground">Gerencie suas conversas de compra e venda</p>
+        </div>
+        <ModuleHelp moduleName="Negociações" sections={negociacoesHelp} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

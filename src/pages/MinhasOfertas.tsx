@@ -7,6 +7,8 @@ import { Plus, Loader2, Eye, Edit, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import OfertaVendaForm from "@/components/forms/OfertaVendaForm";
+import ModuleHelp from "@/components/ModuleHelp";
+import { minhasOfertasHelp } from "@/data/moduleHelpContent";
 import {
   Table,
   TableBody,
@@ -112,25 +114,28 @@ export default function MinhasOfertas() {
           <h1 className="text-3xl font-bold">Minhas Ofertas</h1>
           <p className="text-muted-foreground">Gerencie suas ofertas no marketplace</p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Nova Oferta
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Criar Nova Oferta</DialogTitle>
-            </DialogHeader>
-            <OfertaVendaForm
-              onSuccess={() => {
-                setDialogOpen(false);
-                fetchOfertas();
-              }}
-            />
-          </DialogContent>
-        </Dialog>
+        <div className="flex gap-2">
+          <ModuleHelp moduleName="Minhas Ofertas" sections={minhasOfertasHelp} />
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Nova Oferta
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Criar Nova Oferta</DialogTitle>
+              </DialogHeader>
+              <OfertaVendaForm
+                onSuccess={() => {
+                  setDialogOpen(false);
+                  fetchOfertas();
+                }}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

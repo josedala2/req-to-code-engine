@@ -7,6 +7,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Plus, Search, Calendar, Weight, MapPin, FileText, Tag, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { LoteForm } from "@/components/forms/LoteForm";
+import ModuleHelp from "@/components/ModuleHelp";
+import { lotesHelp } from "@/data/moduleHelpContent";
 import { SealForm } from "@/components/forms/SealForm";
 import { AlterarStatusLoteDialog } from "@/components/forms/AlterarStatusLoteDialog";
 import { generateLotesPDF } from "@/lib/pdfGenerator";
@@ -100,6 +102,7 @@ export default function Lotes() {
           <p className="text-muted-foreground">Rastreamento completo da produção</p>
         </div>
         <div className="flex gap-2">
+          <ModuleHelp moduleName="Lotes" sections={lotesHelp} />
           <Button onClick={generateLotesPDF} variant="outline">
             <FileText className="mr-2 h-4 w-4" />
             Exportar PDF

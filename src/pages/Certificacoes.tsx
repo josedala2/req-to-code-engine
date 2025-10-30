@@ -11,6 +11,8 @@ import { Award, FileText, Plus, Clock, CheckCircle, AlertCircle } from "lucide-r
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import ModuleHelp from "@/components/ModuleHelp";
+import { certificacoesHelp } from "@/data/moduleHelpContent";
 
 const getStatusConfig = (status: string) => {
   const configs = {
@@ -62,21 +64,24 @@ export default function Certificacoes() {
           <h2 className="text-3xl font-bold">Certificações</h2>
           <p className="text-muted-foreground">Gestão de certificações e conformidades</p>
         </div>
-        <Dialog open={showDialog} onOpenChange={setShowDialog}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Nova Certificação
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Cadastrar Nova Certificação</DialogTitle>
-              <DialogDescription>Registre uma certificação de qualidade</DialogDescription>
-            </DialogHeader>
-            <CertificacaoForm onSuccess={handleSuccess} />
-          </DialogContent>
-        </Dialog>
+        <div className="flex gap-2">
+          <ModuleHelp moduleName="Certificações" sections={certificacoesHelp} />
+          <Dialog open={showDialog} onOpenChange={setShowDialog}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Nova Certificação
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Cadastrar Nova Certificação</DialogTitle>
+                <DialogDescription>Registre uma certificação de qualidade</DialogDescription>
+              </DialogHeader>
+              <CertificacaoForm onSuccess={handleSuccess} />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <div className="grid md:grid-cols-3 gap-4">
