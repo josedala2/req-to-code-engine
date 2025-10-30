@@ -804,10 +804,81 @@ export default function Negociacoes() {
                         variant="destructive"
                       >
                         <XCircle className="h-4 w-4 mr-2" />
-                        Rejeitar
+                        Rejeitar Sem Contraproposta
                       </Button>
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* Formulário de contraproposta do vendedor - LOGO ABAIXO DA PROPOSTA */}
+              {isVendedor && selectedNegociacao?.valor_proposto && selectedNegociacao.proposta_status === 'nova_proposta' && (
+                <div className="space-y-4 border-2 border-primary rounded-lg p-6 bg-gradient-to-br from-primary/10 to-primary/5 shadow-lg">
+                  <div className="flex items-center gap-3 pb-3 border-b border-primary/30">
+                    <div className="p-2 bg-primary rounded-lg">
+                      <TrendingUp className="h-5 w-5 text-primary-foreground" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-bold text-lg">Fazer Contraproposta</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Não concorda com o valor? Envie uma contraproposta e o novo preço será exibido no marketplace
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 bg-background rounded-lg p-4 border border-primary/20">
+                    <div className="space-y-2">
+                      <Label htmlFor="valorContraproposta" className="text-base font-semibold">
+                        💰 Seu Novo Preço ({selectedNegociacao.ofertas_venda.moeda || 'AOA'}) *
+                      </Label>
+                      <Input
+                        id="valorContraproposta"
+                        type="number"
+                        placeholder="Digite seu preço"
+                        value={valorContrapropostaVendedor}
+                        onChange={(e) => setValorContrapropostaVendedor(e.target.value)}
+                        min="0"
+                        step="0.01"
+                        className="text-lg font-semibold h-12"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Este será o novo preço exibido no marketplace
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="observacoesContraproposta" className="text-base font-semibold">
+                        📝 Justificativa (Opcional)
+                      </Label>
+                      <Textarea
+                        id="observacoesContraproposta"
+                        placeholder="Explique o motivo do seu preço..."
+                        value={observacoesContrapropostaVendedor}
+                        onChange={(e) => setObservacoesContrapropostaVendedor(e.target.value)}
+                        rows={3}
+                        className="resize-none"
+                      />
+                    </div>
+
+                    <Button
+                      onClick={enviarContrapropostaVendedor}
+                      disabled={enviandoContrapropostaVendedor || !valorContrapropostaVendedor}
+                      className="w-full h-12 text-base font-semibold"
+                      size="lg"
+                    >
+                      {enviandoContrapropostaVendedor ? (
+                        <>
+                          <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                          Enviando Contraproposta...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="h-5 w-5 mr-2" />
+                          Enviar Contraproposta ao Comprador
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               )}
 
