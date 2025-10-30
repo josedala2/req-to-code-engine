@@ -86,17 +86,6 @@ export default function ConfiguracoesUsuarios() {
     enabled: isAdmin, // Só executa a query se for admin
   });
 
-  // Verificar se o usuário é admin DEPOIS de todos os hooks
-  if (!isAdmin) {
-    return (
-      <div className="flex flex-col items-center justify-center h-96 gap-4">
-        <Shield className="h-12 w-12 text-muted-foreground" />
-        <p className="text-muted-foreground">Acesso restrito a administradores</p>
-        <Button onClick={() => navigate("/")}>Voltar ao Dashboard</Button>
-      </div>
-    );
-  }
-
   const updateRoleMutation = useMutation({
     mutationFn: async ({ userId, newRole }: { userId: string; newRole: string }) => {
       // Remover todas as roles existentes
@@ -136,6 +125,17 @@ export default function ConfiguracoesUsuarios() {
       setUserToDelete(null);
     },
   });
+
+  // Verificar se o usuário é admin DEPOIS de todos os hooks
+  if (!isAdmin) {
+    return (
+      <div className="flex flex-col items-center justify-center h-96 gap-4">
+        <Shield className="h-12 w-12 text-muted-foreground" />
+        <p className="text-muted-foreground">Acesso restrito a administradores</p>
+        <Button onClick={() => navigate("/")}>Voltar ao Dashboard</Button>
+      </div>
+    );
+  }
 
   const filteredUsers = users?.filter(
     (user) =>
