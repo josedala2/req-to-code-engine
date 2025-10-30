@@ -28,7 +28,13 @@ export default function Marketplace() {
       setLoading(true);
       const { data, error } = await supabase
         .from("ofertas_venda")
-        .select("*")
+        .select(`
+          *,
+          negociacoes!left(
+            valor_contraproposta_vendedor,
+            contraproposta_vendedor_status
+          )
+        `)
         .in("status_oferta", ["disponivel", "em_negociacao"])
         .order("created_at", { ascending: false });
 
@@ -264,11 +270,22 @@ export default function Marketplace() {
                   </div>
                   {oferta.preco_sugerido && (
                     <div>
-                      <p className="text-sm text-muted-foreground">Preço sugerido</p>
+                      <p className="text-sm text-muted-foreground">
+                        {oferta.negociacoes?.[0]?.valor_contraproposta_vendedor && 
+                         oferta.negociacoes[0].contraproposta_vendedor_status === 'pendente' 
+                          ? 'Preço em Negociação' 
+                          : 'Preço sugerido'}
+                      </p>
                       <p className="font-semibold">
                         {oferta.preco_sugerido} {oferta.moeda}
                         {oferta.negociavel && <span className="text-xs text-muted-foreground"> /neg</span>}
                       </p>
+                      {oferta.negociacoes?.[0]?.valor_contraproposta_vendedor && 
+                       oferta.negociacoes[0].contraproposta_vendedor_status === 'pendente' && (
+                        <Badge variant="outline" className="mt-1 text-xs bg-amber-50 dark:bg-amber-950/20 border-amber-200">
+                          Em negociação
+                        </Badge>
+                      )}
                     </div>
                   )}
                 </div>

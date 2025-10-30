@@ -27,11 +27,16 @@ export default function Negociacoes() {
   const [enviando, setEnviando] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
   
-  // Estados para contra-proposta
+  // Estados para contra-proposta (comprador)
   const [valorProposto, setValorProposto] = useState("");
   const [metodoPagamento, setMetodoPagamento] = useState("");
   const [observacoesProposta, setObservacoesProposta] = useState("");
   const [enviandoProposta, setEnviandoProposta] = useState(false);
+
+  // Estados para contra-proposta do vendedor
+  const [valorContrapropostaVendedor, setValorContrapropostaVendedor] = useState("");
+  const [observacoesContrapropostaVendedor, setObservacoesContrapropostaVendedor] = useState("");
+  const [enviandoContrapropostaVendedor, setEnviandoContrapropostaVendedor] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -224,6 +229,100 @@ export default function Negociacoes() {
       toast.success(aceitar ? "Proposta aceita!" : "Proposta rejeitada - comprador pode fazer nova proposta");
     } catch (error) {
       console.error("Erro ao responder proposta:", error);
+      toast.error("Erro ao processar resposta");
+    }
+  };
+
+  const enviarContrapropostaVendedor = async () => {
+    if (!valorContrapropostaVendedor || !selectedNegociacao) {
+      toast.error("Preencha o valor da contraproposta");
+      return;
+    }
+
+    try {
+      setEnviandoContrapropostaVendedor(true);
+      const { error } = await supabase
+        .from("negociacoes")
+        .update({
+          valor_contraproposta_vendedor: parseFloat(valorContrapropostaVendedor),
+          observacoes_contraproposta_vendedor: observacoesContrapropostaVendedor,
+          contraproposta_vendedor_status: "pendente",
+          proposta_status: "rejeitada",
+          status: "aberta",
+          valor_proposto: null,
+          metodo_pagamento: null,
+          observacoes_proposta: null
+        })
+        .eq("id", selectedNegociacao.id);
+
+      if (error) throw error;
+
+      // Atualizar também a oferta no marketplace
+      await supabase
+        .from("ofertas_venda")
+        .update({
+          preco_sugerido: parseFloat(valorContrapropostaVendedor)
+        })
+        .eq("id", selectedNegociacao.oferta_id);
+
+      // Enviar mensagem automática no chat
+      await supabase.from("mensagens_negociacao").insert({
+        negociacao_id: selectedNegociacao.id,
+        usuario_id: user!.id,
+        mensagem: `💰 Contraproposta do vendedor: ${parseFloat(valorContrapropostaVendedor).toLocaleString()} ${selectedNegociacao.ofertas_venda.moeda || "AOA"}${observacoesContrapropostaVendedor ? `\n\n${observacoesContrapropostaVendedor}` : ""}`
+      });
+
+      setValorContrapropostaVendedor("");
+      setObservacoesContrapropostaVendedor("");
+      await fetchNegociacoes();
+      await fetchMensagens(selectedNegociacao.id);
+      toast.success("Contraproposta enviada! O preço foi atualizado no marketplace.");
+    } catch (error) {
+      console.error("Erro ao enviar contraproposta:", error);
+      toast.error("Erro ao enviar contraproposta");
+    } finally {
+      setEnviandoContrapropostaVendedor(false);
+    }
+  };
+
+  const responderContrapropostaVendedor = async (aceitar: boolean) => {
+    if (!selectedNegociacao) return;
+
+    try {
+      const updateData = aceitar 
+        ? {
+            contraproposta_vendedor_status: "aceita",
+            valor_proposto: selectedNegociacao.valor_contraproposta_vendedor,
+            proposta_status: "aceita",
+            status: "concluida"
+          }
+        : {
+            contraproposta_vendedor_status: "rejeitada",
+            valor_contraproposta_vendedor: null,
+            observacoes_contraproposta_vendedor: null
+          };
+      
+      const { error } = await supabase
+        .from("negociacoes")
+        .update(updateData)
+        .eq("id", selectedNegociacao.id);
+
+      if (error) throw error;
+
+      // Enviar mensagem automática
+      await supabase.from("mensagens_negociacao").insert({
+        negociacao_id: selectedNegociacao.id,
+        usuario_id: user!.id,
+        mensagem: aceitar 
+          ? "✅ Contraproposta do vendedor aceita! Negociação concluída."
+          : "❌ Contraproposta do vendedor rejeitada."
+      });
+
+      await fetchNegociacoes();
+      await fetchMensagens(selectedNegociacao.id);
+      toast.success(aceitar ? "Contraproposta aceita!" : "Contraproposta rejeitada");
+    } catch (error) {
+      console.error("Erro ao responder contraproposta:", error);
       toast.error("Erro ao processar resposta");
     }
   };
@@ -709,6 +808,133 @@ export default function Negociacoes() {
                       </Button>
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* Exibir contraproposta do vendedor */}
+              {selectedNegociacao?.valor_contraproposta_vendedor && (
+                <div className={`border-2 rounded-lg p-4 ${
+                  selectedNegociacao.contraproposta_vendedor_status === 'aceita' 
+                    ? 'border-green-500 bg-green-50 dark:bg-green-950/20' 
+                    : selectedNegociacao.contraproposta_vendedor_status === 'rejeitada'
+                    ? 'border-red-500 bg-red-50 dark:bg-red-950/20'
+                    : 'border-amber-500 bg-amber-50 dark:bg-amber-950/20'
+                }`}>
+                  <div className="flex items-start justify-between mb-3">
+                    <h4 className="font-semibold flex items-center gap-2">
+                      <TrendingUp className="h-4 w-4" />
+                      Contraproposta do Vendedor
+                    </h4>
+                    <Badge variant={
+                      selectedNegociacao.contraproposta_vendedor_status === 'aceita' ? 'default' :
+                      selectedNegociacao.contraproposta_vendedor_status === 'rejeitada' ? 'destructive' :
+                      'secondary'
+                    }>
+                      {selectedNegociacao.contraproposta_vendedor_status === 'aceita' ? '✓ Aceita' :
+                       selectedNegociacao.contraproposta_vendedor_status === 'rejeitada' ? '✗ Rejeitada' :
+                       'Aguardando Resposta'}
+                    </Badge>
+                  </div>
+                  
+                  <div className="mb-3">
+                    <p className="text-xs text-muted-foreground mb-1">Novo Preço Proposto</p>
+                    <p className="text-2xl font-bold text-primary">
+                      {selectedNegociacao.valor_contraproposta_vendedor.toLocaleString()} {selectedNegociacao.ofertas_venda.moeda || 'AOA'}
+                    </p>
+                  </div>
+
+                  {selectedNegociacao.observacoes_contraproposta_vendedor && (
+                    <div className="mt-3 pt-3 border-t">
+                      <p className="text-xs text-muted-foreground mb-1">Observações do Vendedor</p>
+                      <p className="text-sm">{selectedNegociacao.observacoes_contraproposta_vendedor}</p>
+                    </div>
+                  )}
+
+                  {/* Botões de ação para comprador responder à contraproposta */}
+                  {isComprador && selectedNegociacao.contraproposta_vendedor_status === 'pendente' && (
+                    <div className="flex gap-2 mt-4 pt-3 border-t">
+                      <Button 
+                        onClick={() => responderContrapropostaVendedor(true)}
+                        className="flex-1"
+                        variant="default"
+                      >
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Aceitar Contraproposta
+                      </Button>
+                      <Button 
+                        onClick={() => responderContrapropostaVendedor(false)}
+                        className="flex-1"
+                        variant="destructive"
+                      >
+                        <XCircle className="h-4 w-4 mr-2" />
+                        Rejeitar e Fazer Nova Proposta
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Formulário de contraproposta do vendedor */}
+              {isVendedor && selectedNegociacao?.valor_proposto && selectedNegociacao.proposta_status === 'nova_proposta' && (
+                <div className="space-y-4 border-2 border-dashed border-primary/30 rounded-lg p-4 bg-primary/5">
+                  <div>
+                    <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
+                      <TrendingUp className="h-4 w-4" />
+                      Enviar Contraproposta (Opcional)
+                    </h4>
+                    <p className="text-xs text-muted-foreground mb-4">
+                      Se preferir rejeitar e propor um novo valor, preencha abaixo. O novo preço será exibido no marketplace.
+                    </p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="valorContraproposta">
+                        Novo Preço ({selectedNegociacao.ofertas_venda.moeda || 'AOA'}) *
+                      </Label>
+                      <Input
+                        id="valorContraproposta"
+                        type="number"
+                        placeholder="Digite o novo preço"
+                        value={valorContrapropostaVendedor}
+                        onChange={(e) => setValorContrapropostaVendedor(e.target.value)}
+                        min="0"
+                        step="0.01"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="observacoesContraproposta">
+                        Observações (Opcional)
+                      </Label>
+                      <Textarea
+                        id="observacoesContraproposta"
+                        placeholder="Justifique sua contraproposta..."
+                        value={observacoesContrapropostaVendedor}
+                        onChange={(e) => setObservacoesContrapropostaVendedor(e.target.value)}
+                        rows={3}
+                      />
+                    </div>
+
+                    <Button
+                      onClick={enviarContrapropostaVendedor}
+                      disabled={enviandoContrapropostaVendedor || !valorContrapropostaVendedor}
+                      className="w-full"
+                      variant="default"
+                    >
+                      {enviandoContrapropostaVendedor ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Enviando...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="h-4 w-4 mr-2" />
+                          Enviar Contraproposta
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               )}
 
